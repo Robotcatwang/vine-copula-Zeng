@@ -1,0 +1,111 @@
+---
+title: "线性模型"
+author: "金林"
+date: "2019-03"
+output:
+  beamer_presentation:
+    includes:
+      in_header: header.tex
+    keep_tex: yes
+    latex_engine: xelatex
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    slide_level: 3
+    template: ./style/beamer-template.tex
+  ioslides_presentation:
+    highlight: haddock
+    slide_level: 3
+csl: ./style/chinese-gb7714-2005-numeric.csl
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+institute: null
+link-citations: yes
+linkReferences: yes
+chapters: yes
+tableEqns: no
+autoEqnLabels: no
+---
+
+
+```{r setup, echo=F}
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 多元线性回归模型及其基本假定
+	
+## 多元线性回归模型的基本形式
+### 一般形式
+
+多元线性回归模型是指描述因变量 $y$ 与一组自变量 $x_1,x_2, \ldots ,x_p$ 以及随机误差项 $\varepsilon$的
+关系的等式[@王献东2016]。其一般表达式为：
+
+$$y = \beta _0 + \beta _1{x_1} + \beta _2{x_2} +  \cdots  +\beta _p{x_p}+ \varepsilon$$ {#eq:model1}
+
+式中， $\beta_0,\beta_1,\beta_2,\cdots,\beta_p$ 是 $p+1$ 个未知参数， $\beta_0$
+称为回归截距， $\beta_1,\cdots,\beta_p$称为回归系数， $\varepsilon$ 是随机误差项。
+$y$称为被解释变量（因变量），而 $x_1,x_2,\dots,x_p$是 $p$ 个可以精确测量并可控制
+的自变量，称为解释变量。 $p=1$时，式 [@eq:model1] 即为一元线性回归模型， $p \ge
+2$ 时，则称式 [@eq:model1] 为多元线性回归模型。
+
+### 样本形式
+
+对于一个实际问题，如果获得 $n$ 组观测数据 $(x_{i1},x_{i2}, \cdots ,x_{ip};y_i)(i = 1,2 \cdots ,n)$ ，
+则线性回归模型式 [@eq:model1] 可表示为：
+
+$$\left\{ \begin{array}{l}
+y_1 = \beta _0 + \beta _1{x_{11}} + \beta _2{x_{12}} +  \cdots \beta _p{x_{1p}} + \varepsilon _1\\
+y_2 = \beta _0 + \beta _1{x_{21}} + \beta _2{x_{22}} +  \cdots \beta _p{x_{2p}} + \varepsilon _2\\
+ \cdots  \cdots  \cdots  \cdots \\
+y_n = \beta _0 + \beta _1{x_{n1}} + \beta _2{x_{n2}} +  \cdots \beta _p{x_{np}} + \varepsilon _n
+\end{array} \right.$$ {#eq:model2}
+
+
+ 
+# 多元线性回归中的显著性检验和参数区间估计
+
+## 显著性检验
+
+与一元线性回归分析同理，当求出估计的线性回归方程后，还需对回归系数的显著性进行 $t$ 检验和对回归方程的显著性进行 
+ $F$ 检验。多元线性回归方程的显著性检验，与一元线性回归方程的显著性检验既有相同之处，也有不同之处。在一元线性回
+归中，回归方程的 $F$ 检验与回归系数的 $t$ 检验是等价的。但在多元线性回归分析中，这两种检验是不等价的。多元线性
+回归分析中的 $F$ 检验主要是检验因变量 $y$ 与多个自变量整体线性关系的显著性，在 $p$ 个自变量中，只要有一个自变量
+与 $y$ 线性关系显著， $F$ 检验就能通过，但并不意味着 $p$ 个自变量与 $y$ 的线性关系都显著。其回归系数的 $t$ 检验
+则是对每个自变量与因变量 $y$ 的线性关系分别进行单独检验。
+
+### 线性关系显著性检验
+
+当多元回归模型估计出来后，还需对整个模型的显著性进行检验。对多元线性回归方程显著性的 $F$ 检验就是要检验自变量
+ $x_1,x_2,\cdots,x_p$ 从整体上对随机变量 $y$ 是否有明显的影响。其检验步骤为：
+
+第一步，提出假设。
+
+$${H_0}:{\beta _1} = {\beta _2} =  \cdots  = {\beta _p} = 0, \;{H_1}:{\beta _1}、{\beta _2}、\cdots、{\beta _p} 
+不全为 0 $$ {#eq:model29}
+
+第二步，构建检验的 $F$ 统计量，并计算 $F$ 值。
+
+为了建立对 $H_0$ 进行检验的 $F$ 统计量，仍然同一元线性回归分析一样，利用总离差平方和的分解式 [@eq:model29]，构造
+ $F$ 统计量如下：
+ 
+$$F = \frac{SSR/p}{SSE/(n - p - 1)} $$ {#eq:model30} 
+
+
+# 参考文献
+
+### 参考文献
+[//]: # (\bibliography{Bibfile})
+
+
+
