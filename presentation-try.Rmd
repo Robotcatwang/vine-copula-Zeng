@@ -20,7 +20,7 @@ output:
 csl: ./style/chinese-gb7714-2005-numeric.csl
 bibliography: Bibfile.bib
 eqnPrefixTemplate: ($$i$$)
-institute: null
+institute: no
 link-citations: yes
 linkReferences: yes
 chapters: yes
