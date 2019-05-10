@@ -1,4 +1,4 @@
-\documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$babel-lang$,$endif$$if(handout)$handout,$endif$$if(beamer)$ignorenonframetext,11pt,xcolor=dvipsnames,aspectratio=1610,hyperref={bookmarksdepth=4}$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+\documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$babel-lang$,$endif$$if(handout)$handout,$endif$$if(beamer)$ignorenonframetext,12pt,xcolor=dvipsnames,aspectratio=1610,hyperref={bookmarksdepth=4}$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
 \setbeamertemplate{caption}[numbered]
 \setbeamertemplate{caption label separator}{: }
 \setbeamercolor{caption name}{fg=normal text.fg}
@@ -255,7 +255,7 @@ $endfor$
 
 %\sloppy
 %\linespread{1.0}                           % 设置行距
-\setlength{\parindent}{18pt}
+\setlength{\parindent}{22pt}
 %\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 
 
@@ -277,7 +277,7 @@ $endfor$
 \usepackage{listings}
 \usepackage{tikz}
 
-						   
+
 \setmonofont{Consolas} % listings 中支持 consolas 字体，必需配合上面usepackage{fontenc} 中不出现[T1]才可以
 
 \lstset{numbers=left, numberstyle=\ttfamily\tiny\color{Gray}, stepnumber=1, numbersep=8pt,
@@ -390,5 +390,3 @@ $include-after$
 
 $endfor$
 \end{document}
-
-
