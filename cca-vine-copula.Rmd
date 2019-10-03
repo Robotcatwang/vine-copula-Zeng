@@ -110,6 +110,59 @@ $L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效�
 
 ### CCA模型理论
 
+或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton期权定价模型的基础上，
+通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建风险资产负债表，进而对企业的风
+险进行整体的分析。CCA模型将企业的市场价值（$A$）拆分为股权市场价值（低级别权益，$E$）和债务市场
+价值（高级别权益，$D$）。当市场价值小于债务市场价值时，表明该企业无力偿还债务，即违约发生，风险出现。
+
+需要注意的是，或有权益模型中的企业价值、股权价值和市场价值均为市场价值，不能通过企业财报得到直接
+数据。因此CCA方法指出，可以将股权看为价值为$A$，行权价格为债务账面价值$B$的欧式看涨期权，根据BSM
+公式可得股权的市场价值为：
+
+$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-equity-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-equity-d2}
+
+其中，$E$表示股权的市场价值，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，
+$B$表示企业债务的账面价值，$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），
+$\sigma_A^2$表示企业资产市场价值的波动率。
+
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中除了所需求解的$E$外还有$A$、$\sigma_A$也未知，因此需增加一个条件：
+
+$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
+
+其中$\sigma_E$为股权波动率，可通过市场数据得到。综上，通过联立[@eq:cca-equity]、[@eq:cca-equity-d1]、
+[@eq:cca-equity-d2]和[@eq:cca-equity-sigma]即可解出企业股权的市场价值$E$、企业资产的市场价值$A$和企
+业资产市场价值的波动率$\sigma_A$。
+
+在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
+
+$$D=B-P$${#eq:cca-debt-basic}
+
+而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
+可得到预期损失净现值的计算公式：
+
+$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$${#eq:cca-debt}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-debt-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-debt-d2}
+
+通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
+进而计算出企业的债务市场价值$D$。
+
+除此之外，通过CCA模型也可计算得出企业的违约距离DD和企业的违约概率PD。违约距离DD的计算公式为：
+
+$$DD=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_2$${#eq:dd}
+
+企业违约概率PD的计算公式为：
+
+$$PD=N\left\{\frac{\ln\left(\frac{B}{A}\right)-\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}\right\}=N\left(-d_2\right)$${#eq:pd}
+
+企业的违约距离DD越短，违约概率PD越大，企业的风险越大；违约距离DD越长，违约概率PD越小，企业的风险越小。
+
 ## Copula函数理论基础
 
 ### Sklar定理
