@@ -167,13 +167,13 @@ $$PD=N\left\{\frac{\ln\left(\frac{B}{A}\right)-\left(r-\sigma^2_A\right)T}{\sigm
 
 ### Sklar定理
 
-Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函数$c$，将多个变量的边缘分布联结起来，构成这些变量的多元联合分布函数。特别的，对于仅包含两个变量的情况，且这两个变量均服从[0,1]的均匀分布时，一定存在一个联结函数$c$，使得二元联合分布函数可用两个变量的边缘分布函数表示。
+Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函数$C$，将多个变量的边缘分布联结起来，构成这些变量的多元联合分布函数。特别的，对于仅包含两个变量的情况，且这两个变量均服从[0,1]的均匀分布时，一定存在一个联结函数$C$，使得二元联合分布函数可用两个变量的边缘分布函数表示。
 
 Copula函数的表达形式为：
 
-$$F\left(x_1,x_2,...,x_n\right)=c\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$${#eq:copula}
+$$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$${#eq:copula}
 
-其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，$c\left(\right)$表示联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
+其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，$c\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
 
 $$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$${#eq:copula-solve}
 
@@ -187,8 +187,17 @@ $$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_
 
 Kendall's $\tau$秩相关系数主要从一致性的角度对变量之间的相关关系进行测度。设$\left(x_i,y_i\right)$和$\left(x_j,y_j\right)$是随机变量$X$，$Y$的两组情况，当$\left(x_j-x_i\right)\left(y_j-y_i\right)>0$时，即$x_j-x_i$与$y_j-y_i$同号时，则认为随机变量$X$和$Y$具有一致性。反之，当$\left(x_j-x_i\right)\left(y_j-y_i\right)<0$时，即$x_j-x_i$与$y_j-y_i$异号时，则认为随机变量$X$和$Y$是不一致的。根据这一原理，可得到Kendall's $\tau$秩相关系数的计算公式为：
 
-$$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$${#eq:copula-tau}
+$$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$${#eq:tau}
 
+结合Copula函数理论和Kendall's $\tau$的计算公式，可得到的在使用Copula模型时，两个变量间的Kendall's $\tau$相关系数，推导过程如下：
+
+$$\begin{array}{lcl}
+\tau_{X,Y}&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)<0\right]
+\\&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-\left\{1-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]\right\}
+\\&=&
+\end{array}$${#eq:copula-tau}
+
+$ \begin{array}{lcl} z & = & a \\ & = & a \\ f(x,y,z) & = & x + y + z \end{array} $
 ## VineCopula模型理论基础
 
 ### 多元Copula分解原理
