@@ -1,0 +1,334 @@
+---
+title: "我国证券市场金融板块间系统性风险传染效应研究——基于CCA-RVine-Copula模型的分析"
+author: "曾远征"
+date: "2019-10"
+output:
+  bookdown::word_document2:
+    fig_caption: true
+    reference_docx: ./style/word-styles-02.docx
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--filter", "pandoc-crossref"]
+  bookdown::pdf_document2:
+    keep_tex: yes
+    toc: false
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--listing", "--filter", "pandoc-crossref"]
+  bookdown::html_document2:
+    number_sections: true
+    seq_numbering: true
+    fig_caption: true
+    highlight: haddock
+    theme: null
+    md_extensions: +east_asian_line_breaks
+    keep_md: true
+    toc: false
+    pandoc_args: ["--filter", "pandoc-crossref", "-M", "eqnPrefix="]
+css: ./style/markdown.css
+autoEqnLabels: true
+eqnPrefixTemplate: ($$i$$)
+linkReferences: true
+bibliography: Bibfile.bib
+nocite: '@*'
+csl: ./style/chinese-gb7714-2005-numeric.csl
+link-citations: true
+---
+
+**TODO**
+- [ ] 实证分析写成两章，分别是股票市场内部风险传染和金融市场风险传染
+
+
+
+```{r setup, echo=F}
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 引论
+
+## 研究背景和意义
+
+### 研究背景
+
+防范化解重大风险，特别是防控系统性金融风险被列为我国“三大攻坚战” 之首。根据2019年中央经济工作
+会议相关精神，防范金融市场异常波动和共振，打好防范化解系统性风险这一重点战役，是保持经济持续健
+康发展的重要保障。当前我国经济运行稳中有变、变中有忧，外部环境复杂严峻，经济面临下行压力。需市
+场各主体坚决坚持稳中求进工作总基调，特别地，对于金融市场来说，需继续坚持以供给侧结构性改革为主
+线，深化市场化改革、扩大高水平开放，加快建设现代化经济体系，保持经济持续健康发展和社会大局稳定，
+为全面建成小康社会收官打下决定性基础。
+
+随着我国经济体制改革不断深化，尤其是利率市场化改革的纵深推进,对我国金融业带来了两大显著影响：首
+先是促进以单一盈利业务为主的业务分业经营模式向包含多种创新业务的混业经营模式逐渐转变；其次是推
+动金融不断创新,金融衍生产品快速发展，不同类型的市场参与主体之间因此有了更加紧密的联系，进而导致
+证券市场中各个行业板块结构日益复杂化，其关联性和依存性增加，使得证券市场发生系统性金融风险的可
+能性及系统风险程度大大增加。
+
+而信用风险作为最重要、最易发的金融风险形式，不仅影响金融机构自身的发展，影响所在行业的稳定，甚
+至会影响国民经济乃至全球经济的稳定。不仅如此，信用风险往往呈现较强的传染性，某一个体的信用违约
+事件会影响到其它个体，使得信用风险传染的可能性增大。证券市场在金融运行中具有牵一发而动全身的重
+要作用，股票价格是市场的综合反映，是投资者判断市场趋势的重要指标，在股票价格的调节过程中，及时
+发现板块间股价变动的联动性，可以一定程度上避免受到板块间风险传染影响。
+
+
+### 研究意义
+
+我国现阶段系统性金融风险日益凸显，但相关市场主体的风险防范意识相对淡薄且风险管理水平较弱。而正
+是由于证券市场中的各行业板块的股价日趋呈现出交叉联动的特点，研究证券市场板块间风险传染路径、机
+制以及风险相关程度、影响力度，为政策制定及投资决定提供参考建议，成为一个日渐紧迫的任务，越来越
+具有现实意义。
+
+不同行业（或者不同市场）之间风险传染都有着内在的传递机制和经济基础，关于金融业不同板块间的风险
+传导关系主要依据以下两个渠道：（1）金融机构间复杂的业务往来和信贷关联：金融机构之间在存款、信贷
+和支付体系上相互联结，一家金融机构的倒闭势必会引起与之有业务关联的金融机构发生支付困难，如果其自
+有资本不能补偿损失，则同样将面临倒闭风险，通过这种链式反应不断传递，从而引发整个金融体系发生大范
+围的违约和倒闭事件；（2）心理预期的变动引发投资者恐慌和信心的崩溃：当单个金融板块发生金融困境时，
+由于信息的不对称，投资者会依据一个板块的价格变化去预测其它板块指数的价格走势，为了尽量避免损失，
+投资者将会提前进行撤资来满足自我的流动性偏好，加之由于社会舆论和个体认知能力等因素，投资者更愿意
+模仿多数人的行为投资，这就导致了“羊群效应”，最终对关联板块也造成了严重冲击。特别地，在我国中小投
+资者占绝对比例，投资者显著的“投机心理”和“羊群效应”会强化第二个渠道的影响效果，在一定程度上造成了
+市场价格的非理性波动。
+
+在风险管理领域，由于风险传染效应，某一金融行业的收益率损失会迅速传播到其他板块，从而引发系统性风
+险，所研究股市行业的相关性可为风险度量和管理提供建议和指导。由于证券市场总是能够反映实体经济的运
+行状况，股票价格的变动和互相影响往往是相关行业、企业之间的实际关联关系的具体反映。所以对于板块溢
+出效应的研究能够很好地帮助我们认识实体经济当中，行业和地区之间不同的经济部门所处的经济关系，还有
+一个行业或者地区的经济单位对不同行业、地区经济单位的影响作用。
+
+在投资领域，根据马科维茨的理论，投资者在进行资产选择和组合的时候，需要考虑资产之间的相关性，要求
+选择相关性较小的资产。因此研究股市行业之间的相关性也能指导投资者进行资产配置。投资机会的把握和投
+资组合的构建都需要对不同股票之间的关联关系有非常清晰、全面的认识，如果仅把单个股票、板块孤立起来
+加以研究和考察，则无法准确地判断新的市场信息对整个股票市场上不同行业或者地区的公司产生的总体影响，
+这就会极大地削弱投资组合的盈利和避险能力。
+
+本文将通过。。。。。。，分析我国股票指数板块之间的关系，得到的结果对预测与决策具有一定指导作用与
+价值。。。。。利于投资者根据板块的关联性做出最优的投资组合决策，而且为政策制定者和市场监管者如何
+更有效防范系统性风险提供了理论依据和实践指导。
+
+## 国内外文献综述
+
+### 关于系统性风险定义、形成及影响因素的研究
+
+### 关于系统性风险量化方法的研究
+
+### 关于系统性风险传染效应测度方法的研究
+
+## 研究思路和方法
+
+### 研究思路
+
+### 研究方法
+
+## 本文的创新点
+
+# 模型理论基础
+
+## CCA模型理论基础
+
+### Black-Sholes-Merton期权定价模型
+
+布莱克-舒尔斯-墨顿模型（Black–Scholes–Merton model），简称为BSM模型，是一种为期权或权证等金融
+衍生工具定价的数学模型。该模型提供了一种由基础资产与无风险利率构成、完全复制期权价格变动的资产
+组合，定价过程就是以无风险利率为折现率，计算期权权益在风险中性测度的折现值。模型具体形式如下：
+
+$$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)$${#eq:bsm-model}
+
+其中：
+
+$$d_1= \frac{\ln\frac{S}{L}+\left(r+\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}$${#eq:bsm-d1}
+
+$$d_2=\frac{\ln\frac{S}{L}+\left(r-\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}=d_1-\sigma\sqrt T$${#eq:bsm-d2}
+
+在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示期权权益在风险中性时的合理价格，
+$S$表示期权所对应的金融资产的现价，$N\left(\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
+$L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效天数与365的比值，$\sigma^2$表示期权所
+对应的金融资产的波动率。在使用该BSM期权定价公式时，有如下五个基本假设：
+
++ 金融资产的对数收益率服从正态分布
++ 在期权的有效时间内，无风险利率和该金融资产的收益稳定
++ 在市场中进行交易时没有交易成本和税赋
++ 该金融资产不存在红利或其他特殊收益
++ 该期权为欧式期权，在期权到期日前不可提前行权
+
+只有在上述假设成立时，使用BSM公式对期权的定价才具有准确性。
+
+### CCA模型理论
+
+或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton期权定价模型的基础上，
+通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建风险资产负债表，进而对企业的风
+险进行整体的分析。CCA模型将企业的市场价值（$A$）拆分为股权市场价值（低级别权益，$E$）和债务市场
+价值（高级别权益，$D$）。当市场价值小于债务市场价值时，表明该企业无力偿还债务，即违约发生，风险出现。
+
+需要注意的是，或有权益模型中的企业价值、股权价值和市场价值均为市场价值，不能通过企业财报得到直接
+数据。因此CCA方法指出，可以将股权看为价值为$A$，行权价格为债务账面价值$B$的欧式看涨期权，根据BSM
+公式可得股权的市场价值为：
+
+$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-equity-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-equity-d2}
+
+其中，$E$表示股权的市场价值，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，
+$B$表示企业债务的账面价值，$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），
+$\sigma_A^2$表示企业资产市场价值的波动率。
+
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中除了所需求解的$E$外还有$A$、$\sigma_A$也未知，因此需增加一个条件：
+
+$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
+
+其中$\sigma_E$为股权波动率，可通过市场数据得到。综上，通过联立[@eq:cca-equity]、[@eq:cca-equity-d1]、
+[@eq:cca-equity-d2]和[@eq:cca-equity-sigma]即可解出企业股权的市场价值$E$、企业资产的市场价值$A$和企
+业资产市场价值的波动率$\sigma_A$。
+
+在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
+
+$$D=B-P$${#eq:cca-debt-basic}
+
+而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
+可得到预期损失净现值的计算公式：
+
+$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$${#eq:cca-debt}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-debt-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-debt-d2}
+
+通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
+进而计算出企业的债务市场价值$D$。
+
+除此之外，通过CCA模型也可计算得出企业的违约距离DD和企业的违约概率PD。违约距离DD的计算公式为：
+
+$$DD=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_2$${#eq:dd}
+
+企业违约概率PD的计算公式为：
+
+$$PD=N\left\{\frac{\ln\left(\frac{B}{A}\right)-\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}\right\}=N\left(-d_2\right)$${#eq:pd}
+
+企业的违约距离DD越短，违约概率PD越大，企业的风险越大；违约距离DD越长，违约概率PD越小，企业的风险越小。
+
+## Copula函数理论基础
+
+### Sklar定理
+
+Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函数$C$，将多个变量的边缘分布联结起来，构成这些变量的多元联合分布函数。特别的，对于仅包含两个变量的情况，且这两个变量均服从[0,1]的均匀分布时，一定存在一个联结函数$C$，使得二元联合分布函数可用两个变量的边缘分布函数表示。
+
+Copula函数的表达形式为：
+
+$$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$${#eq:copula}
+
+其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，$c\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
+
+$$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$${#eq:copula-solve}
+
+在模型使用过程中，更多的是用式[@eq:copula-solve]。在已知多元联合分布函数和各边缘分布函数时，就可以通过式[@eq:copula-solve]得到联结函数的形式及各参数值，进而可得到变量之间的相关程度进行研究。
+
+### 常见二元Copula函数形式
+
+### 基于Copula模型的传染效应测度方式
+
+在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数进行判断。
+
+Kendall's $\tau$秩相关系数主要从一致性的角度对变量之间的相关关系进行测度。设$\left(x_i,y_i\right)$和$\left(x_j,y_j\right)$是随机变量$X$，$Y$的两组情况，当$\left(x_j-x_i\right)\left(y_j-y_i\right)>0$时，即$x_j-x_i$与$y_j-y_i$同号时，则认为随机变量$X$和$Y$具有一致性。反之，当$\left(x_j-x_i\right)\left(y_j-y_i\right)<0$时，即$x_j-x_i$与$y_j-y_i$异号时，则认为随机变量$X$和$Y$是不一致的。根据这一原理，可得到Kendall's $\tau$秩相关系数的计算公式为：
+
+$$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$${#eq:tau}
+
+结合Copula函数理论和Kendall's $\tau$的计算公式，可得到的在使用Copula模型时，两个变量间的Kendall's $\tau$相关系数，推导过程如下：
+
+$$\begin{array}{lcl}
+\tau_{X,Y}&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)<0\right]
+\\&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-\left\{1-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]\right\}
+\\&=&2P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-1
+\\&=&2\left\{P\left(X_2<X_1,Y_2<Y_1\right)+P\left(X_1<X_2,Y_1<Y_2\right)\right\}-1
+\\&=&2\left\{\iint_{D}P\left(X_2<X,Y_2<Y\right)dC\left(F\left(x\right),G\left(y\right)\right)+\iint_{D}P\left(X_2>X,Y_2>Y\right)dC\left(F\left(x\right),G\left(y\right)\right)\right\}-1
+\\&=&2\left\{\iint_{D}C\left(F\left(x\right),G\left(y\right)\right)dC\left(F\left(x\right),G\left(y\right)\right)+\iint_{D}\left(1-F\left(x\right)-G\left(y\right)+C\left(F\left(x\right),G\left(y\right)\right)\right)dC\left(F\left(x\right),G\left(y\right)\right)\right\}-1
+\\&=&2\left\{\iint_{D}C\left(u,v\right)dC\left(u,v\right)+\iint_{D}\left(1-u-v+C\left(u,v\right)\right)dC\left(u,v\right)\right\}-1
+\\&=&2\left\{\iint_{D}C\left(u,v\right)dC\left(u,v\right)+1-\frac{1}{2}-\frac{1}{2}+\iint_{D}C\left(u,v\right)dC\left(u,v\right)\right\}-1
+\\&=&4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
+\end{array}$${#eq:copula-tau}
+
+进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系数，并以此为依据进行下一步的分析。
+
+## VineCopula模型理论基础
+
+### Pair Copula分解原理
+
+正如前文对Sklar定理的阐述，变量的联合分布函数可由这些变量的边缘分布通过联结函数$C$联结起来。构成这些变量的多元联合分布函数。。但是一旦面对多元变量的情况，就会陷入“维数灾难”之中：一来会使得Copula函数的形式过于复杂，所需估计的参数过多，二来甚至有Copula函数不存在的可能，不利于进一步的分析。因此在处理多元问题时需通过降维的方式，简化问题。在Sklar定理中提到对于仅包含两个变量的情况，且这两个变量均服从[0,1]的均匀分布时，一定存在一个联结函数$C$，使得二元联合分布函数可用两个变量的边缘分布函数表示。所以可通过Pair Copula 的方法对多元Copula函数进行分解。
+
+例如，针对二维变量的情况有：
+
+$$f\left(x_1,x_2\right)=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot f_1\left(x_1\right)\cdot f_2\left(x_2\right)$${#eq:paircopula-2}
+
+根据链式法则可得：
+
+$$f\left(x_1\left| \right.x_2\right)=\frac{f\left(x_1,x_2\right)}{f_2\left(x_2\right)}=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot f_1\left(x_1\right)$${#eq:paircopula-2-cond}
+
+针对三维变量的情况可得到：
+
+$$\begin{array}{l}
+f\left(x_1,x_2,x_3\right)=f_1\left(x_1\right)\cdot f\left(x_2\left|\right.x_1\right)\cdot f\left(x_3\left|\right.x_1,x_2\right)
+\\=f_1\left(x_1\right)\cdot c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot f_2\left(x_1\right)\cdot f\left(x_3\left|\right.x_1,x_2\right)
+\end{array}
+$${#eq:paircopula-3}
+
+其中$f\left(x_3\left|\right.x_1,x_2\right)$需通过变换条件，达到求解的目的，具体转换方法如下：
+
+$$\begin{array}{lcl}
+f\left(x_3\left|\right.x_1,x_2\right)&=&\frac{f\left(x_2,x_3\left|\right.x_1\right)}{f\left(x_2\left|\right.x_1\right)}
+\\&=&\frac{c_{23\left|\right.1}\left(F\left(x_2\left|\right.x_1\right),F\left(x_3\left|\right.x_1\right)\right)\cdot f\left(x_2\left|\right.x_1\right)\cdot f\left(x_3\left|\right.x_1\right)}{f\left(x_2\left|\right.x_1\right)}
+\\&=&c_{23\left|\right.1}\left(F\left(x_2\left|\right.x_1\right),F\left(x_3\left|\right.x_1\right)\right)\cdot f\left(x_3\left|\right.x_1\right)
+\\&=&c_{23\left|\right.1}\left(F\left(x_2\left|\right.x_1\right),F\left(x_3\left|\right.x_1\right)\right)\cdot c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot f_3\left(x_3\right)
+\end{array}$${#eq:paircopula-3-1}
+
+因此，可得到$f\left(x_1,x_2,x_3\right)$经过Pair Copula方法展开后的结果为：
+
+$$f\left(x_1,x_2,x_3\right)=f_1\left(x_1\right)\cdot f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot 
+c_{23\left|\right.1}\left(F\left(x_2\left|\right.x_1\right),F\left(x_3\left|\right.x_1\right)\right)
+$${#eq:paircopula3-2}
+
+但是，需要注意的是，在假定$x_1$，$x_2$，$x_3$不可相互替代时，我们在前面计算$f\left(x_1,x_2,x_3\right)$时采用的是$f_1\left(x_1\right)\cdot f\left(x_2\left|\right.x_1\right)\cdot f\left(x_3\left|\right.x_1,x_2\right)$变换得到的，但我们也可以证明$f_2\left(x_2\right)\cdot f\left(x_3\left|\right.x_2\right)\cdot f\left(x_1\left|\right.x_2,x_3\right)$同样可以推导至$f\left(x_1,x_2,x_3\right)$，不过此时再进行Pair Copula分解时，得到的结果为：
+
+$$f\left(x_1,x_2,x_3\right)=f_1\left(x_1\right)\cdot f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot c_{2,3}\left(F_2\left(x_2\right),F_3\left(x_3\right)\right)\cdot 
+c_{13\left|\right.2}\left(F\left(x_1\left|\right.x_2\right),F\left(x_3\left|\right.x_2\right)\right)
+$${#eq:paircopula3-3}
+
+可以发现式[@eq:paircopula3-2]与式[@eq:paircopula3-3]存在较大差异。因此在三维变量的情况下，共存在$3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因此在研究分析时，具体选择哪一种分析方式就成为了一个新的问题。关于该问题将在下一节进行解释和解答。
+
+### 规则藤结构概述
+
+按照Pair Copula分解原理，对于一个包含n维变量的联合密度函数，将会存在$n!/2$种分解方法。因此Bedford和Cooke在2001年对这些分解方法进行了归纳总结，并依赖“图论”思想，提出了“藤”的模式。藤Copula解决了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤。由于本文在建模时主要采用的为R藤结构，因此主要介绍R藤Copula模型的概况。
+
+不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为$T_1$，$T_2$，$T_3$，$T_4$，其中，1,2,3,4,5分别表示这五个变量，则对于第一棵树$T_1$，1,2,3,4,5也是做为其5个节点，节点与节点间的线段表示Copula函数的某一种类型。“|”之后的变量表示条件变量。
+
+则可构造如下五维R藤模型的概念图：
+
+针对上述概念图可得到这五维变量的多元联合密度函数：
+
+
+当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，J.DiBmann提出可用下三角矩阵描述这种结构信息。例如，针对概念图中的结构，可构造以下结构矩阵：
+
+
+# 基于CCA模型的金融各板块系统性风险测度
+
+# 基于RVine-Copula模型的金融各板块系统性风险传染效应研究
+
+# 结论及建议
+
+## 研究结论
+
+## 研究意义
+
+# 参考文献
+
+# 附录
+
+# 参考文献
+[//]: # (\bibliography{Bibfile})
