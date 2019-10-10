@@ -1,4 +1,4 @@
-\documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$babel-lang$,$endif$$if(handout)$handout,$endif$$if(beamer)$ignorenonframetext,12pt,xcolor=dvipsnames,aspectratio=1610,hyperref={bookmarksdepth=4}$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+\documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$babel-lang$,$endif$$if(handout)$handout,$endif$$if(beamer)$ignorenonframetext,11pt,xcolor=dvipsnames,aspectratio=1610,hyperref={bookmarksdepth=4}$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
 \setbeamertemplate{caption}[numbered]
 \setbeamertemplate{caption label separator}{: }
 \setbeamercolor{caption name}{fg=normal text.fg}
@@ -6,7 +6,9 @@
 $if(fontfamily)$
 \usepackage[$for(fontfamilyoptions)$$fontfamilyoptions$$sep$,$endfor$]{$fontfamily$}
 $else$
-\usepackage{lmodern}
+\newcommand\hmmax{0} %% 防止Too many math alphabets used in version normal.
+\newcommand\bmmax{0} %% 防止Too many math alphabets used in version normal.
+\usepackage{lmodern,bm}   % 必需出现在amsmath等包前面，否则会出错
 $endif$
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
@@ -40,7 +42,7 @@ $if(mathfont)$
     \setmathfont(Digits,Latin,Greek)[$for(mathfontoptions)$$mathfontoptions$$sep$,$endfor$]{$mathfont$}
 $endif$
 $if(CJKmainfont)$
-    \usepackage[BoldFont]{xeCJK}
+    \usepackage{xeCJK}
     \setCJKmainfont[$for(CJKoptions)$$CJKoptions$$sep$,$endfor$]{$CJKmainfont$}
 $endif$
 \fi
@@ -167,7 +169,11 @@ $if(section-titles)$
     \frame{\sectionpage}
   \fi
 }
-
+\AtBeginSubsection{
+  \let\insertsubsectionnumber\relax
+  \let\subsectionname\relax
+  \frame{\subsectionpage}
+}
 $endif$
 
 $if(links-as-notes)$
@@ -272,12 +278,11 @@ $endfor$
 \usepackage{wasysym}
 \usepackage{latexsym}
 \usepackage{amssymb}
-\usepackage{lmodern,bm}
 % Package hyperref omitted
 \usepackage{listings}
 \usepackage{tikz}
 
-
+						   
 \setmonofont{Consolas} % listings 中支持 consolas 字体，必需配合上面usepackage{fontenc} 中不出现[T1]才可以
 
 \lstset{numbers=left, numberstyle=\ttfamily\tiny\color{Gray}, stepnumber=1, numbersep=8pt,
@@ -321,7 +326,7 @@ $endfor$
 \setbeamertemplate{frametitle continuation}[from second][(续)] % 改变
 \setbeamertemplate{subsection in toc shaded}[default][20]
 \setbeamertemplate{subsection in toc}[square]
-\logo{\includegraphics[height=1.7cm]{znufelogo.jpg}{\vspace{+3pt}}{\hspace{+8pt}}}
+\logo{\includegraphics[height=0.6cm,width=0.6cm]{znufelogo.jpg}}
 \setbeamercovered{transparent}
 \setCJKmainfont[BoldFont={* Bold}]{Microsoft YaHei}
 \usefonttheme[onlylarge]{structuresmallcapsserif}
@@ -332,7 +337,13 @@ $endfor$
 \setcounter{tocdepth}{2}
 \frame[shrink=5]{\tableofcontents[currentsection, hideothersubsections]}
 }
-
+\AtBeginSubsection[] % Do nothing for \subsection*
+{
+\begin{frame}<beamer>
+\frametitle{}
+\Large \tableofcontents[currentsubsection,sectionstyle=hide/hide, subsectionstyle=show/shaded/hide]
+\end{frame}
+}
 \setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 \everydisplay{\color{blue}}
 
@@ -390,3 +401,5 @@ $include-after$
 
 $endfor$
 \end{document}
+
+
