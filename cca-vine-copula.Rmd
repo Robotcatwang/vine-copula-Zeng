@@ -181,12 +181,12 @@ $$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqr
 $B$表示企业债务的账面价值，$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），
 $\sigma_A^2$表示企业资产市场价值的波动率。
 
-但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中除了所需求解的$E$外还有$A$、$\sigma_A$也未知，因此需增加一个条件：
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、$\sigma_A$均未知，因此需增加一个条件：
 
 $$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
 
 其中$\sigma_E$为股权波动率，可通过市场数据得到。综上，通过联立[@eq:cca-equity]、[@eq:cca-equity-d1]、
-[@eq:cca-equity-d2]和[@eq:cca-equity-sigma]即可解出企业股权的市场价值$E$、企业资产的市场价值$A$和企
+[@eq:cca-equity-d2]和[@eq:cca-equity-sigma]即可解出企业资产的市场价值$A$和企
 业资产市场价值的波动率$\sigma_A$。
 
 在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
