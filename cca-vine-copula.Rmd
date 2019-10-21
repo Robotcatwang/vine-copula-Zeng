@@ -396,16 +396,22 @@ $T_1$的边，即集合$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\
 
 本文研究过程涉及的数据包括各样本股近十年季报中资产负债表的相关数据、交易日的收盘价数据和个股总市值数据、一年期定期整存整取利率、港元兑人民币汇率和人民币兑美元汇率。数据来源于CSMAR数据库、同花顺数据中心、中国人民银行官网等。数据分析软件包括R和Excel等。
 
-### 到期期限与无风险利率的选择
-
 ```{r import-data}
-## 载入数据
-### 无风险利率
-no_risk_rate_dat=read.csv("./no_risk_rate.csv",header=T)
-no_risk_rate<-no_risk_rate_dat[,3]
-no_risk_rate_date<-as.Date(no_risk_rate_dat[,2])
+## load package
+library(readxl)
+library(splines)
+library(fBasics)
+library(tseries)
+library(forecast)
+library(fGarch)
+library(nleqslv)
+## load data
+
 ```
 
+### 到期期限与无风险利率的选择
+
+CCA模型中到期期限一般取1年。无风险利率本文选择中国人民银行发布的一年期定期整存整取利率
 ```{r no_risk_rate, fig.cap="近十年一年期定期整存整取利率", dev='png'}
 plot(no_risk_rate_date,no_risk_rate,type='l')
 ```
