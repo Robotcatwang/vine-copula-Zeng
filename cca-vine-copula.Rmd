@@ -444,12 +444,12 @@ debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
 ```{r cubspline,eval=T,fig.cap ="平安银行插值后日债务账面价值", dev='png'}
-plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值")
-abline(debt_book_value$y)
-#显然具有波动应聚集的特征
+plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值",xaxt='n')
+axis(1, at=1:41,labels = debt_book_value_test$Accper)
+lines(debt_book_value$x,debt_book_value$y)
 ```
 
-
+图\@ref(fig:cubspline)中展示了平安银行经过三次样条插值后的债务市场价值。图中的空心点表示平安银行近十年季报中的债务账面价值，曲线表示其日债务市场价值。可以发现曲线平滑度较高，且穿过了所有空心点，表明插值效果较好，可以用于模型的分析。
 
 ### 样本股股权波动率的计算
 
