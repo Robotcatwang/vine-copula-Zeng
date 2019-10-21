@@ -396,9 +396,16 @@ $T_1$的边，即集合$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\
 
 本文研究过程涉及的数据包括各样本股近十年季报中资产负债表的相关数据、交易日的收盘价数据和个股总市值数据、一年期定期整存整取利率、港元兑人民币汇率和人民币兑美元汇率。数据来源于CSMAR数据库、同花顺数据中心、中国人民银行官网等。数据分析软件包括R和Excel等。
 
+由于本文在测度板块系统性风险时，是先计算各板块样本股的违约距离，再通过加权平均的方式计算得到，而且涉及的样本股数量过多，因此下面在计算各股违约距离时不妨以平安银行（股票代码：000001）为例，其他股票的计算方式与分析过程类似。
+
 ```{r import-data}
+rm(list=ls())
+getwd()
+path='F:/github_paper/vine-copula-Zeng'
+setwd(path)
 ## load package
 library(readxl)
+library(xlsx)
 library(splines)
 library(fBasics)
 library(tseries)
@@ -406,17 +413,43 @@ library(forecast)
 library(fGarch)
 library(nleqslv)
 ## load data
-
+norisk_rate=read.csv('./no_risk_rate.csv',header=T)
+no_risk_rate=norisk_rate[,3];date=as.Date(norisk_rate[,2])
+stock_test=read.xlsx2('./sample_data.xlsx',sheetIndex=1,header=T,
+                      colClasses=c('character','character','numeric','numeric','numeric','character','character',rep('numeric',5)))
+debt_book_value_test=read.xlsx2('./sample_data.xlsx',sheetIndex=2,header=T,
+                      colClasses=c(rep('character',3),'numeric'))
 ```
 
 ### 到期期限与无风险利率的选择
 
-CCA模型中到期期限一般取1年。无风险利率本文选择中国人民银行发布的一年期定期整存整取利率
+CCA模型中到期期限一般取1年。无风险利率本文选择中国人民银行发布的一年期定期整存整取利率，无风险利率整体的波动趋势如图\@ref(fig:norisk_rate)所示:
 ```{r no_risk_rate, fig.cap="近十年一年期定期整存整取利率", dev='png'}
-plot(no_risk_rate_date,no_risk_rate,type='l')
+plot(date,no_risk_rate,type='l',ylim=c(0,4))
 ```
 
+从图\@ref(fig:norisk_rate)中可以发现，无风险利率经过了先上升再下降的一个过程。在2008年全球金融危机爆发后，全球投资情绪都较为低落，大量资金从证券市场撤出，转向投资无风险产品；同时，央行作为研究并协调解决金融运行中重大问题的机构，为了避免损失的进一步扩大，通过提高无风险利率，保证国家经济的平稳发展。从2012年3季度到2014年年底，无风险利率趋稳。但是从2015年开始，无风险利率经过了多次显著的下调。主要原因可概括为“内忧外患”：首先，出于应对2008年经济危机所施行的“4万亿计划”，使得国内产能过剩，上游企业背负了较大债务，国家面临通货紧缩的压力；其次，国内经济发展放缓，房产等投资减速，企业效益欠佳，国内许多实业企业都出现了资金链紧张情况，只有网络等虚拟经济在创新中驱动发展；最后，作为全球最大印钞机的美联储反复提出加息，要收回钞票，这给全球带来了巨大的流动性缺口。所以，央行通过多次降息，释放流动性，一来鼓励投资者进行实业投资，刺激市场，推动经济的健康发展，二来通过补充流动性，对冲美联储带来的流动性缺口。
+
 ### 样本股股权市场价值和债权账面价值的计算
+
+本文在计算样本股股权市场价值时的计算方式为发行总股数与收盘价的乘积，针对非流通股，则直接用当日收盘价进行定价。同时，考虑到上海B股和深圳B股分别是用美元和港元进行计价，因此针对这部分样本股，分别使用交易日当日人民币对美元汇率中间价和港币兑人民币汇率中间价将各股股权市场价值转换为人民币计价的金额。
+
+而在计算债权账面价值时，可以通过公开消息得到的仅有个股债务账面价值的季度数据，而本文在分析过程中，采用的均为当日数据，因此需对季度数据进行插值处理。而在常见的插值方法中，三次光滑样条插值法由于其计算简单、稳定性好、收敛性有保证，关键是显著的提高了插值函数的光滑性等优点，在数值逼近等问题的解决上得到了越来越多的广泛应用。所以本文也采用三次样条法对个股的季度债务账面价值进行插值，得到该股当日债务账面价值。以平安银行为例，经过插值后得到的日债务账面价值如图\@ref(fig:cubspline)所示:
+
+```{r cubicspline}
+n=length(stock_test$Stkcd)
+  ## cubic spline
+debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_book_value,n+1)
+debt_book_value_date=as.Date(debt_book_value_test$Accper)
+```
+
+```{r cubspline,eval=T,fig.cap ="平安银行插值后日债务账面价值", dev='png'}
+plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值")
+abline(debt_book_value$y)
+#显然具有波动应聚集的特征
+```
+
+
 
 ### 样本股股权波动率的计算
 
