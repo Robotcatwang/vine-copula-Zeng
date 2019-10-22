@@ -412,6 +412,7 @@ library(tseries)
 library(forecast)
 library(fGarch)
 library(nleqslv)
+library(knitr)
 ## load data
 norisk_rate=read.csv('./no_risk_rate.csv',header=T)
 no_risk_rate=norisk_rate[,3];date=as.Date(norisk_rate[,2])
@@ -455,13 +456,80 @@ lines(debt_book_value$x,debt_book_value$y)
 
 （1）样本股对数收益率描述性统计分析
 
+由于股票存在分红的情况，因此在分红前后，股价会存在较大变化，因此本文在搜集个股当日收盘价数据时，选用的为考虑现金红利再投资的收盘价的可比价格。同时，由于上海B股和深圳B股分别是用美元和港元进行计价，因此针对这部分样本股，分别使用交易日当日人民币对美元汇率中间价和港币兑人民币汇率中间价将日收盘价转换为人民币计价的收盘价。下面以平安银行为例：
+```{r return}
+price=stock_test[,'price_new']
+date=as.Date(stock_test[,'Trddt'])
+price_rt=diff(log(price))
+```
+
+```{r log_return,eval=T,fig.cap = "平安银行近十年日收盘价和对数收益率时序图", dev='png'}
+par(mfrow=c(2,1))
+par(mar=c(2,4,1,2))
+plot(date,price,type="l",main="(a)平安银行近十年收盘价时序图")
+plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行近十年对数收益率时序图')
+```
+
+如图\@ref(fig:log_return)所示，从日收盘价时序图可以看出，平安银行整体行情向好，但其中也经过了4次较大的波动；从对数收益率时序图看，平安银行的收益率在2013年上半年、2015年全年和2018年全年波动幅度较大，具有明显的“波动性聚集”特征。需要注意的是，平安银行的股价和对数收益率自2010年6月30日至2010年9月1日出现不连续的特征，其原因在于当时深发展A拟与平安银行股份有限公司进行重大资产重组，由于相关事项存在重大不确定性，需向相关方进行咨询论证，为维护投资者利益，保证公平信息披露，避免公司股价异常波动，公司股票自2010年6月30日起停牌。
+
+平安银行对数收益率的相关描述性统计量如表\@ref(tab:price_rt_stats)所示：
+
+```{r price_rt_stats, results='markup'}
+price_rt_stats=basicStats(price_rt)
+JB=jarque.bera.test(price_rt)
+price_rt_stats_desc=as.data.frame(t(c(price_rt_stats[c(7,14,16,15),1],as.numeric(JB[[1]][1]))))
+colnames(price_rt_stats_desc) <- c("均值","标准差","偏态系数","峰态系数","J-B统计量")
+
+kable(price_rt_stats_desc,row.names =F,align = "c", caption="平安银行对数收益率描述性统计量",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+从表\@ref(tab:price_rt_stats)中可以看出，对数收益率的偏度为`r price_rt_stats_desc[1,3] `，峰度为`r price_rt_stats_desc[1,4]` ，表明对数收益率具有右偏尖峰的特征。而J-B统计量的值为`r price_rt_stats_desc[1,5]`，显然大于5%显著性水平对应的临界值，拒绝对数收益率服从正态分布的原假设。
+
 （2）样本股对数收益率单位根检验
+
+在对时间序列进行分析时，必须要通过平稳性检验后才可建模分析。本文将使用ADF检验法和PP检验法对平安银行的对数收益率进行平稳性检验，检验结果如表\@ref(tab:adf_test)所示：
+
+```{r adf_test, results='markup'}
+ADF=adf.test(price_rt)
+PP=pp.test(price_rt)
+adf_test=data.frame(a=c(ADF$statistic[1],PP$statistic[1]),b=c(0.0001,0.0001))
+colnames(adf_test)=c("检验统计量的值","P值")
+rownames(adf_test)=c("ADF检验","PP检验")
+
+kable(adf_test,row.names =F,align = "c", caption="平安银行对数收益率平稳性检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+从表\@ref(tab:adf_test)中可以看出，平安银行对数收益率的ADF检验和PP检验的P值均小于1%，拒绝序列不平稳的原假设，说明平安银行的对数收益率序列已经平稳，可进行下一步的检验。
 
 （3）样本股对数收益率自相关、偏自相关检验
 
+接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF图和PACF图的特征判断对数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
+
+```{r acf_pacf, fig.cap="Shibor收益率自相关图和偏自相关图", dev='png'}
+par(mfrow=c(2,1))
+acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
+title(main="(a)the ACF of Return",cex.main=0.95)
+pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#画偏自相关图
+title(main="(b)the PACF of Return",cex.main=0.95)
+```
+
+从图\@ref(fig:acf_pacf)中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后阶数20阶以内均在95%置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关性时，PACF图中的偏自相关系数在滞后阶数20阶以内也均在95%置信区间内，表明序列不具有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型，直接对收益率序列进行去均值化处理。处理后得到的残差平方时序图如下图所示：
+
+```{r resi2, fig.cap="平安银行对数收益率去均值后残差平方时序图", dev='png'}
+resi=price_rt-mean(price_rt)
+resi2=(price_rt-mean(price_rt))^2
+plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方')
+```
+
+从图\@ref(fig:resi2)中可以看出，去均值化后的残差依然有较显著的波动性聚集特征。因此需进一步进行ARCH效应检验。
+
 （4）样本股对数收益率ARCH效应检验
 
-（5）样本股股权波动率的计算
+本文在进行ARCH效应检验时，采用Ljung-Box统计量进行判断。对去均值化后的残差平方进行ARCH效应检验，计算得到的Ljung-Box统计量的值为`r Box.test(resi2,lag=10,type = "Ljung")[[1]][1]`，对应的P值为0.0001，在5%的显著性水平上拒绝残差独立的原假设，表明去均值化后的残差平方存在ARCH效应。因此需对对数收益率的残差拟合GARCH模型，以消除ARCH效应。
+
+（5）样本股对数收益率GARCH模型的拟合和股权波动率的计算
 
 ## 金融各板块系统性风险计算与分析
 
