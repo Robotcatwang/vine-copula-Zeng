@@ -531,6 +531,16 @@ plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残�
 
 （5）样本股对数收益率GARCH模型的拟合和股权波动率的计算
 
+外部冲击对于市场波动性的影响要强于市场自身的记忆性
+```{r garch}
+garchfit11=garchFit(~1+garch(1,1),data=resi,trace=F)
+garchfit12=garchFit(~1+garch(1,2),data=resi,trace=F)
+garchfit21=garchFit(~1+garch(2,1),data=resi,trace=F)
+garchfit11@fit$ics[1]
+garchfit12@fit$ics
+garchfit21@fit$ics
+```
+
 ## 金融各板块系统性风险计算与分析
 
 ### 金融各板块违约距离的计算
