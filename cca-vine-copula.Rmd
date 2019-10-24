@@ -314,9 +314,9 @@ $$f\left(x_1\left|x_2\right.\right)=\frac{f\left(x_1,x_2\right)}{f_2\left(x_2\ri
 
 针对三维变量的情况可得到：
 
-$$\begin{array}{l}
-f\left(x_1,x_2,x_3\right)=f_1\left(x_1\right)\cdot f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
-\\=f_1\left(x_1\right)\cdot c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot f_2\left(x_1\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
+$$\begin{array}{lcl}
+f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
+\\&=&f_1\left(x_1\right)\cdot c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot f_2\left(x_1\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
 \end{array}
 $${#eq:paircopula-3}
 
@@ -392,11 +392,18 @@ $T_1$的边，即集合$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\
 
 ### 各板块样本股的选择
 
-本文选取的样本均为在我国沪市和深市上市的金融企业，并以证监会和证交所制定的行业板块分类标准进行划分。包括银行板块的33只股票，券商信托板块的42只股票，保险板块的7只股票、多元金融板块的27只股票和房地产板块的141只股票。其中房地产板块因为具有较强的金融属性，所以也纳为本文的研究对象。本文的研究区间为2009年9月1日至2019年8月31日。
+本文选取的样本均为在我国沪市和深市上市的金融企业，并以证监会和证交所制定的行业板块分类标准进行划分。
+包括银行板块的33只股票，券商信托板块的42只股票，保险板块的7只股票、多元金融板块的27只股票和房地产板块
+的141只股票。其中房地产板块因为具有较强的金融属性，所以也纳为本文的研究对象。本文的研究区间为2009年9月
+1日至2019年8月31日。
 
-本文研究过程涉及的数据包括各样本股近十年季报中资产负债表的相关数据、交易日的收盘价数据和个股总市值数据、一年期定期整存整取利率、港元兑人民币汇率和人民币兑美元汇率。数据来源于CSMAR数据库、同花顺数据中心、中国人民银行官网等。数据分析软件包括R和Excel等。
+本文研究过程涉及的数据包括各样本股近十年季报中资产负债表的相关数据、交易日的收盘价数据和个股总市值数
+据、一年期定期整存整取利率、港元兑人民币汇率和人民币兑美元汇率。数据来源于CSMAR数据库、同花顺数据中心、
+中国人民银行官网等。数据分析软件包括R和Excel等。
 
-由于本文在测度板块系统性风险时，是先计算各板块样本股的违约距离，再通过加权平均的方式计算得到，而且涉及的样本股数量过多，因此下面在计算各股违约距离时不妨以平安银行（股票代码：000001）为例，其他股票的计算方式与分析过程类似。
+由于本文在测度板块系统性风险时，是先计算各板块样本股的违约距离，再通过加权平均的方式计算得到，而且涉及
+的样本股数量过多，因此下面在计算各股违约距离时不妨以平安银行（股票代码：000001）为例，其他股票的计算方
+式与分析过程类似。
 
 ```{r import-data}
 rm(list=ls())
@@ -413,6 +420,8 @@ library(forecast)
 library(fGarch)
 library(nleqslv)
 library(knitr)
+library(FinTS)
+library(rugarch)
 ## load data
 norisk_rate=read.csv('./no_risk_rate.csv',header=T)
 no_risk_rate=norisk_rate[,3];date=as.Date(norisk_rate[,2])
@@ -424,18 +433,33 @@ debt_book_value_test=read.xlsx2('./sample_data.xlsx',sheetIndex=2,header=T,
 
 ### 到期期限与无风险利率的选择
 
-CCA模型中到期期限一般取1年。无风险利率本文选择中国人民银行发布的一年期定期整存整取利率，无风险利率整体的波动趋势如图\@ref(fig:norisk_rate)所示:
-```{r no_risk_rate, fig.cap="近十年一年期定期整存整取利率", dev='png'}
+CCA模型中到期期限一般取1年。无风险利率本文选择中国人民银行发布的一年期定期整存整取利率，无风险利率整体
+的波动趋势如图 \@ref(fig:norisk-rate) 所示:
+```{r norisk-rate,eval=T, fig.cap="近十年一年期定期整存整取利率", dev='png'}
 plot(date,no_risk_rate,type='l',ylim=c(0,4))
 ```
 
-从图\@ref(fig:norisk_rate)中可以发现，无风险利率经过了先上升再下降的一个过程。在2008年全球金融危机爆发后，全球投资情绪都较为低落，大量资金从证券市场撤出，转向投资无风险产品；同时，央行作为研究并协调解决金融运行中重大问题的机构，为了避免损失的进一步扩大，通过提高无风险利率，保证国家经济的平稳发展。从2012年3季度到2014年年底，无风险利率趋稳。但是从2015年开始，无风险利率经过了多次显著的下调。主要原因可概括为“内忧外患”：首先，出于应对2008年经济危机所施行的“4万亿计划”，使得国内产能过剩，上游企业背负了较大债务，国家面临通货紧缩的压力；其次，国内经济发展放缓，房产等投资减速，企业效益欠佳，国内许多实业企业都出现了资金链紧张情况，只有网络等虚拟经济在创新中驱动发展；最后，作为全球最大印钞机的美联储反复提出加息，要收回钞票，这给全球带来了巨大的流动性缺口。所以，央行通过多次降息，释放流动性，一来鼓励投资者进行实业投资，刺激市场，推动经济的健康发展，二来通过补充流动性，对冲美联储带来的流动性缺口。
+从图 \@ref(fig:norisk-rate) 中可以发现，无风险利率经过了先上升再下降的一个过程。在2008年全球金融危机
+爆发后，全球投资情绪都较为低落，大量资金从证券市场撤出，转向投资无风险产品；同时，央行作为研究并协调
+解决金融运行中重大问题的机构，为了避免损失的进一步扩大，通过提高无风险利率，保证国家经济的平稳发展。
+从2012年3季度到2014年年底，无风险利率趋稳。但是从2015年开始，无风险利率经过了多次显著的下调。主要原因
+可概括为“内忧外患”：首先，出于应对2008年经济危机所施行的“4万亿计划”，使得国内产能过剩，上游企业背负了
+较大债务，国家面临通货紧缩的压力；其次，国内经济发展放缓，房产等投资减速，企业效益欠佳，国内许多实业
+企业都出现了资金链紧张情况，只有网络等虚拟经济在创新中驱动发展；最后，作为全球最大印钞机的美联储反复
+提出加息，要收回钞票，这给全球带来了巨大的流动性缺口。所以，央行通过多次降息，释放流动性，一来鼓励投
+资者进行实业投资，刺激市场，推动经济的健康发展，二来通过补充流动性，对冲美联储带来的流动性缺口。
 
 ### 样本股股权市场价值和债权账面价值的计算
 
-本文在计算样本股股权市场价值时的计算方式为发行总股数与收盘价的乘积，针对非流通股，则直接用当日收盘价进行定价。同时，考虑到上海B股和深圳B股分别是用美元和港元进行计价，因此针对这部分样本股，分别使用交易日当日人民币对美元汇率中间价和港币兑人民币汇率中间价将各股股权市场价值转换为人民币计价的金额。
+本文在计算样本股股权市场价值时的计算方式为发行总股数与收盘价的乘积，针对非流通股，则直接用当日收盘价
+进行定价。同时，考虑到上海B股和深圳B股分别是用美元和港元进行计价，因此针对这部分样本股，分别使用交易
+日当日人民币对美元汇率中间价和港币兑人民币汇率中间价将各股股权市场价值转换为人民币计价的金额。
 
-而在计算债权账面价值时，可以通过公开消息得到的仅有个股债务账面价值的季度数据，而本文在分析过程中，采用的均为当日数据，因此需对季度数据进行插值处理。而在常见的插值方法中，三次光滑样条插值法由于其计算简单、稳定性好、收敛性有保证，关键是显著的提高了插值函数的光滑性等优点，在数值逼近等问题的解决上得到了越来越多的广泛应用。所以本文也采用三次样条法对个股的季度债务账面价值进行插值，得到该股当日债务账面价值。以平安银行为例，经过插值后得到的日债务账面价值如图\@ref(fig:cubspline)所示:
+而在计算债权账面价值时，可以通过公开消息得到的仅有个股债务账面价值的季度数据，而本文在分析过程中，采
+用的均为当日数据，因此需对季度数据进行插值处理。而在常见的插值方法中，三次光滑样条插值法由于其计算简
+单、稳定性好、收敛性有保证，关键是显著的提高了插值函数的光滑性等优点，在数值逼近等问题的解决上得到了
+越来越多的广泛应用。所以本文也采用三次样条法对个股的季度债务账面价值进行插值，得到该股当日债务账面价
+值。以平安银行为例，经过插值后得到的日债务账面价值如图 \@ref(fig:cubspline) 所示:
 
 ```{r cubicspline}
 n=length(stock_test$Stkcd)
@@ -450,31 +474,42 @@ axis(1, at=1:41,labels = debt_book_value_test$Accper)
 lines(debt_book_value$x,debt_book_value$y)
 ```
 
-图\@ref(fig:cubspline)中展示了平安银行经过三次样条插值后的债务市场价值。图中的空心点表示平安银行近十年季报中的债务账面价值，曲线表示其日债务市场价值。可以发现曲线平滑度较高，且穿过了所有空心点，表明插值效果较好，可以用于模型的分析。
+图 \@ref(fig:cubspline) 中展示了平安银行经过三次样条插值后的债务市场价值。图中的空心点表示平安银行近十
+年季报中的债务账面价值，曲线表示其日债务市场价值。可以发现曲线平滑度较高，且穿过了所有空心点，表明插
+值效果较好，可以用于模型的分析。
 
 ### 样本股股权波动率的计算
 
 （1）样本股对数收益率描述性统计分析
 
-由于股票存在分红的情况，因此在分红前后，股价会存在较大变化，因此本文在搜集个股当日收盘价数据时，选用的为考虑现金红利再投资的收盘价的可比价格。同时，由于上海B股和深圳B股分别是用美元和港元进行计价，因此针对这部分样本股，分别使用交易日当日人民币对美元汇率中间价和港币兑人民币汇率中间价将日收盘价转换为人民币计价的收盘价。下面以平安银行为例：
+由于股票存在分红的情况，因此在分红前后，股价会存在较大变化，因此本文在搜集个股当日收盘价数据时，选用
+的为考虑现金红利再投资的收盘价的可比价格。同时，由于上海B股和深圳B股分别是用美元和港元进行计价，因此
+针对这部分样本股，分别使用交易日当日人民币对美元汇率中间价和港币兑人民币汇率中间价将日收盘价转换为人
+民币计价的收盘价。下面以平安银行为例：
+
 ```{r return}
 price=stock_test[,'price_new']
 date=as.Date(stock_test[,'Trddt'])
 price_rt=diff(log(price))
 ```
 
-```{r log_return,eval=T,fig.cap = "平安银行近十年日收盘价和对数收益率时序图", dev='png'}
+```{r log-return,eval=T,fig.cap = "平安银行近十年日收盘价和对数收益率时序图", dev='png'}
 par(mfrow=c(2,1))
 par(mar=c(2,4,1,2))
 plot(date,price,type="l",main="(a)平安银行近十年收盘价时序图")
 plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行近十年对数收益率时序图')
 ```
 
-如图\@ref(fig:log_return)所示，从日收盘价时序图可以看出，平安银行整体行情向好，但其中也经过了4次较大的波动；从对数收益率时序图看，平安银行的收益率在2013年上半年、2015年全年和2018年全年波动幅度较大，具有明显的“波动性聚集”特征。需要注意的是，平安银行的股价和对数收益率自2010年6月30日至2010年9月1日出现不连续的特征，其原因在于当时深发展A拟与平安银行股份有限公司进行重大资产重组，由于相关事项存在重大不确定性，需向相关方进行咨询论证，为维护投资者利益，保证公平信息披露，避免公司股价异常波动，公司股票自2010年6月30日起停牌。
+如图 \@ref(fig:log-return) 所示，从日收盘价时序图可以看出，平安银行整体行情向好，但其中也
+经过了4次较大的波动；从对数收益率时序图看，平安银行的收益率在2013年上半年、2015年全年和2018年全年波
+动幅度较大，具有明显的“波动性聚集”特征。需要注意的是，平安银行的股价和对数收益率自2010年6月30日至2010
+年9月1日出现不连续的特征，其原因在于当时深发展A拟与平安银行股份有限公司进行重大资产重组，由于相关事项
+存在重大不确定性，需向相关方进行咨询论证，为维护投资者利益，保证公平信息披露，避免公司股价异常波动，
+公司股票自2010年6月30日起停牌。
 
-平安银行对数收益率的相关描述性统计量如表\@ref(tab:price_rt_stats)所示：
+平安银行对数收益率的相关描述性统计量如表 \@ref(tab:price-rt-stats) 所示：
 
-```{r price_rt_stats, results='markup'}
+```{r price-rt-stats, results='markup'}
 price_rt_stats=basicStats(price_rt)
 JB=jarque.bera.test(price_rt)
 price_rt_stats_desc=as.data.frame(t(c(price_rt_stats[c(7,14,16,15),1],as.numeric(JB[[1]][1]))))
@@ -484,30 +519,32 @@ kable(price_rt_stats_desc,row.names =F,align = "c", caption="平安银行对数�
       longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
-从表\@ref(tab:price_rt_stats)中可以看出，对数收益率的偏度为`r price_rt_stats_desc[1,3] `，峰度为`r price_rt_stats_desc[1,4]` ，表明对数收益率具有右偏尖峰的特征。而J-B统计量的值为`r price_rt_stats_desc[1,5]`，显然大于5%显著性水平对应的临界值，拒绝对数收益率服从正态分布的原假设。
+从表 \@ref(tab:price-rt-stats) 中可以看出，对数收益率的偏度为`r price_rt_stats_desc[1,3] `，峰度为`r price_rt_stats_desc[1,4]` ，表明对数收益率具有右偏尖峰的特征。而J-B统计量的值为`r price_rt_stats_desc[1,5]`，显然大于5%显著性水平对应的临界值，拒绝对数收益率服从正态分布的原假设。
 
 （2）样本股对数收益率单位根检验
 
-在对时间序列进行分析时，必须要通过平稳性检验后才可建模分析。本文将使用ADF检验法和PP检验法对平安银行的对数收益率进行平稳性检验，检验结果如表\@ref(tab:adf_test)所示：
+在对时间序列进行分析时，必须要通过平稳性检验后才可建模分析。本文将使用ADF检验法和PP检验法对平安银行的
+对数收益率进行平稳性检验，检验结果如表 \@ref(tab:adf-test) 所示：
 
-```{r adf_test, results='markup'}
+```{r adf-test, results='markup'}
 ADF=adf.test(price_rt)
 PP=pp.test(price_rt)
 adf_test=data.frame(a=c(ADF$statistic[1],PP$statistic[1]),b=c(0.0001,0.0001))
 colnames(adf_test)=c("检验统计量的值","P值")
 rownames(adf_test)=c("ADF检验","PP检验")
 
-kable(adf_test,row.names =F,align = "c", caption="平安银行对数收益率平稳性检验",
+kable(adf_test,row.names =T,align = "c", caption="平安银行对数收益率平稳性检验",
       longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
-从表\@ref(tab:adf_test)中可以看出，平安银行对数收益率的ADF检验和PP检验的P值均小于1%，拒绝序列不平稳的原假设，说明平安银行的对数收益率序列已经平稳，可进行下一步的检验。
+从表 \@ref(tab:adf-test) 中可以看出，平安银行对数收益率的ADF检验和PP检验的P值均小于1%，拒绝序列不平
+稳的原假设，说明平安银行的对数收益率序列已经平稳，可进行下一步的检验。
 
 （3）样本股对数收益率自相关、偏自相关检验
 
-接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF图和PACF图的特征判断对数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
+接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF图和PACF图的特征判断对 数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
 
-```{r acf_pacf, fig.cap="Shibor收益率自相关图和偏自相关图", dev='png'}
+```{r acf-pacf, fig.cap="Shibor收益率自相关图和偏自相关图", dev='png'}
 par(mfrow=c(2,1))
 acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
 title(main="(a)the ACF of Return",cex.main=0.95)
@@ -515,7 +552,10 @@ pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#
 title(main="(b)the PACF of Return",cex.main=0.95)
 ```
 
-从图\@ref(fig:acf_pacf)中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后阶数20阶以内均在95%置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关性时，PACF图中的偏自相关系数在滞后阶数20阶以内也均在95%置信区间内，表明序列不具有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型，直接对收益率序列进行去均值化处理。处理后得到的残差平方时序图如下图所示：
+从图 \@ref(fig:acf-pacf) 中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后阶数20阶以内均在95%
+置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关性时，PACF图中的偏自相关系数在滞后阶数20
+阶以内也均在95%置信区间内，表明序列不具有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型，直接对收益率
+序列进行去均值化处理。处理后得到的残差平方时序图如下图所示：
 
 ```{r resi2, fig.cap="平安银行对数收益率去均值后残差平方时序图", dev='png'}
 resi=price_rt-mean(price_rt)
@@ -523,25 +563,88 @@ resi2=(price_rt-mean(price_rt))^2
 plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方')
 ```
 
-从图\@ref(fig:resi2)中可以看出，去均值化后的残差依然有较显著的波动性聚集特征。因此需进一步进行ARCH效应检验。
+从图 \@ref(fig:resi2) 中可以看出，去均值化后的残差依然有较显著的波动性聚集特征。因此需进一步进行ARCH
+效应检验。
 
 （4）样本股对数收益率ARCH效应检验
 
-本文在进行ARCH效应检验时，采用Ljung-Box统计量进行判断。对去均值化后的残差平方进行ARCH效应检验，计算得到的Ljung-Box统计量的值为`r Box.test(resi2,lag=10,type = "Ljung")[[1]][1]`，对应的P值为0.0001，在5%的显著性水平上拒绝残差独立的原假设，表明去均值化后的残差平方存在ARCH效应。因此需对对数收益率的残差拟合GARCH模型，以消除ARCH效应。
+本文在进行ARCH效应检验时，采用LM统计量进行判断。对去均值化后的残差平方进行ARCH效应检验，计算得到的LM  
+统计量的值为`r ArchTest(resi2,lag=5)[[1]][1]`，对应的P值为0.0001，在5%的显著性水平上拒绝残差独立的原  
+假设，表明去均值化后的残差平方存在ARCH效应。因此需对对数收益率的残差拟合GARCH模型，以消除ARCH效应。
 
 （5）样本股对数收益率GARCH模型的拟合和股权波动率的计算
 
-出于模型简洁性的考虑，本文在通过GARCH模型消除残差ARCH效应时仅考虑GARCH(1,1)、GARCH(1,2)和GARCH(2,1)三种经典模型。三种模型的拟合结果如下表所示：
+从平安银行对数收益率的描述性统计量中可以看出，收益率序列具有明显的有偏性，表明正负信息的冲击不完全对
+称。因此在计算股权波动率时，本文通过GJR-GARCH模型拟合平安银行对数收益率的残差序列。同时出于模型简洁性
+的考虑，本文仅考虑GJR-GARCH(1,1)、GJR-GARCH(1,2)和GJR-GARCH(2,1)三种模型形式。三种模型的拟合结果如下
+表所示：
 
 ```{r garch}
 gjrgarch11_spec = ugarchspec(
   variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
-  mean.model = list(armaOrder=c(0,0),include.mean=T))
-garchfit00 = ugarchfit(spec=gjrgarch00.spec, data=resi)
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit11 = ugarchfit(spec=gjrgarch11_spec, data=price_rt)
+
+gjrgarch12_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(1,2)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit12 = ugarchfit(spec=gjrgarch12_spec, data=resi)
+
+gjrgarch21_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(2,1)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit21 = ugarchfit(spec=gjrgarch21_spec, data=resi)
 ```
 
+```{r gjr-garch, results='markup'}
+garchfit11_coef=data.frame(garchfit11@fit$matcoef)
+garchfit12_coef=data.frame(garchfit12@fit$matcoef)
+garchfit21_coef=data.frame(garchfit21@fit$matcoef)
+garchfit_coef=list(garchfit11_coef=garchfit11_coef,
+                   garchfit12_coef=garchfit12_coef,
+                   garchfit21_coef=garchfit21_coef)
+for(j in 1:3){
+  for(i in 1:nrow(garchfit_coef[[j]])){
+    garchfit_coef[[j]][i,5]=paste(substr(garchfit_coef[[j]][i,1],1,7),
+                           if(garchfit_coef[[j]][i,4]<=0.01){'***'}
+                           else{if(garchfit_coef[[j]][i,4]>0.01 & garchfit_coef[[j]][i,4]<=0.05){'**'}
+                             else{if(garchfit_coef[[j]][i,4]>0.05 & garchfit_coef[[j]][i,4]<=0.1){'*'}
+                               else{''}}},
+                           sep='',collapse = '')
+  }
+}
+coef_result=data.frame(row.names=c('omega','alpha1','alpha2','beta1','beta2','gamma1','gamma2','AIC','BIC'))
+coef_result[,1]=c(garchfit_coef$garchfit11_coef[1:2,5],'',
+                  garchfit_coef$garchfit11_coef[3,5],'',
+                  garchfit_coef$garchfit11_coef[4,5],'',signif(infocriteria(garchfit11)[1:2],5))
+coef_result[,2]=c(garchfit_coef$garchfit12_coef[1:2,5],'',
+                  garchfit_coef$garchfit12_coef[3:5,5],'',signif(infocriteria(garchfit12)[1:2],5))
+coef_result[,3]=c(garchfit_coef$garchfit21_coef[1:4,5],'',
+                  garchfit_coef$garchfit21_coef[5:6,5],signif(infocriteria(garchfit21)[1:2],5))
+colnames(coef_result)=c('GJR-GARCH(1,1)','GJR-GARCH(1,2)','GJR-GARCH(2,1)')
+kable(coef_result,row.names =T,align = "c", caption="平安银行对数收益率GJR-GARCH模型拟合结果",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
 
-外部冲击对于市场波动性的影响要强于市场自身的记忆性
+```{r gjrgarch-resi}
+gjr_resi=residuals(garchfit11,standardize=T)
+gjr_resi2=gjr_resi^2
+```
+从表 \@ref(tab:gjr-garch) 中可以看出，GJR-GARCH(1,1)的AIC值和BIC值在三个模型中均是最小的，说明该模型在
+三个模型中模型拟合效果较好。而且该模型的alpha、beta、gamma系数在1%的显著性水平下均显著，表明该模型的参
+数估计的准确性也较高。对收益率序列经过GJR-GARCH(1,1)模型拟合后得到的标准化残差平方再次进行ARCH效应检
+验，计算得到的LM统计量的值为`r ArchTest(gjr_resi2,lag=5)[[1]][1]`，对应的P值为`r ArchTest(gjr_resi2,lag=5)[[3]][1]`，在5%的显著性水平上介绍残差独立的原假设，表明经GJR-GARCH模型处理后已
+消除ARCH效应。最终平安银行对数收益率的模型解析式如下式所示：
+
+$$\left\{\begin{array}{l}
+{r_t}=0.0003465+{\varepsilon _t}\\
+{\varepsilon_t}={\sigma_t}{z_t}\\
+\sigma_t^2=0.0000011+\left(0.0553038\varepsilon_{t-1}^2-0.0259145I_{t-1}\varepsilon_{t-1}^2 \right)+0.9561609\sigma _{t - 1}^2
+\end{array}\right.$${#eq:gjr-garch}
+
+从式[@eq:gjr-garch]中可以看出参数$\alpha$与$\beta$之和小于1，表明整个过程是平稳的，可用于进一步的分析。
+<!--但需要注意的是式[@eq:gjr_garch]中$\gamma$项的系数为负，其原因在于平安银行属于典型的大盘股，总市值达
+到3000多亿元，且其业绩优良，也属于蓝筹股，因此其抗跌性较强，当股价下跌时，其股权波动率反而有所下降。-->
 
 ## 金融各板块系统性风险计算与分析
 
