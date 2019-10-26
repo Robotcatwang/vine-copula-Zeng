@@ -236,13 +236,9 @@ $$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqr
 
 <!--除此之外，通过CCA模型也-->进而可计算得出企业的违约距离DD和企业的违约概率PD。违约距离DD的计算公式为：
 
-$$DD=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_2$${#eq:dd}
+$$DD=\frac{A-B}{A \cdot \sigma_A}$${#eq:dd}
 
-企业违约概率PD的计算公式为：
-
-$$PD=N\left\{\frac{\ln\left(\frac{B}{A}\right)-\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}\right\}=N\left(-d_2\right)$${#eq:pd}
-
-企业的违约距离DD越短，违约概率PD越大，企业的风险暴露越大；违约距离DD越长，违约概率PD越小，企业的风险暴露越小。
+企业的违约距离DD越短，违约概率越大，企业的风险暴露越大；违约距离DD越长，违约概率越小，企业的风险暴露越小。
 
 ## Copula函数理论基础
 
@@ -637,20 +633,86 @@ gjr_resi2=gjr_resi^2
 消除ARCH效应。最终平安银行对数收益率的模型解析式如下式所示：
 
 $$\left\{\begin{array}{l}
-{r_t}=0.0003465+{\varepsilon _t}\\
-{\varepsilon_t}={\sigma_t}{z_t}\\
+r_t=0.0003465+\varepsilon _t\\
+\varepsilon_t=\sigma_tz_t\\
 \sigma_t^2=0.0000011+\left(0.0553038\varepsilon_{t-1}^2-0.0259145I_{t-1}\varepsilon_{t-1}^2 \right)+0.9561609\sigma _{t - 1}^2
 \end{array}\right.$${#eq:gjr-garch}
 
 从式[@eq:gjr-garch]中可以看出参数$\alpha$与$\beta$之和小于1，表明整个过程是平稳的，可用于进一步的分析。
 <!--但需要注意的是式[@eq:gjr_garch]中$\gamma$项的系数为负，其原因在于平安银行属于典型的大盘股，总市值达
-到3000多亿元，且其业绩优良，也属于蓝筹股，因此其抗跌性较强，当股价下跌时，其股权波动率反而有所下降。-->
+到3000多亿元，且其业绩优良，属于蓝筹股的范畴，因此其抗跌性较强，当股价下跌时，其股权波动率反而有所下降。-->
 
 ## 金融各板块系统性风险计算与分析
 
 ### 金融各板块违约距离的计算
 
+在模型介绍部分已经介绍了CCA模型的原理：通过联立式[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]
+和[@eq:cca-equity-sigma]解出企业资产的市场价值$A$和企业资产市场价值的波动率$\sigma_A$，进而根据
+式[@eq:dd]得到个股的违约距离。但在解该方程组时需注意两点：一是通过GJR-GARCH模型得到的股权波动率为日股权
+波动率，但无风险利率选取的却是年化后率，因此需对日股权波动率乘以$\sqrt{250}$得到年化后的股权波动率；二
+是该方程组属于较复杂的非线性方程组，不存在解析解，因此本文通过调用R中的nleqslv函数求解该非线性方程组：
+首先定义新变量$AtoE=\frac{A}{E}$，然后对方程组中所有变量$A$转化为$AtoE \cdot E$，最后经过适当变形可得到如下新的方程组：
+
+$$\left\{\begin{array}{l}
+y_1=AtoE \cdot N\left(d_1\right)-\frac{B}{E}e^{-rT}N\left(d_2\right)-1\\
+d_1=\frac{\ln\left(AtoE \cdot \frac{E}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}\\
+d_2==d_1-\sigma_A\sqrt{T}\\
+y_2=N\left(d_1\right) \cdot AtoE \cdot \sigma_A-\sigma_E
+\end{array}\right.$${#eq:cca-solve1}
+
+令方程组[@eq:cca-solve1]中的$y_1$和$y_2$趋近于0，通过Newton法即可解得$A$和$\sigma_A$的近似解。按照上述思路即可得到个股的违约距离序列。例如平安银行近十年的违约距离序列如下图所示：
+
+```{r cca-solve}
+### cca
+##输入时间
+r=stock_test$norisk_rate[-1]/100
+T=1
+B=debt_book_value$y[-c(1:2)]
+##输入股权波动率和股权价值
+EquityTheta=garchfit11@fit$sigma*sqrt(250)
+E=stock_test$stock_market_value_new
+##KMV 方程变形及求解
+EtoB=E/B
+x0=matrix(rep(1,2*nrow(stock_test)),nrow=nrow(stock_test))
+z=list();Va=vector();AssetTheta=vector()
+for (i in 1:(nrow(stock_test)-1)) {
+  KMVfun=function(x){
+    y=numeric(2);
+    d1=(log(x[1]*EtoB[i])+(r[i]+0.5*x[2]^2)*T)/(x[2]*sqrt(T));
+    d2=d1-x[2]*sqrt(T);
+    y[1]=x[1]*pnorm(d1)-exp(-r[i]*T)*pnorm(d2)/EtoB[i]-1;
+    y[2]=pnorm(d1)*x[1]*x[2]-EquityTheta[i];
+    y
+  }
+  z[[i]]<-nleqslv(x0[i,], KMVfun, method="Newton") 
+  Va[i]<-z[[i]]$x[1]*E[i]
+  AssetTheta[i]<-z[[i]]$x[2]
+}
+##计算违约距离
+DD=(Va-B)/(Va*AssetTheta)
+```
+
+```{r pinganbank-dd, fig.cap="平安银行近十年违约剧烈时序图", dev='png'}
+datedd=as.Date(stock_test$Trddt[-1])
+plot(datedd,DD,type='l')
+```
+
+从图 \@ref(fig:pinganbank-dd) 中可以看出，近十年平安银行的违约距离大部分在2上下徘徊，但中间经过了三次巨大的波动：第一次大波动发生在
+2012年下半年，原因有二，一是当年平安银行董事长、行长双双离职；二是从整个银行业来看，在11家上市银行中，
+有7家银行不良出现双升，其中平安银行的不良贷款增幅惊人，新增了35.75亿不良贷款，总共达68.66亿，不良率从
+0.53%暴涨至0.95%，增长幅度接近翻倍，尽管2012年平安银行净利润达到134亿，同比增长30%，但随即在2013年第一
+季度中，平安银行净利润同比增幅就暴跌至上市银行中倒数第一，这导致了平安银行的违约距离自2012年年中开始急
+速下降，一度降至0.63，违约概率极高，风险极大。第二次显著波动则发生在2015年上半年，整个中国股市进入恐慌
+的一年，股市崩盘，上证指数近乎腰斩，导致了平安银行的违约距离也紧跟大盘显著缩短。第三次猛烈波动是在2017
+年，但这一次波动却是利好的波动，从宏观角度看，中国实体经济的增长超出了市场的预期，2017年6.9%的经济增长
+率也超出了2016年的6.7%的增长率，从微观层面看，随着金融治理的加强，平安银行不良贷款率、不良贷款增长率也
+在下降，两方面原因使得该股的违约距离增加，发生系统性风险的概率下降。
+
+按照上述的计算过程和分析思路即可得到所有样本股的违约距离。再以各股资产市场价值为权重，加权平均即可得到各板块的系统性风险指标。
+
 ### 金融各板块系统性风险的分析
+
+各板块的系统性风险指标如下图所示：
 
 不同行业之间风险传染都有着内在的传递机制和经济基础，关于金融业不同板块间的风险
 传导关系主要依据以下两个渠道：（1）金融机构间复杂的业务往来和信贷关联：金融机构之间在存款、信贷
