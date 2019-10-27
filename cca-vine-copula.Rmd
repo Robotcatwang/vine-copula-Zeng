@@ -460,7 +460,7 @@ plot(date,no_risk_rate,type='l',ylim=c(0,4))
 ```{r cubicspline}
 n=length(stock_test$Stkcd)
   ## cubic spline
-debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_book_value,n+1)
+debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_book_value,n+1+44)
 debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
@@ -667,7 +667,7 @@ y_2=N\left(d_1\right) \cdot AtoE \cdot \sigma_A-\sigma_E
 ##输入时间
 r=stock_test$norisk_rate[-1]/100
 T=1
-B=debt_book_value$y[-c(1:2)]
+B=debt_book_value$y[-c(1:46)]
 ##输入股权波动率和股权价值
 EquityTheta=garchfit11@fit$sigma*sqrt(250)
 E=stock_test$stock_market_value_new

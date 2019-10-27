@@ -17,24 +17,27 @@ stock_test=read_excel('./test.xlsx',sheet=1,col_names=T,
                       col_types=c('text',"text",'numeric','numeric','numeric','text','text',rep('numeric',5)))
 debt_book_value_test=read_excel('./test.xlsx',sheet=2,col_names=T,
                                 col_types=c('text','text','text','numeric'))
+delayday=read_excel('./test.xlsx',sheet=3,col_names=T,
+                    col_types=c('text','numeric'))
 
 stock_num=unique(stock_test$Stkcd)
 stock_dd=list()
 Pb=txtProgressBar(min=1,max=length(stock_num),style=3)
 assign('last.warning',NULL,envir=baseenv())
 warnings()
+
 for(i in 1:length(stock_num)){
   options(warn=0)
   sample_stock=data.frame(stock_test[which(stock_test$Stkcd==stock_num[i]),])
   sample_stock_debt_book_value=data.frame(debt_book_value_test[which(debt_book_value_test$Stkcd==stock_num[i]),])
   n=nrow(sample_stock)
-  zero=rep(0,n+1);m0=vector();m1=vector()
+  zero=rep(0,n+delayday$day[i]+1);m0=vector();m1=vector()
   ## cubic spline
   debt_book_value=spline(c(1:length(sample_stock_debt_book_value[,'Accper'])),
-                         sample_stock_debt_book_value[,'debt_book_value'],n+1)
+                         sample_stock_debt_book_value[,'debt_book_value'],n+delayday$day[i]+1)
   if(length(which(debt_book_value$y<zero))>0){
     print(paste(i,'-',which(debt_book_value$y<zero)))
-    for(k in 1:n){
+    for(k in 1:(n+delayday$day[i])){
       if(debt_book_value$y[k]>0 & debt_book_value$y[k+1]<=0){m0=c(m0,k)}
       if(debt_book_value$y[k]<=0 & debt_book_value$y[k+1]>0){m1=c(m1,k+1)}}
     for(g in 1:length(m0)){
@@ -42,8 +45,8 @@ for(i in 1:length(stock_num)){
         mean(debt_book_value$y[m0[g]],debt_book_value$y[m1[g]])}
     print(paste(i,'-',which(debt_book_value$y<zero)))
     print(data.frame(m0=m0,m1=m1))
-    }
-    
+  }
+  
   ## stock_volatility
   price=sample_stock[,'price_new']
   price_rt=diff(log(price))
@@ -82,7 +85,7 @@ for(i in 1:length(stock_num)){
   ## 输入时间
   r=sample_stock[,'norisk_rate'][-1]/100
   T=1
-  B=debt_book_value[[2]][-c(1,2)]
+  B=debt_book_value[[2]][-c(1:(delayday$day[i]+2))]
   ##输入股权波动率和股权价值
   EquityTheta=stock_volatility*sqrt(250)
   E=sample_stock[,'stock_market_value_new'][-1]
@@ -107,8 +110,8 @@ for(i in 1:length(stock_num)){
   ##计算违约距离
   DD=(Va-B)/(Va*AssetTheta)
   stock_dd[[i]]=data.frame(stock_num=sample_stock[,'Stkcd'][-1],
-                 stock_dt=sample_stock[,'Trddt'][-1],
-                 DD=DD)
+                           stock_dt=sample_stock[,'Trddt'][-1],
+                           DD=DD)
   #设置进度条
   Sys.sleep(0.02)
   setTxtProgressBar(Pb,i)
