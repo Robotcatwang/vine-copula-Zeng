@@ -8,6 +8,8 @@ library(forecast)
 library(fGarch)
 library(nleqslv)
 library(utils)
+library(xlsx)
+library(rJava)
 ## load data
 getwd()
 path='C:/Users/Administrator/Desktop'
@@ -26,7 +28,7 @@ Pb=txtProgressBar(min=1,max=length(stock_num),style=3)
 assign('last.warning',NULL,envir=baseenv())
 warnings()
 
-for(i in 1:length(stock_num)){
+for(i in 224:length(stock_num)){
   options(warn=0)
   sample_stock=data.frame(stock_test[which(stock_test$Stkcd==stock_num[i]),])
   sample_stock_debt_book_value=data.frame(debt_book_value_test[which(debt_book_value_test$Stkcd==stock_num[i]),])
@@ -111,6 +113,7 @@ for(i in 1:length(stock_num)){
   DD=(Va-B)/(Va*AssetTheta)
   stock_dd[[i]]=data.frame(stock_num=sample_stock[,'Stkcd'][-1],
                            stock_dt=sample_stock[,'Trddt'][-1],
+                           assetvalue=Va,
                            DD=DD)
   #设置进度条
   Sys.sleep(0.02)
@@ -118,4 +121,13 @@ for(i in 1:length(stock_num)){
   if(length(warnings())>0){break}
 }
 
-
+jgc <- function(){
+  gc()
+  .jcall("java/lang/System", method = "gc")}
+options(java.parameters = "-Xmx8000m")
+stock_dd_new=stock_dd[[1]]
+for(a in 2:length(stock_dd)){
+  jgc()
+  stock_dd_new=rbind(stock_dd_new,stock_dd[[a]])
+}
+write.table(stock_dd_new,'./stock_dd.csv',sep=',',col.names=TRUE,row.names=FALSE)
