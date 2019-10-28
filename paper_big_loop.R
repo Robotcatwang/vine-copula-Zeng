@@ -28,7 +28,7 @@ Pb=txtProgressBar(min=1,max=length(stock_num),style=3)
 assign('last.warning',NULL,envir=baseenv())
 warnings()
 
-for(i in 224:length(stock_num)){
+for(i in 244:length(stock_num)){
   options(warn=0)
   sample_stock=data.frame(stock_test[which(stock_test$Stkcd==stock_num[i]),])
   sample_stock_debt_book_value=data.frame(debt_book_value_test[which(debt_book_value_test$Stkcd==stock_num[i]),])
@@ -127,7 +127,6 @@ jgc <- function(){
 options(java.parameters = "-Xmx8000m")
 stock_dd_new=stock_dd[[1]]
 for(a in 2:length(stock_dd)){
-  jgc()
   stock_dd_new=rbind(stock_dd_new,stock_dd[[a]])
 }
 write.table(stock_dd_new,'./stock_dd.csv',sep=',',col.names=TRUE,row.names=FALSE)
