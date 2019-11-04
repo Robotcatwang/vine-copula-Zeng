@@ -34,8 +34,8 @@ csl: ./style/chinese-gb7714-2005-numeric.csl
 link-citations: true
 ---
 
-<!--**TODO**
-- [ ] 实证分析写成两章，分别是股票市场内部风险传染和金融市场风险传染-->
+**TODO**
+- [ ] 模型介绍增加尾部相依系数，常见六种Copula形式
 
 
 
@@ -896,16 +896,9 @@ RVM=RVineStructureSelect(copula_data,familyset=c(0:5),progress=TRUE,rotations=FA
 RVM2=RVineMLE(copula_data,RVM,maxit=200)
 ```
 
-```{r cor, results='markup'}
-copula_data=data.frame(insurance=co_insurance,
-                       multi_finance=co_multi_finance,
-                       house=co_house,
-                       stock=co_stock,
-                       bank=co_bank)
-cor0=cor(copula_data,method = 'kendall')
-colnames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
-rownames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
-kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指标相关系数矩阵",
+```{r vine-marix, results='markup'}
+RVM2$RVM$Matrix
+kable(RVM2$RVM$Matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式",
       longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
@@ -915,7 +908,7 @@ kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指�
 knitr::include_graphics("./vine_fit.png")
 ```
 
-图中的1—5分别表示保险板块、多元金融板块、房地产板块、券商信托板块和银行板块。从图中可以看出，第一棵树
+图 \ref(fig:vine-fit-fig) 中的1—5分别表示保险板块、多元金融板块、房地产板块、券商信托板块和银行板块。从图中可以看出，第一棵树
 以券商信托板块为核心节点，与保险板块、多元金融板块和房地产板块均有连接，而银行板块仅与保险板块有连接，
 处于整个结构的边缘位置，这与最初的分析保持一致；第二、三、四棵树则不存在分支，仅由一根主干连接。
 
@@ -925,7 +918,12 @@ knitr::include_graphics("./vine_fit.png")
 备选的Copula函数包括以下六种类型：独立Copula、Gaussian-Copula、t-Copula、Clayton-Copula、Gumbel-Copula
 和Frank-Copula。最终估计的结果如下表所示：
 
-正如前文模型介绍中所述，不同的Copula函数可以反应不同的相依关系。从表中的第一棵树可以看出，券商信托板块
+```{r vine-copula, results='markup'}
+kable(data.frame(summary(RVM2$RVM)[,c(1:2,4:6)]),row.names =F,align = "c", caption="板块间系统性风险最优Copula形式表",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+正如前文模型介绍中所述，不同的Copula函数可以反应不同的相依关系。从表 \ref(tab:vine-copula) 中的第一棵树可以看出，券商信托板块
 和保险板块之间为Gaussian-Copula函数，表明两板块间具有一定的相关关系，且上下尾具有对称性；保险板块与银
 行板块之间和房地产板块与券商信托板块之间的Copula形式均为t-Copula函数，虽然也说明上尾和下尾的相关性具有
 一定的对称性，但是上述两个板块间却是具有厚尾相关性，对极端值的变化更加敏感；而多元金融板块和券商信托板
@@ -948,15 +946,20 @@ knitr::include_graphics("./vine_fit.png")
 介绍部分所述的尾部相依系数的计算方法与Kendall's $\tau$相关系数的计算方法，即可得到各板块间的相关关系。
 按照上述思路，计算得到的板块间系统性风险尾部相依关系如下表所示：
 
+```{r vine-ultd, results='markup'}
+kable(data.frame(summary(RVM2$RVM)[,c(1:2,8:9)]),row.names =F,align = "c", caption="板块间系统性风险尾部相依系数表",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
 由于Copula函数的特性，对于尾部敏感的Copula才具有相应的尾部系数，所以只有t-Copula和阿基米德类Copula形式
-才能计算出各自的尾部相依系数。从表中可以看出，在没有任何已知信息时，保险板块与银行板块之间和房地产板块
+才能计算出各自的尾部相依系数。从表 \ref(tab:vine-ultd) 中可以看出，在没有任何已知信息时，保险板块与银行板块之间和房地产板块
 与券商信托板块之间的上下尾相依系数都不低，分别为0.43、0.51，表明两板块间具有较强的尾部关系；而券商板块
 与多元金融板块间的下尾相关系数达到0.79，说明当其中一个板块发生系统性风险时，另一板块也极有可能受到风险
 的冲击，这是由于多元金融板块的特性决定，因为该板块的个股尽管不是标准的金融企业，但其涉及的主营业务却大
 多是关于证券投资、信托等，与券商信托板块的业务较像，因此其下尾相依系数大到0.79。当存在部分已知信息时，
 板块间的尾部相依系数均只有较为微弱的尾部关系存在，说明条件板块可能起到了风险催化的作用，需要注意的是，
 在券商信托板块的信息已知时，尽管多元金融板块与房地产板块间是通过t-Copula函数进行连接，但尾部相依系数却
-为0，其原因可从上一节的表中找到，该节点对的Copula函数第二个参数的估计值为21.49，而该参数可近似理解为t
+为0，其原因可从上一节的表 \ref(tab:vine-copula) 中找到，该节点对的Copula函数第二个参数的估计值为21.49，而该参数可近似理解为t
 分布的自由度，当t分布的自由度足够大时，t分布近似于标准正态分布，因此该节点对的t-Copula可近似为
 Gaussian-Copula，表明多元金融板块与房地产板块几乎不存在尾部相依性。
 
@@ -964,7 +967,16 @@ Gaussian-Copula，表明多元金融板块与房地产板块几乎不存在尾�
 
 依据上一目所述的思路，可得到各金融板块间基于藤Copula模型的Kendall's $\tau$相关系数。通过将无条件Kendall相关系数和有条件Kendall相关系数按照板块组合进行分类可得：
 
-如表所示，可以发现在经过藤Copula模型变换后，虽然从相关性强弱的顺序来看，条件相关系数与无条件相关系数差
+```{r vine-kendall, results='markup'}
+RVM_kendall=data.frame(summary(RVM2$RVM)[,c(1:2,7)])
+kendall=c(cor0[4,3],cor0[4,2],cor0[4,1],cor0[1,5],cor0[3,2],cor0[3,1],cor0[4,5],cor0[2,1],cor0[3,5],cor0[2,5])
+vine_kendall=cbind(RVM_kendall,kendall)
+colnames(vine_kendall)=c("tree","edge","cond-tau","tau")
+kable(vine_kendall,row.names =F,align = "c", caption="板块间系统性风险无条件Kendall相关系数与有条件Kendall相关系数对照表",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+如表 \ref(tab:vine-kendall) 所示，可以发现在经过藤Copula模型变换后，虽然从相关性强弱的顺序来看，条件相关系数与无条件相关系数差
 异不大，但从相关系数的数值上来看，板块间系统性风险的相关系数发生了较大的变化。不过，绝大多数的相关系数
 在增加条件信息后有所下降，这表明条件板块在板块间系统性风险传染上实际是起着催化剂的作用，作为一种传染介
 质，加快风险的传染。例如，在不考虑条件信息影响时，多元金融板块与房地产板块之间的Kendall相关系数达到了
