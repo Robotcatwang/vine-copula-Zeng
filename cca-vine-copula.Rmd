@@ -829,20 +829,61 @@ plot(dd_date,insurance,type="l",ylim=c(0,6.5))
 
 经过累计概率密度转换后的序列K-S检验值如下表所示：
 
-由表可以看出，各板块经变换后的系统性风险指标在95%的置信水平上均接受原假设，表明新序列均服从[0,1]的均匀
+```{r test-uniform-distribution}
+f_insurance=ecdf(data_dd[,2])
+co_insurance=f_insurance(data_dd[,2])
+f_multi_finance=ecdf(data_dd[,3])
+co_multi_finance=f_multi_finance(data_dd[,3])
+f_house=ecdf(data_dd[,4])
+co_house=f_house(data_dd[,4])
+f_stock=ecdf(data_dd[,5])
+co_stock=f_stock(data_dd[,5])
+f_bank=ecdf(data_dd[,6])
+co_bank=f_bank(data_dd[,6])
+```
+
+```{r test-uniform, results='markup'}
+test_uniform=data.frame(a=c(ks.test(co_insurance,'punif')[[1]],ks.test(co_insurance,'punif')[[2]]),
+                    b=c(ks.test(co_multi_finance,'punif')[[1]],ks.test(co_multi_finance,'punif')[[2]]),
+                    c=c(ks.test(co_house,'punif')[[1]],ks.test(co_house,'punif')[[2]]),
+                    d=c(ks.test(co_stock,'punif')[[1]],ks.test(co_stock,'punif')[[2]]),
+                    e=c(ks.test(co_bank,'punif')[[1]],ks.test(co_bank,'punif')[[2]]))
+colnames(test_uniform)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+rownames(test_uniform)=c("K-S","P值")
+kable(test_uniform,row.names =T,align = "c", caption="金融各板块系统性风险指标均匀分布检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+由表 \@ref(tab:test-uniform) 可以看出，各板块经变换后的系统性风险指标在95%的置信水平上均接受原假设，表明新序列均服从[0,1]的均匀
 分布。所以可进一步进行建模分析。
 
 对板块间的系统性风险指标计算Kendall’s $\tau$相关系数，得到的相关系数矩阵如下表所示：
 
-从表可以看出券商信托板块与其他板块的相关系数均较大，而银行板块与其他板块的相关系数较小。因此根据直观感
+```{r cor, results='markup'}
+copula_data=data.frame(insurance=co_insurance,
+                       multi_finance=co_multi_finance,
+                       house=co_house,
+                       stock=co_stock,
+                       bank=co_bank)
+cor0=cor(copula_data,method = 'kendall')
+colnames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+rownames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指标相关系数矩阵",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+从表 \@ref(tab:cor0)可以看出券商信托板块与其他板块的相关系数均较大，而银行板块与其他板块的相关系数较小。因此根据直观感
 受，券商信托板块应在藤结构的核心位置，而银行板块位于藤结构的边缘部分。
 
 依照藤理论的规则，藤结构的第一棵树中应包含5个节点，且节点间的边连接的应为相关系数较大的节点对，所以从
 表中可筛选出相关系数排名前四的节点对分别为：券商信托—房地产、券商信托—多元金融、银行—保险、多元金融—房
 地产。通过相应的组合，可得到第一棵树的结构如下图所示：
 
+```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev="png",results='markup'}
+knitr::include_graphics("./vine_first_tree.png")
+```
 
-从图中可以发现，如果仅根据这四个节点对的信息所构造的藤结构包含了两个独立的部分，与前文模型介绍部分所描
+从图 \ref(fig:vine-first-tree) 中可以发现，如果仅根据这四个节点对的信息所构造的藤结构包含了两个独立的部分，与前文模型介绍部分所描
 述藤结构不符，因此需要将相关系数排名第五的节点对——券商信托—保险纳入藤结构的考虑范畴，所以经过调整的第
 一棵树的结构为：
 
@@ -850,36 +891,22 @@ plot(dd_date,insurance,type="l",ylim=c(0,6.5))
 再次计算Kendall相关系数矩阵，按照与构建第一棵树时相同的逻辑即可得到第二棵树的结构。随后重复该步骤，直
 到一棵树中只存在两个节点。所以最终得到的各板块系统性风险藤结构矩阵表达式如下式所示：
 
-```{r test-uniform-distribution}
-f_insurance=ecdf(data_dd[,2])
-co_insurance=f_insurance(data_dd[,2])
-ks.test(co_insurance,'punif')
-
-f_multi_finance=ecdf(data_dd[,3])
-co_multi_finance=f_multi_finance(data_dd[,3])
-ks.test(co_multi_finance,'punif')
-
-f_house=ecdf(data_dd[,4])
-co_house=f_house(data_dd[,4])
-ks.test(co_house,'punif')
-
-f_stock=ecdf(data_dd[,5])
-co_stock=f_stock(data_dd[,5])
-ks.test(co_stock,'punif')
-
-f_bank=ecdf(data_dd[,6])
-co_bank=f_bank(data_dd[,6])
-ks.test(co_bank,'punif')
+```{r vine-fit}
+RVM=RVineStructureSelect(copula_data,familyset=c(0:5),progress=TRUE,rotations=FALSE,method='mle')
+RVM2=RVineMLE(copula_data,RVM,maxit=200)
 ```
 
-```{r vine-fit}
+```{r cor, results='markup'}
 copula_data=data.frame(insurance=co_insurance,
                        multi_finance=co_multi_finance,
                        house=co_house,
                        stock=co_stock,
                        bank=co_bank)
-RVM=RVineStructureSelect(copula_data,familyset=c(0:5),progress=TRUE,rotations=FALSE,method='mle')
-RVM2=RVineMLE(copula_data,RVM,maxit=200)
+cor0=cor(copula_data,method = 'kendall')
+colnames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+rownames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指标相关系数矩阵",
+      longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
 相应的藤结构图如下图所示：
@@ -960,8 +987,11 @@ Gaussian-Copula，表明多元金融板块与房地产板块几乎不存在尾�
 
 ## 政策建议
 
-多部门监管政策协调
-增加市场信心
+基于本文研究过程中得到的结论，提出如下政策建议：
+
+（1）多部门监管政策协调+券商信托板块监管
+
+（2）增加市场信心
 
 ## 研究展望
 
