@@ -897,8 +897,10 @@ RVM2=RVineMLE(copula_data,RVM,maxit=200)
 ```
 
 ```{r vine-marix, results='markup'}
-RVM2$RVM$Matrix
-kable(RVM2$RVM$Matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式",
+vine_matrix=data.frame(RVM2$RVM$Matrix)
+rownames(vine_matrix)=c("[1,]","[2,]","[3,]","[4,]","[5,]")
+colnames(vine_matrix)=c("[,1]","[,2]","[,3]","[,4]","[,5]")
+kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式",
       longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
