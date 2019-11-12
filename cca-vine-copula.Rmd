@@ -3,11 +3,6 @@ title: "我国证券市场金融板块间系统性风险传染效应研究——
 author: "曾远征"
 date: "2019-10"
 output:
-  bookdown::word_document2:
-    fig_caption: true
-    reference_docx: ./style/word-styles-02.docx
-    md_extensions: +east_asian_line_breaks
-    pandoc_args: ["--filter", "pandoc-crossref"]
   bookdown::html_document2:
     number_sections: true
     seq_numbering: true
@@ -24,6 +19,11 @@ output:
     latex_engine: xelatex
     md_extensions: +east_asian_line_breaks
     pandoc_args: ["--listing", "--filter", "pandoc-crossref"]
+  bookdown::word_document2:
+    fig_caption: true
+    reference_docx: ./style/word-styles-02.docx
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--filter", "pandoc-crossref"]
 css: ./style/markdown.css
 autoEqnLabels: true
 eqnPrefixTemplate: ($$i$$)
@@ -383,7 +383,7 @@ $$M=\left(\begin{matrix}
 在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图 \@ref(fig:vine)中第一棵树
 $T_1$的边，即集合$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\right\},\left\{3,5\right\}\right\}$;
 对角线上的值和矩阵倒数第二行的值在一矩阵最后一行为条件时，则共同构成了图\@ref(fig:vine)中第二棵树$T_2$的边，
-即集合$\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}$，
+即集合$\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}\right\}$，
 同理可根据矩阵[@eq:vine-matrix]推导出树$T_3$、$T_4$。综上，当结构矩阵$M$唯一确定时，则R藤结构也确定下来，同时可以发现其没有特殊的结构限制，具有较强的灵活性，可以更好的识别不同变量间复杂的相关关系。
 
 # 基于CCA模型的金融各板块系统性风险测度
@@ -890,6 +890,10 @@ knitr::include_graphics("./vine_first_tree.png")
 从图 \@ref(fig:vine-first-tree) 中可以发现，如果仅根据这四个节点对的信息所构造的藤结构包含了两个独立的部分，与前文模型介绍部分所描
 述藤结构不符，因此需要将相关系数排名第五的节点对——券商信托—保险纳入藤结构的考虑范畴，所以经过调整的第
 一棵树的结构为：
+
+```{r vine-first-tree-adj,echo=FALSE,fig.cap="调整后的金融板块间系统性风险R藤模型树T1结构图",cache=F,dev="png",results='markup'}
+knitr::include_graphics("./vine_first_tree_adj.png")
+```
 
 在第一棵树的基础上可以估计各边的Copula函数类型。确定后即可计算各序列的条件观测值，对新的条件观测值序列
 再次计算Kendall相关系数矩阵，按照与构建第一棵树时相同的逻辑即可得到第二棵树的结构。随后重复该步骤，直
