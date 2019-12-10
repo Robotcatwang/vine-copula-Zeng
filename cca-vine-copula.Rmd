@@ -36,6 +36,9 @@ link-citations: true
 
 **TODO**
 - [ ] 模型介绍增加尾部相依系数，常见六种Copula形式
+- [ ] vine-fit代码块运行时间过长，能不能把结果保存再导入？
+- [ ] vine-marix 代码快有问题，表出不来，修改
+- [ ] 完成所有内容，暂时不管格式
 
 
 
@@ -53,7 +56,7 @@ graphics.off()
 Sys.setlocale("LC_ALL", "Chinese")
 ```
 
-摘要
+**摘要**
 
 防范化解重大风险，特别是防控系统性金融风险被列为我国“三大攻坚战”之首。根据2019年中央经济工作会议相关
 精神，防范金融市场异常波动和共振，打好防范化解系统性风险这一重点战役，是保持经济持续健康发展的重要保
@@ -81,11 +84,11 @@ Copula类型及参数值，通过分析Copula的类型和相应的取值，分�
 所有的条件板块中，券商信托板块出现的次数最多，保险板块其次，再次表明券商信托板块是金融板块系统性风
 险传染过程中的关键点。
 
-关键词：金融板块   系统性风险     CCA模型    藤Copula模型     风险传染
+**关键词**：金融板块   系统性风险     CCA模型    藤Copula模型     风险传染
 
-Abstract
+**Abstract**
 
-Key Words:Financial Sectors,Systemic Risk,CCA Model,Vine-Copula Model,Risk Contagion
+**Keywords**:Financial Sectors,Systemic Risk,CCA Model,Vine-Copula Model,Risk Contagion
 
 
 # 引论
@@ -574,9 +577,9 @@ $T_1$的边，即集合$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\
 
 ```{r import-data}
 rm(list=ls())
-getwd()
-path='F:/github_paper/vine-copula-Zeng'
-setwd(path)
+## getwd()
+## path='F:/github_paper/vine-copula-Zeng'
+## setwd(path)
 ## load package
 library(readxl)
 library(xlsx)
@@ -1069,13 +1072,13 @@ RVM=RVineStructureSelect(copula_data,familyset=c(0:5),progress=TRUE,rotations=FA
 RVM2=RVineMLE(copula_data,RVM,maxit=200)
 ```
 
-```{r vine-marix, results='markup'}
-vine_matrix=data.frame(RVM2$RVM$Matrix)
-rownames(vine_matrix)=c("[1,]","[2,]","[3,]","[4,]","[5,]")
-colnames(vine_matrix)=c("[,1]","[,2]","[,3]","[,4]","[,5]")
-kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式",
-      longtable = TRUE, booktabs = TRUE, linesep="")
-```
+<!-- ```{r vine-marix, results='markup'} -->
+<!-- vine_matrix=data.frame(RVM2$RVM$Matrix) -->
+<!-- rownames(vine_matrix)=c("[1,]","[2,]","[3,]","[4,]","[5,]") -->
+<!-- colnames(vine_matrix)=c("[,1]","[,2]","[,3]","[,4]","[,5]") -->
+<!-- kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式", -->
+<!--       longtable = TRUE, booktabs = TRUE, linesep="") -->
+<!-- ``` -->
 
 相应的藤结构图如下图所示：
 
