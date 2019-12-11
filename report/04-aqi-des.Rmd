@@ -1,0 +1,384 @@
+---
+title: "城市空气质量状况描述及时空分布特征"
+author: "Jin"
+date: '2019-04-15'
+csl: ./style/chinese-gb7714-2005-numeric.csl
+css: ./style/markdown.css
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+link-citations: true
+linkReferences: true
+notice: '@*'
+autoEqnLabels: true
+---
+
+```{r setup, echo=F, message=F}
+
+################# 第 4 章 R 程序代码  ####################
+
+
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+options(knitr.kable.NA = '')
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+windowsFonts(msyh=windowsFont("微软雅黑"))
+library("kableExtra")
+```
+
+# 基于 GAS 模型的黄金期货市场风险测度研究
+
+## 基于 GAS 模型的黄金期货风险测度
+
+### VaR 滚动预测
+
+为了对同业拆借市场的利率风险进行控制，可以借助“在险价值”(Value-at-Risk,简称VaR)来进行准确测
+度。在险价值表示在一定置信区间内，受到正常的波动因素影响下，金融资产的损失可能存在的最大值，
+即收益率密度曲线的一个分位点。若 $VaR>r_t$ ,则表明该模型在第t天具有良好的表现，预测成功。
+
+预测的递归方法通常用于对统计模型的充分性进行回测，以及在VaR和ES预测方面进行模型比较。回测检
+验分析的目的是通过分离估计窗口和评估周期来验证预测的准确性。为此，将T返回的完整样本划分为一
+个长度为S的样本内周期和一个长度为h的样本外周期。首先在样本内周期内估计模型参数，然后生成S+ 
+h时刻收益分布的h步提前预测，以及相应的VaR和ES测度。这些步骤以递归的方式用新的观测值重复扩大
+样本内的周期，直到我们到达系列的末尾t。如果在数据扩大步骤中，去掉了过去的观测值，那么我们考
+虑的是一个滚动窗口。
+
+样本外预测区间选择250组数据主要是考虑到VaR和ES回测检验的需要。根据《巴塞尔协议》对VaR进行回
+测检验的要求，使用VaR度量风险时，至少要取1年或250个交易日作为回测检验的时间长度。因此，本文
+选择250的倍数750天的有效数据作为预测样本。
+
+具体步骤如下：
+
+（1）本文选取2009年1月5日至2016年2月24日消除序列自相关后的黄金期货收益率残差序列作为训练集，
+共有1733天的有效数据，再选取2016年2月25日至2019年3月21日共750天的有效数据作为预测样本；
+
+（2）选取第1-1733天数据作为第一次估计样本，针对模型：GAS-t进行参数估计，在此基础上得到第17
+34天的波动率预测值；
+
+（3）将估计窗口长度固定为1733，再选取第2-1734天数据作为第二次估计样本，针对模型：GAS-t模型
+进行参数估计，在此基础上得到第1735天的波动率预测值；
+
+（4）以此类推，可以得到GAS-t的750个向前一步的波动率预测值，之后再进行风险测度指标评价。
+
+在显著性水平为95%和99%下，VaR回测图如图\@ref(fig:VaR8)，\@ref(fig:VaR9)所示：
+
+### VaR 与实际收益率对比并作图
+
+```{r VaR8, fig.cap="1%显著性水平下回测图", dev='png'}
+n.ots    <- 750
+n.its    <- 1733 
+alpha    <- 0.01 
+k.update <- 100
+
+library(zoo)
+library(forecast)
+library(tseries)
+library(xts)
+library(ggplot2)
+library(FinTS)
+library(moments)
+library(devtools)
+library(FinTS)
+library(GAS)
+library(fBasics)
+library(knitr)
+library(timeDate)
+library(timeSeries)
+
+dat=read.csv("./data/jiesuan.csv",header=T)
+shibor<-dat[,2]
+shibor<-shibor[1:2484]
+shibor.date<-as.Date(dat[,1])
+shibor.date<-shibor.date[1:2484]
+
+#计算对数收益率
+shibor.rt<-diff(log(shibor))
+shibor.rt<-shibor.rt[1:2483]
+shibor.rt = na.omit(shibor.rt)
+fit=stats::arima(shibor.rt,order = c(1,0,1))
+shibor.rt.r<-stats::residuals(fit)
+
+InSampleData = shibor.rt.r[1:1733]
+OutSampleData = shibor.rt.r[1734:2483]
+
+
+herspec=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=TRUE,scale=TRUE,shape=TRUE))
+
+herfit=UniGASFit(herspec,data=InSampleData,fn.optimizer = fn.optim, Compute.SE = TRUE)
+
+models=list(herspec)
+
+var.res <- read.csv("./VaR.csv")
+VaR_N <- var.res[,2]
+ES_N <- var.res[,3]
+y.ots <- as.vector(var.res[,4])
+
+library("zoo")
+time.index <- zoo::index(shibor.rt.r)[(n.its + 1):(n.ots + n.its)]
+y_ots <- zoo::zoo(y.ots, order.by = time.index)
+VaR   <- zoo::zoo(VaR_N, order.by = time.index)
+ES   <- zoo::zoo(ES_N, order.by = time.index)
+
+par(mfrow = c(1, 1))
+plot(y_ots, type = 'p', las = 1, xlab = "",
+     ylab = "", col = "black", cex.axis = 0.7, cex.lab = 0.7,cex=0.7, pch = 19)
+lines(VaR[,1], type = 'l', col = "green", lwd = 2, lty = "dashed")
+lines(ES[,1], type = 'l', col = "red", lwd = 2)
+legend("topleft", legend =c("VaR 1% - VaR", "VaR 1% -ES"), 
+       col = c("green","red"), lwd = 2, cex = 0.7, lty = c("dashed","solid"))
+abline(h = 0)#在y=0添加次要刻度线
+```
+
+```{r VaR9, fig.cap="5%显著性水平下回测图", dev='png'}
+var.res1 <- read.csv("./VaR1.csv")
+VaR_N2 <- var.res1[,2]
+ES_N2 <- var.res1[,3]
+y.ots <- as.vector(var.res1[,4])
+
+VaR2   <- zoo::zoo(VaR_N2, order.by = time.index)
+ES2   <- zoo::zoo(ES_N2, order.by = time.index)
+
+par(mfrow = c(1, 1))
+plot(y_ots, type = 'p', las = 1, xlab = "",
+     ylab = "", col = "black", cex.axis = 0.7, cex.lab = 0.7,cex=0.7, pch = 19)
+lines(VaR2[,1], type = 'l', col = "green", lwd = 2, lty = "dashed")
+lines(ES2[,1], type = 'l', col = "red", lwd = 2)
+legend("topleft", legend =c("VaR 5% - VaR", "VaR 5% -ES"), 
+       col = c("green","red"), lwd = 2, cex = 0.7, lty = c("dashed","solid"))
+abline(h = 0)#在y=0添加次要刻度线
+```
+
+图\@ref(fig:VaR8) 和 \@ref(fig:VaR9)展示了黄金期货利率1%和5%分位数的VaR值。图中的散点表示黄
+金期货收益率残差序列，红色虚线、绿色实线分别表示两个模型预测的相应VaR值。从图\@ref(fig:VaR）
+和\@ref(fig:VaR9)
+
+图分别展示了在95%、99%置信水平下，由GAS-st模型估计得到的VaR和ES的图。图中圆圈所标注的地方为
+实际损失超过VaR和ES的情况。从图中可以发现，不管是在95%还是99%的置信水平下，GAS-st模型对VaR和
+ES的估计是较为准确的，大部分的VaR值可以很好的覆盖实际损失，对于个别的极端情况，仍然存在不能很
+好的度量的情况，这也侧面反映了风险度量的艰难性和突发性。同时，置信水平越高，实际损失超过VaR和
+ES的次数越少，并且ES总是在VaR的下方，考虑了更多的尾部风险。以99%的置信水平为例分析实际损失超
+过VaR和ES的情况。在99%的置信水平下，实际损失超过VaR的次数有2次，分别是从2016年2月25日起的第51
+天（2016年5月12日）和第151天（2016年9月30日）。这两个个时间点的实际损失超过VaR。随着英国脱欧
+公投日期逐渐逼近，英国央行12日召开利率决策会议，同时中国计划简化黄金跨境交易程序，因美元回调
+，使得贵金属于投资者来说更具吸引力，黄金自两周来低位出现反弹上涨。日本官员们也表态，不会因为
+日本出口商的利益而故意压低日元，美元兑日元在触及两周来高位后出现下跌，黄金价格因此受益走高。
+得益于欧洲经济数据疲软，美元融资担忧和季节性因素，美元指数本周累计上涨0.66％。现货金价跌至15
+00美元以下，本周下跌约1.31%，为六个月来最大单周跌幅，在最近一些对全球贸易的乐观情绪和美元走
+强的推动下，黄金价格持续回落。上海期货交易所日间盘黄金期货合约区间波动，交易活跃，持仓减少。
+而实际损失超过ES的次数只有1次，为第151天（2016年9月30日）。说明ES充分考虑了尾部风险，可以克
+服VaR对尾部风险度量不足的缺点。
+
+```{r fig17,echo=FALSE,cache=F,dev="png",results='markup'}
+knitr::include_graphics("./garchvar.png")
+```
+
+同时，为了与GARCH类模型对比，在此选择GARCH类中AIC、BIC较小，似然值较大，绝大部分参数显著的EGARCH-st
+d模型。在99%的置信水平下，通过VaR回测图，可以看出用EGARCH-t模型预测的VaR值整体较平稳，对风险的捕
+捉能力不强，实际损失超过VaR的次数较多。而GAS-t模型预测的VaR值则波动较为明显，表明模型对新信息的反
+应更为敏感，可以及时的抓住风险[@Blasques2017]。GAS-st对VaR和ES的估计都优于其他模型。因此，GAS-t模型
+的风险度量是最好的。但一个好的模型不仅需要对风险信息有迅速的反应，也需要保证较高的准确率。因此采用K
+upiec检验、条件覆盖测试、动态分位数测试和QL统计量和FZ统计量以及NLS统计量六种检验方法分别对三种模型
+预测的VaR值和ES指进行回测检验。
+
+### ES 预测
+
+```{r fig11,echo=FALSE,fig.cap="1%下GAS-t的VaR&ES&实际值",cache=F,dev="png",results='markup'}
+knitr::include_graphics("./contrast.png")
+```
+
+从表中数据来看（在此只截取一下部分），绝大部分的ES估计值的绝对值比VaR估计值的绝对值要大一些，说明它
+是一种更为保守的风险度量工具。在VaR估计失败的交易日中，例如第151天，即2016年9月30日，实际损失的平均
+值为-0.040789943，与ES估计的平均值-0.029308452（此时VaR估计的平均值为-0.023628933）更为接近。当损失
+超过VaR估计值后，实际损失可能比原先估计的最大潜在损失还要大。进一步说明当采用VaR估计失败率时，ES对
+损失的估计更为准确。也就是说应用ES模型确实比较准确地估计了尾部风险。即用ES可以弥补VaR模型的缺点。
+
+## 基于 GAS 模型的黄金期货回测检验
+
+### Kupiec 检验、条件覆盖测试、动态分位数测试
+
+只有能较为准确地预测风险的模型才是有用的，将波动性模型计算出的条件方差引入到VaR方法当中，通
+过失败率检验法为不同类型的投资者选择其“最适”风险度量模型，因此需要对风险模型的度量效果进行回
+测检验。回测检验是用来检验实际损失与预期损失是否一致的统计方法[@Nieto2016]。下面为前三种传统
+检验方式得到的检验统计量及其对应的P值如表 \@ref(tab:test8) ,\@ref(tab:test9)所示：
+
+```{r test8-tab,eval=T,echo=F}
+library("GAS")
+library(rugarch)
+library(fGarch)
+library(parallel)
+spec1=ugarchspec(variance.model = list(model = "eGARCH", garchOrder = c(1, 1)),
+                 mean.model = list(armaOrder = c(1,1), include.mean = TRUE),
+                 distribution.model = "std")
+models1=list(spec1)
+
+POF<-UC<-CC<-DQ<-UC.pval<-CC.pval <- DQ.pval <- vector("double", length(models))
+var.res <- read.csv("./VaR.csv")
+VaR <- var.res[,2:3]
+y.ots <- as.vector(var.res[,4])
+
+pof=function(x){
+  k=0
+  for(i in 1:750){
+    if(x[i]>shibor.rt.r[1733+i]){k=k+1}
+  }
+  k/750
+}
+
+for (j in 1:length(models)) {
+    test0 <- GAS::BacktestVaR(data  = y.ots,
+                             VaR   = VaR[,j],
+                             alpha = 0.01)
+    UC[j] <- test0$LRuc[1]  
+    CC[j] <- test0$LRcc[1] 
+    DQ[j] <- test0$DQ$stat
+    
+    UC.pval[j] <- test0$LRuc[2]  
+    CC.pval[j] <- test0$LRcc[2] 
+    DQ.pval[j] <- test0$DQ$pvalue
+    
+    POF[j]=pof(VaR[,j])} 
+test0.print=t(data.frame(POF,UC,UC.pval,CC,CC.pval,DQ,DQ.pval))
+test0.print <- cbind(c("失败率","Kupiec检验统计量","Kupiec检验P值","条件覆盖测试统计量",
+                        "条件覆盖测试P值","动态分位数测试统计量","动态分位数测试P值"), test0.print)
+colnames(test0.print)=c("统计量","VaR")
+rownames(test0.print)=c("失败率","Kupiec检验统计量","Kupiec检验P值","条件覆盖测试统计量",
+                        "条件覆盖测试P值","动态分位数测试统计量","动态分位数测试P值")
+
+write.csv(test0.print, "test8.csv", row.names = F)
+
+
+```
+
+```{r test8, eval=T,results='markup', cache=F}
+tab8 <- read.csv('./test8.csv')
+knitr::kable(tab8, row.names =F, align = "l", caption="GAS-t回测检验",
+      longtable = TRUE, booktabs = TRUE, linesep  = "", escape = F)
+```
+
+表中统计量数值显示预测模型在显着性水平为1％下，日波动率序列在样本外时间段内的失败率极低。
+通过上文分析，Kupiec检验假定风险事件会随着时间的推移而均匀发生，与实际情况不符；而且条件覆盖
+测试检验方法并不是十分准确。因此，我们当下一般采用动态分位数测试。从表\@ref(tab:test8)
+可以看出，在基于广义t分布的GAS(1,1)中，动态分位数测试统计量为`r DQ[1]`，对应的p值为`r DQ.pval[1]`，
+在显著性水平为0.01时，没有充足的理由可以拒绝原假设，即表明模型可以准确度量原序列的风险程度；
+
+```{r test9-tab,eval=T,echo=F}
+library("GAS")
+library(rugarch)
+library(fGarch)
+library(parallel)
+spec1=ugarchspec(variance.model = list(model = "eGARCH", garchOrder = c(1, 1)),
+                 mean.model = list(armaOrder = c(1,1), include.mean = TRUE),
+                 distribution.model = "std")
+models1=list(spec1)
+POF<-UC<-CC<-DQ<-UC.pval<-CC.pval <- DQ.pval <- vector("double", length(models1))
+var.res <- read.csv("./VaR2.csv")
+VaR <- var.res[,2:3]
+y.ots <- as.vector(var.res[,3])
+
+pof=function(x){
+  k=0
+  for(i in 1:750){
+    if(x[i]>shibor.rt.r[1733+i]){k=k+1}
+  }
+  k/750
+}
+
+for (j in 1:length(models1)) {
+    test0 <- GAS::BacktestVaR(data  = y.ots,
+                             VaR   = VaR[,j],
+                             alpha = 0.01)
+    
+    UC.pval[j] <- test0$LRuc[2]  
+    CC.pval[j] <- test0$LRcc[2] 
+    DQ.pval[j] <- test0$DQ$pvalue
+    
+    POF[j]=pof(VaR[,j])} 
+test0.print=t(data.frame(POF,UC.pval,CC.pval,DQ.pval))
+test0.print <- cbind(c("失败率","Kupiec检验P值","条件覆盖测试P值", "动态分位数测试P值"), test0.print)
+colnames(test0.print)=c("统计量", "VaR")
+rownames(test0.print)=c("失败率","Kupiec检验P值","条件覆盖测试P值", "动态分位数测试P值")
+
+write.csv(test0.print, "test9.csv", row.names = F)
+
+
+```
+
+```{r test9, eval=T,results='markup', cache=F}
+tab9 <- read.csv('./test9.csv')
+knitr::kable(tab9, row.names =F, align = "l", caption="GAS-t回测检验",
+      longtable = TRUE, booktabs = TRUE, linesep  = "", escape = F)
+```
+
+而在表\@ref(tab:test9)，在显著性水平为0.01时，EGARCH-t动态分位数对应的p值为0.00，
+则有充足的理由可以拒绝原假设，未通过检验，模型失真，不能准确度量原序列的风险程度。
+
+### QL 统计量、FZ统计量、NLS统计量
+
+在前文中我们评估了两种模型黄金期货波动率的提前一天的VaR和ES预测，对于以下两个概率水平：1%，5％。
+使用大小为750的滚动窗口。每个指数的预测样本期为1733天，并已采用传统的Kupiec等三种检验方法回
+测，接下来通过GAS框架下独有的分位数损失(QL)和联合损失函数(FZL)和平均负日志分数(NLS)来进行回
+测检验，由于计算量等因素限制，此时无法再与EGARCH-t对比，因此为了比较偏态分布的不同，将GAS-t
+和GAS-norm对比，进而证明GAS-t模型的优越性。
+
+模型比较分析的目的通常是根据损失函数对模型排序。在我们对黄金期货日收益率的实证中，经计算，GA
+S-t和GAS-norm两个模型的平均QL之比为0.93，发现平均QL的模型比较也更倾向于GAS-t，而不是GAS-norm。
+实际上，GAS-t与GAS-norm的QL值之比低于1，说明使用GAS-t时，平均分位数损耗更低：表明GAS-t在平
+均QL方面比GAS-norm高出7%。
+
+FZL函数返回一个数据大小相同的数值向量，并在每个时间点计算FZ损失。使用之前计算的VaR_N和ES_N向
+量，我们可以计算相关的FZ平均损失为：GAS-t的平均FZL为-3.948，GAS-norm的平均FZL为-3.904。在显
+著性水平为1%下,平均FZ损失之间的比率大于1时，表示前者的性能优越，反之。我们发现GAS-t和GAS-norm
+的表现相似，但仍更倾向于GAS-t。
+
+另外，再考虑一个广泛使用的评分规则：平均负日志分数(NLS)，即指定了负的日志分数，评分规则之间的“
+方向”是相同的，即NLS越低，预测越好。GAS-t的NLS为-3.341，而GAS-norm的NLS为-3.304，数值同样表明，
+GAS-t模型对超前一步条件分布有更准确的预测[@Lazar2019]。
+
+
+## 黄金期货市场的短期预测
+
+经过最优模型的选取以及回测检验，可以更加确定GAS-t模型对黄金期货对数收益率数据有充分的拟合，
+建立模型的主要目的是为了对黄金期货的波动率进行预测，接下来用实证检验后的模型对波动率以及VaR
+和ES做出5期预测。
+
+波动率是一个统计概念，一般用来衡量标的资产价格或投资回报率波动的剧烈程度。一般投资者理解的波
+动率是计算价格或收益率的标准差，实际的波动率是一个未知数，或者说，实际波动率是无法事先精
+确计算的。因为收益率的比重比较大，是波动率的两倍左右，因此波动率是日内收益率的平方，由此可以
+得出波动率真实值[@陈晓东2015]。VaR和ES是将训练样本向后移动5期，通过滚动预测从而得到未来5天的
+风险损失。预测结果如表所示：
+
+```{r fig14,echo=FALSE,fig.cap="未来五天黄金期货价格预测情况",cache=F,dev="png",results='markup'}
+knitr::include_graphics("./forecast.png")
+```
+从表14可以看出，无论是波动率还是收益率，预测值和真实值之间的预测误差都在很小的范围内波动。下面定义损失函数。这里用均方根误差(RMSE)和平方绝对百分比误差（MAPE）来观测预测效果。
+
+<!-- $RMSE = \sqrt {\frac{1}{n}\sum\limits_{i = 1}^n {({{\mathop y\limits^\^ }_i}}  - {y_i}{)^2}}$ -->
+
+因为RMSE是用来衡量观测值和真值之间的偏差，与平均绝对误差(MAE)相比，RMSE相当于L2范数，MAE相当于L1范
+数。次数越高，计算的结果就越与较大的值有关，而忽略较小的值，即只要有一个预测值与真实值相差很大，RMS
+E就会很大，RMSE对异常值更加敏感[@朱雅宁2015]。经计算，RMSE=7.777178e-05，则预测值与真实值的偏差很小
+，结果显示，所建模型在预测黄金期货的波动率时达到了很好的效果。
+
+<!-- $MAPE = \frac{{100\% }}{n}\sum\limits_{i = 1}^n {\left| {\frac{{{{\mathop y\limits^\^ }_i} - {y_i}}}{{{y_i}}}} \right|}$ -->
+
+MAPE通过计算绝对误差百分比来表示预测效果，其取值越小越好。此时MAPE=2.178616，这表明预测平均偏离真实
+值2.17%。在这5天中。就有2天的真实值小于预测值，因为MAPE对负值误差的惩罚大于正值误差，比如预测一个酒
+店消费是200元，真实值是150元的会比真实值是250元的MAPE大。
+
+与此同时，在未来5天内，虽然波动率逐渐上升，但模型也起到了较好的风险预测效果，最小的VaR和ES出现
+在2019年3月29日，当日黄金期货结算价为每克283.5元，不再痛前4日持续在287元/克至288元/克内浮动，并
+对应着最大的波动率，最大的VaR和ES出现在2019年3月25日，对应着最小的波动率。而且，无论是在前期2484
+天还是未来的5天，ES几乎始终小于VaR，即ES的确可以更为精确地估计损失，降低尾部风险。
+
+
+
+<!--# 参考文献 {-}-->
+[//]: # (\bibliography{Bibfile})
+	
