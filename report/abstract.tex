@@ -1,32 +1,35 @@
-﻿\begin{cabstract}
+\begin{cabstract}
   \renewcommand{\chapterlabel}{摘\hspace{2em}要}
 
- 2008年1月9日，自从中国黄金期货被首次推出之日以来，世界经济局势大幅波动，黄金期货主力连续合约
-便出现数个跳空缺口，市场剧烈波动，很多投资者产生亏损并纷纷退出，市场流动性很差。随着商业银行
-准入、夜盘交易等制度的颁布与实施，我国黄金期货市场参与者逐渐增多，市场流动性大幅度加强。但是
-受到美元走势、外国突发事件等影响，市场波动仍非常剧烈，国际黄金期货市场价格大幅震荡波动。在此
-背景下，要使黄金期货市场能够平稳有序地运行与发展，必须准确地度量黄金期货的风险，从而对风险进
-行有效的管理，对未来中国黄金期货市场的发展大有裨益。
+ 防范化解重大风险，特别是防控系统性金融风险被列为我国“三大攻坚战”之首。根据2019年中央经济工作会议相关
+精神，防范金融市场异常波动和共振，打好防范化解系统性风险这一重点战役，是保持经济持续健康发展的重要保
+障。近年来随着各金融部门的资产和信贷风险之间的协同流动不断增加，致使系统性金融风险呈现显著的跨部门传
+导效应，这意味着如果只侧重于单个金融部门内部的风险传导，而忽视了机构间的关联性，就可能低估相互依赖
+的金融机构对系统性金融风险的整体贡献，从而无法正确衡量金融系统中的风险溢出效应。同时“金融机构‘太大而
+不能倒’的传统观念正逐步向‘太关联而不能倒’的思想转变”。正是由于证券市场中的各行业板块的股价日趋呈现出
+交叉联动的特点，研究证券市场板块间风险传染路径、机制以及风险相关程度、影响力度，为政策制定及投资决定
+提供参考建议，成为一个日渐紧迫的任务，越来越具有现实意义。
 
-本文以上海期货交易所的黄金期货主力合约的结算价为基础来计算期货市场价格的日间波动测度，为了有
-效地度量波动性，我们引入了具有动态尺度和形状参数的Generalized Autoregressive Score Model（GAS模型），并进一步基于不同边缘分布的条件异方差GARCH模型和EGARCH模型以及GAS的特例
-Beta-t-EGARCH模型，探讨黄金期货市场价格波动风险，并将之与已有基于GAS模型的实证结果进行综合比较。
-同时，采用传统的三种失败率检验法和GAS框架下独有的三种检验统计量对风险模型的度量效果进行回测检验。
-最后对黄金期货的波动率进行5期预测。实证结果显示，GAS模型很好地拟合了我国黄金期货市场波动率序列，
-并对后期的波动率具有较好的预测效果，同时GAS模型较GARCH模型对捕捉波动更敏感，能更好地拟合黄金期
-货市场的波动性。
+因此本文首先以CCA模型为基础对金融各板块的系统性风险进行计算。但是在计算中，本文并非直接使用板块指数
+等整体性指标计算板块的系统性风险，而是通过化整为零，先计算各板块样本股的违约距离，再进行汇总得到板块
+的系统性风险，尽可能减小系统性风险测度过程中存在的误差。然后对各部门系统性风险指标确定最优的R藤结构
+形式，将金融板块的基本风险网络搭建出来，并进行相应的分析。最后确定并估计藤结构中节点与节点间边的
+Copula类型及参数值，通过分析Copula的类型和相应的取值，分析板块间的尾部相依系数、无条件Kendall相关系
+数和条件Kendall相关系数，分析得到板块间系统性风险的传染效应。
 
-黄金期货波动性直接影响黄金期货交易成本和流动性风险，除了风险规避功能以外，黄金期货还是一种重
-要的投资工具，可以对预期收益产生重要影响，投资者可以通过预测分析黄金的价格走向，选择合适的投
-资方式来获取投资收益。期货市场的价格波动代表了投资者在市场信息变化时，对新信息作出的反应； 
-研究黄金市场波动性有助于投资者把握市场行情变动，更加合理的指定交易策略。并且有助于监管部门更好
-的监控市场状况，选择合适的调控手段，在适当的时机对市场进行调控，进而促进我国黄金期货市场监管体
-系的完善，保障市场的健康平稳运行。我们的研究结果推动了新的GAS模型在我国黄金期货市场波动率测量、
-金融衍生品定价或风险价值(VaR)和预期亏空(ES)度量的应用，为监管者和投资者提供一定的参考意见。 
+在研究过程中得出以下研究结论：（1）从各板块的系统性风险情况来看，在2015年前均处于较稳定的状态，但实
+际上证券市场积累的杠杆、配资已经十分庞大，所以当证监会宣布彻查场外配资时，所有金融板块的系统性风险在
+2015年下半年都有了显著的增加，其中尤以券商信托板块最为严重。不过随着国家政策的逐步推进，从2016年起各
+板块的风险指标均有了显著的好转，但是各板块的风险指标波动浮动相较前五年依然有明显的增大。（2）从板块
+间的风险传染结构来看，券商信托板块处于核心节点的位置，而银行板块处于整个结构的边缘位置，表明券商信
+托板块属于金融板块中的风险核心，并且从Copula的类型来说，券商信托板块与其他板块间均为对尾部变化比较
+敏感的Copula形式，说明当券商信托板块出现系统性风险损失时，其他板块都有可能受到系统性风险的感染。在
+所有的条件板块中，券商信托板块出现的次数最多，保险板块其次，再次表明券商信托板块是金融板块系统性风
+险传染过程中的关键点。 
   
   \bigbreak
 
-  {\bfseries 关键词}：GAS，黄金期货，波动风险，滚动预测
+  {\bfseries 关键词}：金融板块，系统性风险，CCA模型，藤Copula模型，风险传染
    
 
 \end{cabstract}
@@ -35,46 +38,17 @@ Beta-t-EGARCH模型，探讨黄金期货市场价格波动风险，并将之与�
 
 
 \begin{eabstract}
-On January 9, 2008, since the first launch of gold futures in China, the world economic situation 
-has fluctuated greatly, leading to several vacancies in the main consecutive contracts of gold 
-futures. As a result, the market has fluctuated violently, and many investors have lost money and 
-withdrawn, resulting in poor market liquidity. With the promulgation and implementation of such 
-systems as commercial bank access and night trading, the number of participants in China's gold 
-futures market has gradually increased and the market liquidity has been greatly enhanced. However,
-affected by the trend of the us dollar and foreign emergencies, market volatility is still very 
-severe, and the international gold futures market prices fluctuate greatly. In this context, in 
-order to ensure the smooth and orderly operation and development of the gold futures market, it is 
-necessary to accurately measure the risk of gold futures, so as to effectively manage the risk, 
-which is of great benefit to the future development of China's gold futures market.
+Prevention and resolution of major risks, especially the prevention and control of systemic financial risks, has been listed as the first of the "three major battles" in China. According to the relevant spirit of the 2019 central economic work conference, to prevent abnormal fluctuations and resonance in the financial market, and to fight the key campaign of preventing and resolving systemic risks is an important guarantee for the sustained and healthy development of the economy. In recent years, with the increasing collaborative flows between assets and credit risks in various financial sectors, systemic financial risks have shown significant cross sector transmission effect, which means that if we only focus on risk transmission within a single financial sector and ignore the inter agency relationship, we may underestimate the overall contribution of interdependent financial institutions to systemic financial risks, So we can't measure the Risk Spillover Effect in financial system. At the same time, "the traditional concept of" too big to fail "of financial institutions is gradually changing to the idea of" too connected to fail ". It is precisely because the stock prices of various sectors in the securities market are increasingly showing the characteristics of cross linkage. It is an increasingly urgent task to study the risk contagion path, mechanism, risk correlation degree and impact strength among sectors in the securities market, so as to provide reference suggestions for policy making and investment decisions, which is becoming more and more realistic.
 
-Based on the Shanghai futures exchange's main gold futures contract settlement price calculated on 
-the basis of the futures market price volatility measure in the day, and in order to effectively 
-measure volatility, we introduced the dynamic scale and shape parameters of Generalized 
-Autoregressive Score Model (GAS) Model, and further the conditional heteroscedasticity GARCH Model 
-based on different marginal distribution and EGARCH Model as well as a special case of the GAS 
-Beta-t-EGARCH Model, to explore gold futures market price volatility risk, It is compared with the 
-empirical results based on GAS model. At the same time, the traditional three failure rate test 
-methods and the unique three test statistics under the GAS framework were used to carry out 
-backtesting on the measurement effect of the risk model. Finally, the volatility of gold futures is
-predicted in 5 stages. The empirical results show that the GAS model fits the volatility sequence 
-of China's gold futures market well, and has a good prediction effect on the later volatility. 
-Meanwhile, the GAS model is more sensitive to capturing volatility than the GARCH model, and can 
-better fit the volatility of the gold futures market.
 
-Gold futures volatility directly affect the cost of gold futures trading and liquidity risk, in 
-addition to the risk aversion function, gold futures is a kind of important investment tools, can 
-be a important impact on earnings, investors can be predicted through the analysis of the price of 
-gold, to choose the right means of investment to obtain investment returns. The price fluctuation 
-of the futures market represents the reaction of investors to the new information when the market 
-information changes. Studying the volatility of gold market is helpful for investors to grasp the 
-changes of market conditions and specify more reasonable trading strategies. What's more, it is 
-helpful for regulators to better monitor market conditions, select appropriate regulatory means and regulate the market at appropriate times, so as to improve the regulatory system of China's gold 
-futures market and ensure the healthy and stable operation of the market. Our research results to 
-promote the new GAS model in China's gold futures market volatility measurement, financial 
-derivatives pricing or value at risk (VaR) and expected shortfall (ES), the application of 
-measurement, provides some reference opinions for regulators and investors.
+
+Therefore, based on CCA model, this paper firstly calculates the systematic risk of each financial sector. However, in the calculation, this paper does not directly use the overall indicators such as the plate index to calculate the systematic risk of the plate, but through breaking up into parts, first calculating the default distance of the sample stocks of each plate, and then summarizing the systematic risk of the plate, so as to reduce the error in the process of systematic risk measurement as much as possible. Then, the optimal r-vine structure is determined for the systematic risk indicators of each department, and the basic risk network of the financial sector is constructed, and the corresponding analysis is carried out. Finally, we determine and estimate the copula type and parameter value between nodes and the edge of nodes in rattan structure. By analyzing the copula type and corresponding value, we analyze the tail dependence coefficient, unconditional Kendall correlation coefficient and conditional Kendall correlation coefficient between plates, and analyze the infectious effect of the system risk between plates.
+
+
+
+In the research process, the following conclusions are drawn: (1) from the perspective of the systematic risk of each sector, it was in a relatively stable state before 2015, but in fact, the leverage and capital allocation accumulated in the securities market have been very large, so when the CSRC announced a thorough investigation of OTC capital allocation, the systematic risk of all financial sectors increased significantly in the second half of 2015, especially in the financial sector The trust sector of securities companies is the most serious. However, with the gradual promotion of national policies, the risk indicators of each sector have improved significantly since 2016, but the fluctuation of risk indicators of each sector is still significantly increased compared with the previous five years. (2) from the perspective of the risk contagion structure between the plates, the trust plate of securities companies is at the core node position, while the bank plate is at the edge of the whole structure, indicating that the trust plate of securities companies belongs to the risk core of the financial plate, and from the type of copula, the trust plate of securities companies and other plates are all copula forms that are more sensitive to tail changes, indicating that when the credit of securities companies When there is systemic risk loss in Tuo sector, other sectors may be infected by systemic risk. In all the condition sectors, the securities trust sector is the most frequent, followed by the insurance sector, which once again shows that the securities trust sector is the key point in the process of systemic risk contagion in the financial sector.
   \\*
 
 \end{eabstract}
 
-\ekeywords{GAS,gold futures,volatility risk,rolling forecast }
+\ekeywords{Financial Sectors,Systemic Risk,CCA Model,Vine-Copula Model,Risk Contagion }

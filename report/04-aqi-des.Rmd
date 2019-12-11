@@ -1,7 +1,7 @@
 ---
-title: "城市空气质量状况描述及时空分布特征"
-author: "Jin"
-date: '2019-04-15'
+title: "基于RVineCopula模型的金融板块间系统性风险传染效应研究"
+author: "Zeng"
+date: '2019-12-10'
 csl: ./style/chinese-gb7714-2005-numeric.csl
 css: ./style/markdown.css
 bibliography: Bibfile.bib
@@ -33,349 +33,191 @@ windowsFonts(msyh=windowsFont("微软雅黑"))
 library("kableExtra")
 ```
 
-# 基于 GAS 模型的黄金期货市场风险测度研究
+# 基于RVine-Copula模型的金融板块间系统性风险传染效应研究
 
-## 基于 GAS 模型的黄金期货风险测度
+## 板块间系统性风险RVine-Copula模型构建
 
-### VaR 滚动预测
+### 最优R藤结构选择
 
-为了对同业拆借市场的利率风险进行控制，可以借助“在险价值”(Value-at-Risk,简称VaR)来进行准确测
-度。在险价值表示在一定置信区间内，受到正常的波动因素影响下，金融资产的损失可能存在的最大值，
-即收益率密度曲线的一个分位点。若 $VaR>r_t$ ,则表明该模型在第t天具有良好的表现，预测成功。
+正如模型介绍部分所述，对于仅包含两个变量的情况，且这两个变量均服从[0,1]的均匀分布时，一定存在一个联结
+函数$C$，使得二元联合分布函数可用两个变量的边缘分布函数表示。因此为了保证Copula函数一定存在，需对前面
+计算得到的板块系统性风险指标进行累计概率密度转换，使用经过变换后服从[0,1]上均匀分布的新序列进行建模分
+析。
 
-预测的递归方法通常用于对统计模型的充分性进行回测，以及在VaR和ES预测方面进行模型比较。回测检
-验分析的目的是通过分离估计窗口和评估周期来验证预测的准确性。为此，将T返回的完整样本划分为一
-个长度为S的样本内周期和一个长度为h的样本外周期。首先在样本内周期内估计模型参数，然后生成S+ 
-h时刻收益分布的h步提前预测，以及相应的VaR和ES测度。这些步骤以递归的方式用新的观测值重复扩大
-样本内的周期，直到我们到达系列的末尾t。如果在数据扩大步骤中，去掉了过去的观测值，那么我们考
-虑的是一个滚动窗口。
+经过累计概率密度转换后的序列K-S检验值如下表所示：
 
-样本外预测区间选择250组数据主要是考虑到VaR和ES回测检验的需要。根据《巴塞尔协议》对VaR进行回
-测检验的要求，使用VaR度量风险时，至少要取1年或250个交易日作为回测检验的时间长度。因此，本文
-选择250的倍数750天的有效数据作为预测样本。
-
-具体步骤如下：
-
-（1）本文选取2009年1月5日至2016年2月24日消除序列自相关后的黄金期货收益率残差序列作为训练集，
-共有1733天的有效数据，再选取2016年2月25日至2019年3月21日共750天的有效数据作为预测样本；
-
-（2）选取第1-1733天数据作为第一次估计样本，针对模型：GAS-t进行参数估计，在此基础上得到第17
-34天的波动率预测值；
-
-（3）将估计窗口长度固定为1733，再选取第2-1734天数据作为第二次估计样本，针对模型：GAS-t模型
-进行参数估计，在此基础上得到第1735天的波动率预测值；
-
-（4）以此类推，可以得到GAS-t的750个向前一步的波动率预测值，之后再进行风险测度指标评价。
-
-在显著性水平为95%和99%下，VaR回测图如图\@ref(fig:VaR8)，\@ref(fig:VaR9)所示：
-
-### VaR 与实际收益率对比并作图
-
-```{r VaR8, fig.cap="1%显著性水平下回测图", dev='png'}
-n.ots    <- 750
-n.its    <- 1733 
-alpha    <- 0.01 
-k.update <- 100
-
-library(zoo)
-library(forecast)
-library(tseries)
-library(xts)
-library(ggplot2)
-library(FinTS)
-library(moments)
-library(devtools)
-library(FinTS)
-library(GAS)
-library(fBasics)
-library(knitr)
-library(timeDate)
-library(timeSeries)
-
-dat=read.csv("./data/jiesuan.csv",header=T)
-shibor<-dat[,2]
-shibor<-shibor[1:2484]
-shibor.date<-as.Date(dat[,1])
-shibor.date<-shibor.date[1:2484]
-
-#计算对数收益率
-shibor.rt<-diff(log(shibor))
-shibor.rt<-shibor.rt[1:2483]
-shibor.rt = na.omit(shibor.rt)
-fit=stats::arima(shibor.rt,order = c(1,0,1))
-shibor.rt.r<-stats::residuals(fit)
-
-InSampleData = shibor.rt.r[1:1733]
-OutSampleData = shibor.rt.r[1734:2483]
-
-
-herspec=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=TRUE,scale=TRUE,shape=TRUE))
-
-herfit=UniGASFit(herspec,data=InSampleData,fn.optimizer = fn.optim, Compute.SE = TRUE)
-
-models=list(herspec)
-
-var.res <- read.csv("./VaR.csv")
-VaR_N <- var.res[,2]
-ES_N <- var.res[,3]
-y.ots <- as.vector(var.res[,4])
-
-library("zoo")
-time.index <- zoo::index(shibor.rt.r)[(n.its + 1):(n.ots + n.its)]
-y_ots <- zoo::zoo(y.ots, order.by = time.index)
-VaR   <- zoo::zoo(VaR_N, order.by = time.index)
-ES   <- zoo::zoo(ES_N, order.by = time.index)
-
-par(mfrow = c(1, 1))
-plot(y_ots, type = 'p', las = 1, xlab = "",
-     ylab = "", col = "black", cex.axis = 0.7, cex.lab = 0.7,cex=0.7, pch = 19)
-lines(VaR[,1], type = 'l', col = "green", lwd = 2, lty = "dashed")
-lines(ES[,1], type = 'l', col = "red", lwd = 2)
-legend("topleft", legend =c("VaR 1% - VaR", "VaR 1% -ES"), 
-       col = c("green","red"), lwd = 2, cex = 0.7, lty = c("dashed","solid"))
-abline(h = 0)#在y=0添加次要刻度线
+```{r test-uniform-distribution}
+f_insurance=ecdf(data_dd[,2])
+co_insurance=f_insurance(data_dd[,2])
+f_multi_finance=ecdf(data_dd[,3])
+co_multi_finance=f_multi_finance(data_dd[,3])
+f_house=ecdf(data_dd[,4])
+co_house=f_house(data_dd[,4])
+f_stock=ecdf(data_dd[,5])
+co_stock=f_stock(data_dd[,5])
+f_bank=ecdf(data_dd[,6])
+co_bank=f_bank(data_dd[,6])
 ```
 
-```{r VaR9, fig.cap="5%显著性水平下回测图", dev='png'}
-var.res1 <- read.csv("./VaR1.csv")
-VaR_N2 <- var.res1[,2]
-ES_N2 <- var.res1[,3]
-y.ots <- as.vector(var.res1[,4])
-
-VaR2   <- zoo::zoo(VaR_N2, order.by = time.index)
-ES2   <- zoo::zoo(ES_N2, order.by = time.index)
-
-par(mfrow = c(1, 1))
-plot(y_ots, type = 'p', las = 1, xlab = "",
-     ylab = "", col = "black", cex.axis = 0.7, cex.lab = 0.7,cex=0.7, pch = 19)
-lines(VaR2[,1], type = 'l', col = "green", lwd = 2, lty = "dashed")
-lines(ES2[,1], type = 'l', col = "red", lwd = 2)
-legend("topleft", legend =c("VaR 5% - VaR", "VaR 5% -ES"), 
-       col = c("green","red"), lwd = 2, cex = 0.7, lty = c("dashed","solid"))
-abline(h = 0)#在y=0添加次要刻度线
+```{r test-uniform, results='markup'}
+test_uniform=data.frame(a=c(ks.test(co_insurance,'punif')[[1]],ks.test(co_insurance,'punif')[[2]]),
+                    b=c(ks.test(co_multi_finance,'punif')[[1]],ks.test(co_multi_finance,'punif')[[2]]),
+                    c=c(ks.test(co_house,'punif')[[1]],ks.test(co_house,'punif')[[2]]),
+                    d=c(ks.test(co_stock,'punif')[[1]],ks.test(co_stock,'punif')[[2]]),
+                    e=c(ks.test(co_bank,'punif')[[1]],ks.test(co_bank,'punif')[[2]]))
+colnames(test_uniform)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+rownames(test_uniform)=c("K-S","P值")
+kable(test_uniform,row.names =T,align = "c", caption="金融各板块系统性风险指标均匀分布检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
-图\@ref(fig:VaR8) 和 \@ref(fig:VaR9)展示了黄金期货利率1%和5%分位数的VaR值。图中的散点表示黄
-金期货收益率残差序列，红色虚线、绿色实线分别表示两个模型预测的相应VaR值。从图\@ref(fig:VaR）
-和\@ref(fig:VaR9)
+由表 \@ref(tab:test-uniform) 可以看出，各板块经变换后的系统性风险指标在95%的置信水平上均接受原假设，表明新序列均服从[0,1]的均匀
+分布。所以可进一步进行建模分析。
 
-图分别展示了在95%、99%置信水平下，由GAS-st模型估计得到的VaR和ES的图。图中圆圈所标注的地方为
-实际损失超过VaR和ES的情况。从图中可以发现，不管是在95%还是99%的置信水平下，GAS-st模型对VaR和
-ES的估计是较为准确的，大部分的VaR值可以很好的覆盖实际损失，对于个别的极端情况，仍然存在不能很
-好的度量的情况，这也侧面反映了风险度量的艰难性和突发性。同时，置信水平越高，实际损失超过VaR和
-ES的次数越少，并且ES总是在VaR的下方，考虑了更多的尾部风险。以99%的置信水平为例分析实际损失超
-过VaR和ES的情况。在99%的置信水平下，实际损失超过VaR的次数有2次，分别是从2016年2月25日起的第51
-天（2016年5月12日）和第151天（2016年9月30日）。这两个个时间点的实际损失超过VaR。随着英国脱欧
-公投日期逐渐逼近，英国央行12日召开利率决策会议，同时中国计划简化黄金跨境交易程序，因美元回调
-，使得贵金属于投资者来说更具吸引力，黄金自两周来低位出现反弹上涨。日本官员们也表态，不会因为
-日本出口商的利益而故意压低日元，美元兑日元在触及两周来高位后出现下跌，黄金价格因此受益走高。
-得益于欧洲经济数据疲软，美元融资担忧和季节性因素，美元指数本周累计上涨0.66％。现货金价跌至15
-00美元以下，本周下跌约1.31%，为六个月来最大单周跌幅，在最近一些对全球贸易的乐观情绪和美元走
-强的推动下，黄金价格持续回落。上海期货交易所日间盘黄金期货合约区间波动，交易活跃，持仓减少。
-而实际损失超过ES的次数只有1次，为第151天（2016年9月30日）。说明ES充分考虑了尾部风险，可以克
-服VaR对尾部风险度量不足的缺点。
+对板块间的系统性风险指标计算Kendall’s $\tau$相关系数，得到的相关系数矩阵如下表所示：
 
-```{r fig17,echo=FALSE,cache=F,dev="png",results='markup'}
-knitr::include_graphics("./garchvar.png")
+```{r cor, results='markup'}
+copula_data=data.frame(insurance=co_insurance,
+                       multi_finance=co_multi_finance,
+                       house=co_house,
+                       stock=co_stock,
+                       bank=co_bank)
+cor0=cor(copula_data,method = 'kendall')
+colnames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+rownames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指标相关系数矩阵",
+      longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
-同时，为了与GARCH类模型对比，在此选择GARCH类中AIC、BIC较小，似然值较大，绝大部分参数显著的EGARCH-st
-d模型。在99%的置信水平下，通过VaR回测图，可以看出用EGARCH-t模型预测的VaR值整体较平稳，对风险的捕
-捉能力不强，实际损失超过VaR的次数较多。而GAS-t模型预测的VaR值则波动较为明显，表明模型对新信息的反
-应更为敏感，可以及时的抓住风险[@Blasques2017]。GAS-st对VaR和ES的估计都优于其他模型。因此，GAS-t模型
-的风险度量是最好的。但一个好的模型不仅需要对风险信息有迅速的反应，也需要保证较高的准确率。因此采用K
-upiec检验、条件覆盖测试、动态分位数测试和QL统计量和FZ统计量以及NLS统计量六种检验方法分别对三种模型
-预测的VaR值和ES指进行回测检验。
+从表 \@ref(tab:cor)可以看出券商信托板块与其他板块的相关系数均较大，而银行板块与其他板块的相关系数较小。因此根据直观感
+受，券商信托板块应在藤结构的核心位置，而银行板块位于藤结构的边缘部分。
 
-### ES 预测
+依照藤理论的规则，藤结构的第一棵树中应包含5个节点，且节点间的边连接的应为相关系数较大的节点对，所以从
+表中可筛选出相关系数排名前四的节点对分别为：券商信托—房地产、券商信托—多元金融、银行—保险、多元金融—房
+地产。通过相应的组合，可得到第一棵树的结构如下图所示：
 
-```{r fig11,echo=FALSE,fig.cap="1%下GAS-t的VaR&ES&实际值",cache=F,dev="png",results='markup'}
-knitr::include_graphics("./contrast.png")
+```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev="png",results='markup',fig.height=2}
+knitr::include_graphics("./vine_first_tree.png")
 ```
 
-从表中数据来看（在此只截取一下部分），绝大部分的ES估计值的绝对值比VaR估计值的绝对值要大一些，说明它
-是一种更为保守的风险度量工具。在VaR估计失败的交易日中，例如第151天，即2016年9月30日，实际损失的平均
-值为-0.040789943，与ES估计的平均值-0.029308452（此时VaR估计的平均值为-0.023628933）更为接近。当损失
-超过VaR估计值后，实际损失可能比原先估计的最大潜在损失还要大。进一步说明当采用VaR估计失败率时，ES对
-损失的估计更为准确。也就是说应用ES模型确实比较准确地估计了尾部风险。即用ES可以弥补VaR模型的缺点。
+从图 \@ref(fig:vine-first-tree) 中可以发现，如果仅根据这四个节点对的信息所构造的藤结构包含了两个独立的部分，与前文模型介绍部分所描
+述藤结构不符，因此需要将相关系数排名第五的节点对——券商信托—保险纳入藤结构的考虑范畴，所以经过调整的第
+一棵树的结构为：
 
-## 基于 GAS 模型的黄金期货回测检验
-
-### Kupiec 检验、条件覆盖测试、动态分位数测试
-
-只有能较为准确地预测风险的模型才是有用的，将波动性模型计算出的条件方差引入到VaR方法当中，通
-过失败率检验法为不同类型的投资者选择其“最适”风险度量模型，因此需要对风险模型的度量效果进行回
-测检验。回测检验是用来检验实际损失与预期损失是否一致的统计方法[@Nieto2016]。下面为前三种传统
-检验方式得到的检验统计量及其对应的P值如表 \@ref(tab:test8) ,\@ref(tab:test9)所示：
-
-```{r test8-tab,eval=T,echo=F}
-library("GAS")
-library(rugarch)
-library(fGarch)
-library(parallel)
-spec1=ugarchspec(variance.model = list(model = "eGARCH", garchOrder = c(1, 1)),
-                 mean.model = list(armaOrder = c(1,1), include.mean = TRUE),
-                 distribution.model = "std")
-models1=list(spec1)
-
-POF<-UC<-CC<-DQ<-UC.pval<-CC.pval <- DQ.pval <- vector("double", length(models))
-var.res <- read.csv("./VaR.csv")
-VaR <- var.res[,2:3]
-y.ots <- as.vector(var.res[,4])
-
-pof=function(x){
-  k=0
-  for(i in 1:750){
-    if(x[i]>shibor.rt.r[1733+i]){k=k+1}
-  }
-  k/750
-}
-
-for (j in 1:length(models)) {
-    test0 <- GAS::BacktestVaR(data  = y.ots,
-                             VaR   = VaR[,j],
-                             alpha = 0.01)
-    UC[j] <- test0$LRuc[1]  
-    CC[j] <- test0$LRcc[1] 
-    DQ[j] <- test0$DQ$stat
-    
-    UC.pval[j] <- test0$LRuc[2]  
-    CC.pval[j] <- test0$LRcc[2] 
-    DQ.pval[j] <- test0$DQ$pvalue
-    
-    POF[j]=pof(VaR[,j])} 
-test0.print=t(data.frame(POF,UC,UC.pval,CC,CC.pval,DQ,DQ.pval))
-test0.print <- cbind(c("失败率","Kupiec检验统计量","Kupiec检验P值","条件覆盖测试统计量",
-                        "条件覆盖测试P值","动态分位数测试统计量","动态分位数测试P值"), test0.print)
-colnames(test0.print)=c("统计量","VaR")
-rownames(test0.print)=c("失败率","Kupiec检验统计量","Kupiec检验P值","条件覆盖测试统计量",
-                        "条件覆盖测试P值","动态分位数测试统计量","动态分位数测试P值")
-
-write.csv(test0.print, "test8.csv", row.names = F)
-
-
+```{r vine-first-tree-adj,echo=FALSE,fig.cap="调整后的金融板块间系统性风险R藤模型树T1结构图",cache=F,dev="png",results='markup',fig.height=2}
+knitr::include_graphics("./vine_first_tree_adj.png")
 ```
 
-```{r test8, eval=T,results='markup', cache=F}
-tab8 <- read.csv('./test8.csv')
-knitr::kable(tab8, row.names =F, align = "l", caption="GAS-t回测检验",
-      longtable = TRUE, booktabs = TRUE, linesep  = "", escape = F)
+在第一棵树的基础上可以估计各边的Copula函数类型。确定后即可计算各序列的条件观测值，对新的条件观测值序列
+再次计算Kendall相关系数矩阵，按照与构建第一棵树时相同的逻辑即可得到第二棵树的结构。随后重复该步骤，直
+到一棵树中只存在两个节点。所以最终得到的各板块系统性风险藤结构矩阵表达式如下式所示：
+
+```{r vine-fit}
+RVM=RVineStructureSelect(copula_data,familyset=c(0:5),progress=TRUE,rotations=FALSE,method='mle')
+RVM2=RVineMLE(copula_data,RVM,maxit=200)
 ```
 
-表中统计量数值显示预测模型在显着性水平为1％下，日波动率序列在样本外时间段内的失败率极低。
-通过上文分析，Kupiec检验假定风险事件会随着时间的推移而均匀发生，与实际情况不符；而且条件覆盖
-测试检验方法并不是十分准确。因此，我们当下一般采用动态分位数测试。从表\@ref(tab:test8)
-可以看出，在基于广义t分布的GAS(1,1)中，动态分位数测试统计量为`r DQ[1]`，对应的p值为`r DQ.pval[1]`，
-在显著性水平为0.01时，没有充足的理由可以拒绝原假设，即表明模型可以准确度量原序列的风险程度；
+```{r vine-marix, results='markup'}
+vine_matrix=data.frame(RVM2$RVM$Matrix) 
+rownames(vine_matrix)=c("A","B","C","D","E") 
+colnames(vine_matrix)=c("A","B","C","D","E") 
+kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式",    longtable = TRUE, booktabs = TRUE, linesep="") 
+``` 
 
-```{r test9-tab,eval=T,echo=F}
-library("GAS")
-library(rugarch)
-library(fGarch)
-library(parallel)
-spec1=ugarchspec(variance.model = list(model = "eGARCH", garchOrder = c(1, 1)),
-                 mean.model = list(armaOrder = c(1,1), include.mean = TRUE),
-                 distribution.model = "std")
-models1=list(spec1)
-POF<-UC<-CC<-DQ<-UC.pval<-CC.pval <- DQ.pval <- vector("double", length(models1))
-var.res <- read.csv("./VaR2.csv")
-VaR <- var.res[,2:3]
-y.ots <- as.vector(var.res[,3])
+相应的藤结构图如下图所示：
 
-pof=function(x){
-  k=0
-  for(i in 1:750){
-    if(x[i]>shibor.rt.r[1733+i]){k=k+1}
-  }
-  k/750
-}
-
-for (j in 1:length(models1)) {
-    test0 <- GAS::BacktestVaR(data  = y.ots,
-                             VaR   = VaR[,j],
-                             alpha = 0.01)
-    
-    UC.pval[j] <- test0$LRuc[2]  
-    CC.pval[j] <- test0$LRcc[2] 
-    DQ.pval[j] <- test0$DQ$pvalue
-    
-    POF[j]=pof(VaR[,j])} 
-test0.print=t(data.frame(POF,UC.pval,CC.pval,DQ.pval))
-test0.print <- cbind(c("失败率","Kupiec检验P值","条件覆盖测试P值", "动态分位数测试P值"), test0.print)
-colnames(test0.print)=c("统计量", "VaR")
-rownames(test0.print)=c("失败率","Kupiec检验P值","条件覆盖测试P值", "动态分位数测试P值")
-
-write.csv(test0.print, "test9.csv", row.names = F)
-
-
+```{r vine-fit-fig,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型结构图",cache=F,dev="png",results='markup',fig.height=6}
+knitr::include_graphics("./vine_fit.png")
 ```
 
-```{r test9, eval=T,results='markup', cache=F}
-tab9 <- read.csv('./test9.csv')
-knitr::kable(tab9, row.names =F, align = "l", caption="GAS-t回测检验",
-      longtable = TRUE, booktabs = TRUE, linesep  = "", escape = F)
+图 \@ref(fig:vine-fit-fig) 中的1—5分别表示保险板块、多元金融板块、房地产板块、券商信托板块和银行板块。从图中可以看出，第一棵树
+以券商信托板块为核心节点，与保险板块、多元金融板块和房地产板块均有连接，而银行板块仅与保险板块有连接，
+处于整个结构的边缘位置，这与最初的分析保持一致；第二、三、四棵树则不存在分支，仅由一根主干连接。
+
+### 板块间最优Copula函数确定
+
+在确定最优的藤结构后，根据AIC、BIC准则即可得到藤结构中两两节点的边所对应的Copula函数及其参数。本文用作
+备选的Copula函数包括以下六种类型：独立Copula、Gaussian-Copula、t-Copula、Clayton-Copula、Gumbel-Copula
+和Frank-Copula。最终估计的结果如下表所示：
+
+```{r rvm-summary1}
+RVM_summary1=data.frame(summary(RVM2$RVM)[,c(1:2,4:6)])
 ```
 
-而在表\@ref(tab:test9)，在显著性水平为0.01时，EGARCH-t动态分位数对应的p值为0.00，
-则有充足的理由可以拒绝原假设，未通过检验，模型失真，不能准确度量原序列的风险程度。
-
-### QL 统计量、FZ统计量、NLS统计量
-
-在前文中我们评估了两种模型黄金期货波动率的提前一天的VaR和ES预测，对于以下两个概率水平：1%，5％。
-使用大小为750的滚动窗口。每个指数的预测样本期为1733天，并已采用传统的Kupiec等三种检验方法回
-测，接下来通过GAS框架下独有的分位数损失(QL)和联合损失函数(FZL)和平均负日志分数(NLS)来进行回
-测检验，由于计算量等因素限制，此时无法再与EGARCH-t对比，因此为了比较偏态分布的不同，将GAS-t
-和GAS-norm对比，进而证明GAS-t模型的优越性。
-
-模型比较分析的目的通常是根据损失函数对模型排序。在我们对黄金期货日收益率的实证中，经计算，GA
-S-t和GAS-norm两个模型的平均QL之比为0.93，发现平均QL的模型比较也更倾向于GAS-t，而不是GAS-norm。
-实际上，GAS-t与GAS-norm的QL值之比低于1，说明使用GAS-t时，平均分位数损耗更低：表明GAS-t在平
-均QL方面比GAS-norm高出7%。
-
-FZL函数返回一个数据大小相同的数值向量，并在每个时间点计算FZ损失。使用之前计算的VaR_N和ES_N向
-量，我们可以计算相关的FZ平均损失为：GAS-t的平均FZL为-3.948，GAS-norm的平均FZL为-3.904。在显
-著性水平为1%下,平均FZ损失之间的比率大于1时，表示前者的性能优越，反之。我们发现GAS-t和GAS-norm
-的表现相似，但仍更倾向于GAS-t。
-
-另外，再考虑一个广泛使用的评分规则：平均负日志分数(NLS)，即指定了负的日志分数，评分规则之间的“
-方向”是相同的，即NLS越低，预测越好。GAS-t的NLS为-3.341，而GAS-norm的NLS为-3.304，数值同样表明，
-GAS-t模型对超前一步条件分布有更准确的预测[@Lazar2019]。
-
-
-## 黄金期货市场的短期预测
-
-经过最优模型的选取以及回测检验，可以更加确定GAS-t模型对黄金期货对数收益率数据有充分的拟合，
-建立模型的主要目的是为了对黄金期货的波动率进行预测，接下来用实证检验后的模型对波动率以及VaR
-和ES做出5期预测。
-
-波动率是一个统计概念，一般用来衡量标的资产价格或投资回报率波动的剧烈程度。一般投资者理解的波
-动率是计算价格或收益率的标准差，实际的波动率是一个未知数，或者说，实际波动率是无法事先精
-确计算的。因为收益率的比重比较大，是波动率的两倍左右，因此波动率是日内收益率的平方，由此可以
-得出波动率真实值[@陈晓东2015]。VaR和ES是将训练样本向后移动5期，通过滚动预测从而得到未来5天的
-风险损失。预测结果如表所示：
-
-```{r fig14,echo=FALSE,fig.cap="未来五天黄金期货价格预测情况",cache=F,dev="png",results='markup'}
-knitr::include_graphics("./forecast.png")
+```{r vine-copula, results='markup'}
+kable(RVM_summary1,row.names =F,align = "c", caption="板块间系统性风险最优Copula形式表",
+      longtable = TRUE, booktabs = TRUE, linesep="")
 ```
-从表14可以看出，无论是波动率还是收益率，预测值和真实值之间的预测误差都在很小的范围内波动。下面定义损失函数。这里用均方根误差(RMSE)和平方绝对百分比误差（MAPE）来观测预测效果。
 
-<!-- $RMSE = \sqrt {\frac{1}{n}\sum\limits_{i = 1}^n {({{\mathop y\limits^\^ }_i}}  - {y_i}{)^2}}$ -->
+正如前文模型介绍中所述，不同的Copula函数可以反应不同的相依关系。从表 \@ref(tab:vine-copula) 中的第一棵树可以看出，券商信托板块
+和保险板块之间为Gaussian-Copula函数，表明两板块间具有一定的相关关系，且上下尾具有对称性；保险板块与银
+行板块之间和房地产板块与券商信托板块之间的Copula形式均为t-Copula函数，虽然也说明上尾和下尾的相关性具有
+一定的对称性，但是上述两个板块间却是具有厚尾相关性，对极端值的变化更加敏感；而多元金融板块和券商信托板
+块间则是以Clayton-Copula函数为最优连接形式，Claton-Copula函数最大的特点即是上下尾相关性非对称，且对下
+尾的变化极端敏感，说明当多元金融板块或券商信托板块出现极端系统性风险损失时，另一板块可能会被迅速传染上
+系统性风险。第二棵树中，在保险板块信息已知的前提下，券商信托板块与银行板块间和在券商信托板块信息已知的
+前提下，保险板块与房地产板块间的Copula类型均为Gumbel-Copula型，说明这两个板块间对上尾系统性风险较为敏
+感，对下尾损失部分却相关性不强；而当券商信托板块信息已知时，多元金融板块与房地产板块之间上下尾系统性风
+险均较为敏感。在第三棵树中，可以发现在房地产板块与券商信托板块信息都明确时，多元金融板块与保险板块之间
+服从独立Copula的形式，说明当信息已知足够多时，两板块间的系统性风险可能不存在互相影响的情况。同理，第四
+棵树也是类似的情形，在保险、房地产和券商信托板块的系统性风险信息均清楚时，多元金融板块与银行板块间的相
+关系数也为0，不具有一致性的关系。
 
-因为RMSE是用来衡量观测值和真值之间的偏差，与平均绝对误差(MAE)相比，RMSE相当于L2范数，MAE相当于L1范
-数。次数越高，计算的结果就越与较大的值有关，而忽略较小的值，即只要有一个预测值与真实值相差很大，RMS
-E就会很大，RMSE对异常值更加敏感[@朱雅宁2015]。经计算，RMSE=7.777178e-05，则预测值与真实值的偏差很小
-，结果显示，所建模型在预测黄金期货的波动率时达到了很好的效果。
 
-<!-- $MAPE = \frac{{100\% }}{n}\sum\limits_{i = 1}^n {\left| {\frac{{{{\mathop y\limits^\^ }_i} - {y_i}}}{{{y_i}}}} \right|}$ -->
+## 金融板块间系统性风险传染效应分析
 
-MAPE通过计算绝对误差百分比来表示预测效果，其取值越小越好。此时MAPE=2.178616，这表明预测平均偏离真实
-值2.17%。在这5天中。就有2天的真实值小于预测值，因为MAPE对负值误差的惩罚大于正值误差，比如预测一个酒
-店消费是200元，真实值是150元的会比真实值是250元的MAPE大。
+### 板块间尾部相依系数的计算与分析
 
-与此同时，在未来5天内，虽然波动率逐渐上升，但模型也起到了较好的风险预测效果，最小的VaR和ES出现
-在2019年3月29日，当日黄金期货结算价为每克283.5元，不再痛前4日持续在287元/克至288元/克内浮动，并
-对应着最大的波动率，最大的VaR和ES出现在2019年3月25日，对应着最小的波动率。而且，无论是在前期2484
-天还是未来的5天，ES几乎始终小于VaR，即ES的确可以更为精确地估计损失，降低尾部风险。
+在确定最优藤结构与各边的Copula类型后，通过极大似然估计法对整体藤Copula模型的参数进行估计，然后按照模型
+介绍部分所述的尾部相依系数的计算方法与Kendall's $\tau$相关系数的计算方法，即可得到各板块间的相关关系。
+按照上述思路，计算得到的板块间系统性风险尾部相依关系如下表所示：
+
+```{r rvm-summary2}
+RVM_summary2=data.frame(summary(RVM2$RVM)[,c(1:2,8:9)])
+```
+
+```{r vine-ultd, results='markup'}
+kable(RVM_summary2,row.names =F,align = "c", caption="板块间系统性风险尾部相依系数表",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+由于Copula函数的特性，对于尾部敏感的Copula才具有相应的尾部系数，所以只有t-Copula和阿基米德类Copula形式
+才能计算出各自的尾部相依系数。从表 \@ref(tab:vine-ultd) 中可以看出，在没有任何已知信息时，保险板块与银行板块之间和房地产板块
+与券商信托板块之间的上下尾相依系数都不低，分别为0.43、0.51，表明两板块间具有较强的尾部关系；而券商板块
+与多元金融板块间的下尾相关系数达到0.79，说明当其中一个板块发生系统性风险时，另一板块也极有可能受到风险
+的冲击，这是由于多元金融板块的特性决定，因为该板块的个股尽管不是标准的金融企业，但其涉及的主营业务却大
+多是关于证券投资、信托等，与券商信托板块的业务较像，因此其下尾相依系数大到0.79。当存在部分已知信息时，
+板块间的尾部相依系数均只有较为微弱的尾部关系存在，说明条件板块可能起到了风险催化的作用，需要注意的是，
+在券商信托板块的信息已知时，尽管多元金融板块与房地产板块间是通过t-Copula函数进行连接，但尾部相依系数却
+为0，其原因可从上一节的表 \@ref(tab:vine-copula) 中找到，该节点对的Copula函数第二个参数的估计值为21.49，而该参数可近似理解为t
+分布的自由度，当t分布的自由度足够大时，t分布近似于标准正态分布，因此该节点对的t-Copula可近似为
+Gaussian-Copula，表明多元金融板块与房地产板块几乎不存在尾部相依性。
+
+### 板块间Kendall相关系数的计算与分析
+
+依据上一目所述的思路，可得到各金融板块间基于藤Copula模型的Kendall's $\tau$相关系数。通过将无条件Kendall相关系数和有条件Kendall相关系数按照板块组合进行分类可得：
+
+```{r rvm-summary3}
+RVM_kendall=data.frame(summary(RVM2$RVM)[,c(1:2,7)])
+```
+
+```{r vine-kendall, results='markup'}
+kendall=c(cor0[4,3],cor0[4,2],cor0[4,1],cor0[1,5],cor0[3,2],cor0[3,1],cor0[4,5],cor0[2,1],cor0[3,5],cor0[2,5])
+vine_kendall=cbind(RVM_kendall,kendall)
+colnames(vine_kendall)=c("tree","edge","cond-tau","tau")
+kable(vine_kendall,row.names =F,align = "c", caption="板块间系统性风险无条件Kendall相关系数与有条件Kendall相关系数对照表",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+如表 \@ref(tab:vine-kendall) 所示，可以发现在经过藤Copula模型变换后，虽然从相关性强弱的顺序来看，条件相关系数与无条件相关系数差
+异不大，但从相关系数的数值上来看，板块间系统性风险的相关系数发生了较大的变化。不过，绝大多数的相关系数
+在增加条件信息后有所下降，这表明条件板块在板块间系统性风险传染上实际是起着催化剂的作用，作为一种传染介
+质，加快风险的传染。例如，在不考虑条件信息影响时，多元金融板块与房地产板块之间的Kendall相关系数达到了
+0.59，但在已知券商信托板块风险时，多元金融板块与房地产板块之间的条件Kendall相关系数仅为0.22，相关性减
+弱的较为明显，充分表明券商信托板块在系统性风险传染过程中的媒介作用。在所有的条件板块中，券商信托板块出
+现的次数最多，保险板块其次，而多元金融板块和银行板块在藤结构中未出现过作为条件板块的情况。因此若要减弱
+金融板块系统性风险的传染效应，应该更多的了解条件板块系统性风险的情况，提前调研条件板块的风险来源，并通
+过政策、监管的干预，尽可能减少发生系统性风险损失的概率，削弱风险传染强度。
 
 
 
