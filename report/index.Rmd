@@ -1,5 +1,5 @@
 --- 
-title: "基于GAS模型的黄金期货市场风险测度研究"
+title: "我国证券市场金融板块间系统性风险传染效应研究"
 author: ""
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site

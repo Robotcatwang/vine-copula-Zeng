@@ -33,6 +33,44 @@ windowsFonts(msyh=windowsFont("微软雅黑"))
 library("kableExtra")
 ```
 
+```{r import-data2}
+rm(list=ls())
+## getwd()
+## path='F:/github_paper/vine-copula-Zeng'
+## setwd(path)
+## load package
+library(readxl)
+library(xlsx)
+library(splines)
+library(fBasics)
+library(tseries)
+library(forecast)
+library(fGarch)
+library(nleqslv)
+library(knitr)
+library(FinTS)
+library(rugarch)
+library(VineCopula)
+## load data
+norisk_rate=read.csv('./no_risk_rate.csv',header=T)
+no_risk_rate=norisk_rate[,3];date=as.Date(norisk_rate[,2])
+stock_test=read.xlsx2('./sample_data.xlsx',sheetIndex=1,header=T,startRow = 1,endRow = 2359,
+                      colClasses=c('character','character','numeric','numeric','numeric','character','character',rep('numeric',5)))
+debt_book_value_test=read.xlsx2('./sample_data.xlsx',sheetIndex=2,header=T,startRow = 1,endRow = 42,
+                      colClasses=c(rep('character',3),'numeric'))
+```
+
+```{r import-sector-dd2}
+data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
+           colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
+dd_date=as.Date(data_dd[,1])
+insurance=data_dd[,2]
+multi_finance=data_dd[,3]
+house=data_dd[,4]
+stock=data_dd[,5]
+bank=data_dd[,6]
+```
+
 # 基于RVine-Copula模型的金融板块间系统性风险传染效应研究
 
 ## 板块间系统性风险RVine-Copula模型构建
