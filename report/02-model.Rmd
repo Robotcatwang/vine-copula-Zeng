@@ -172,11 +172,11 @@ $$\begin{array}{lcl}
 进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系数，并以此为依据进行下一步的分析。
 
 尾部相关系数则被广泛的应用于极值理论的测度，它表示当一个观测变量的实现值为极值时，另一个变量也出现极
-值的概率。尾部相关可以分为上尾相关和下尾相关。令X、Y为两个连续的随机变量，具有边缘分布F（X）和F（Y），那么，上尾相关系数为：
+值的概率。尾部相关可以分为上尾相关和下尾相关。令X、Y为两个连续的随机变量，分别具有边缘分布F（X）和F（Y），那么，上尾相关系数可定义为：
 
 $$\lambda_u=\lim\limits_{u \to 1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$${#eq:lambda-u}
 
-同理，下尾相关系数可表示为：
+同理，下尾相关系数可定义为：
 
 $$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq F_y^{-1}(u)\right.\right\}$${#eq:lambda-l}
 
@@ -242,7 +242,9 @@ $3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因�
 ### 规则藤结构概述
 
 按照Pair Copula分解原理，对于一个包含n维变量的联合密度函数，将会存在$n!/2$种分解方法。针对如此繁多
-的分解方法，Bedford和Cooke在2001年进行了归纳总结，并依赖“图论”思想，提出了“藤”的模式。藤Copula解决
+的分解方法，Bedford和Cooke[^Bedford T, Cooke R M. Probability Density Decomposition for Condition-
+ally Dependent Random Variables Modeled by Vines[J]. Annals of Mathematics and
+Artificial Intelligence, 2001, 32(1): 245–268.]在2001年进行了归纳总结，并依赖“图论”思想，提出了“藤”的模式。藤Copula解决
 了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤。由于本文在建模时主要采
 用的为R藤结构，因此主要介绍R藤Copula模型的概况。
 
@@ -266,7 +268,7 @@ f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot
 \\& &c_{1,4\left|2,3,5\right.} 
 \end{array}$${#eq:vine}
 
-当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，J.DiBmann提出可用下三角矩阵描述
+当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann[^Dißmann J F. Statistical inference for regular vines and application[J]. 2010.]提出可用下三角矩阵描述
 这种结构信息。例如，针对概念图中的结构，可构造以下结构矩阵：
 
 $$M=\left(\begin{matrix}
