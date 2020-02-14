@@ -2,7 +2,11 @@
 title: "模型理论基础"
 author: "Zeng"
 date: '2019-12-10'
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
 css: ./style/markdown.css
 bibliography: Bibfile.bib
 eqnPrefixTemplate: ($$i$$)
@@ -10,7 +14,7 @@ link-citations: true
 linkReferences: true
 notice: '@*'
 csl: ./style/chinese-gb7714-2005-numeric.csl
-autoEqnLabels: false
+autoEqnLabels: true
 ---
 
 
@@ -57,11 +61,15 @@ $S$表示期权所对应的金融资产的现价，$N\left(\right)$表示标准�
 $L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效天数与365的比值，$\sigma^2$表示期权所
 对应的金融资产的波动率。在使用该BSM期权定价公式时，有如下五个基本假设：
 
-+ 金融资产的对数收益率服从正态分布
-+ 在期权的有效时间内，无风险利率和该金融资产的收益稳定
-+ 在市场中进行交易时没有交易成本和税赋
-+ 该金融资产不存在红利或其他特殊收益
-+ 该期权为欧式期权，在期权到期日前不可提前行权
+（1）金融资产的对数收益率服从正态分布；
+
+（2）在期权的有效时间内，无风险利率和该金融资产的收益稳定；
+
+（3）在市场中进行交易时没有交易成本和税赋；
+
+（4）该金融资产不存在红利或其他特殊收益；
+
+（5）该期权为欧式期权，在期权到期日前不可提前行权。
 
 只有在上述假设成立时，使用BSM公式对期权的定价才具有准确性。
 

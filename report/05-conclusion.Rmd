@@ -2,6 +2,7 @@
 title: "结论"
 author: "Zeng"
 date: '2019-12-10'
+output: word_document
 css: ./style/markdown.css
 autoEqnLabels: true
 eqnPrefixTemplate: ($$i$$)
@@ -30,9 +31,16 @@ graphics.off()
 Sys.setlocale("LC_ALL", "Chinese")
 ```
 
-# 结论及建议
 
-### 研究结论
+\cleardoublepage
+
+\pagestyle{emptypage}
+
+\renewcommand{\chapterlabel}{结论与展望}
+
+# 结论及建议 {-}
+
+### 一、研究结论 {-}
 
 本文首先通过CCA模型计算出所研究板块样本股的违约距离，再以各样本股的资产市场价值为权重计算出各板块的加
 权违约距离，并以此作为度量各板块系统性风险的指标。在此基础上，使用各板块系统性风险序列拟合RVine-Copula
@@ -59,7 +67,7 @@ Sys.setlocale("LC_ALL", "Chinese")
 情况，再次表明券商信托板块是金融板块系统性风险传染过程中的关键点。
 
 
-### 政策建议
+### 二、政策建议 {-}
 
 基于本文研究过程中得到的结论，提出如下政策建议：
 
@@ -80,7 +88,7 @@ Sys.setlocale("LC_ALL", "Chinese")
 全落地，金融板块系统性风险指标的波动性也逐渐增强，市场活跃度也不及以前。因此政府
 需要通过连续性的政策调动投资者的信心，增强市场活性，推动证券市场的平稳发展。
 
-### 研究展望
+### 三、研究展望 {-}
 
 本文在以下几个方面尚存些许的不足：
 

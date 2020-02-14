@@ -2,6 +2,9 @@
 title: "基于RVineCopula模型的金融板块间系统性风险传染效应研究"
 author: "Zeng"
 date: '2019-12-10'
+output:
+  pdf_document: default
+  word_document: default
 csl: ./style/chinese-gb7714-2005-numeric.csl
 css: ./style/markdown.css
 bibliography: Bibfile.bib

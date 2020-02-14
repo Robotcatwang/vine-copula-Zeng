@@ -2,6 +2,17 @@
 
 ################# 第 3 章 R 程序代码  ####################
 
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+
+
+## --prepare--------------------------------------
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
 
 knitr::opts_knit$set(root.dir = getwd())
 knitr::opts_chunk$set(echo = FALSE, results = 'hide')
@@ -16,211 +27,207 @@ graphics.off()
 Sys.setlocale("LC_ALL", "Chinese")
 
 
-## ----import-data---------------------------------------------------------
-## 准备
+## --import-data--------------------------------------
 rm(list=ls())
-options(digits=4)
-options(scipen=100)
-graphics.off()
-## path <- "F:/github_repo/gas-gold-Wei/" 
+## getwd()
+## path='F:/github_paper/vine-copula-Zeng'
 ## setwd(path)
-#Sys.setlocale('LC_ALL','C') 
-Sys.setlocale("LC_ALL", "Chinese")
-
-
-## 加载包
-library(zoo)
-library(forecast)
-library(tseries)
-library(xts)
-library(ggplot2)
-library(FinTS)
-library(moments)
-library(devtools)
-library(FinTS)
-library(GAS)
+## load package
+library(readxl)
+library(xlsx)
+library(splines)
 library(fBasics)
+library(tseries)
+library(forecast)
+library(fGarch)
+library(nleqslv)
 library(knitr)
-library(timeDate)
-library(timeSeries)
+library(FinTS)
+library(rugarch)
+library(VineCopula)
+## load data
+norisk_rate=read.csv('./no_risk_rate.csv',header=T)
+no_risk_rate=norisk_rate[,3];date=as.Date(norisk_rate[,2])
+stock_test=read.xlsx2('./sample_data.xlsx',sheetIndex=1,header=T,startRow = 1,endRow = 2359,
+                      colClasses=c('character','character','numeric','numeric','numeric','character','character',rep('numeric',5)))
+debt_book_value_test=read.xlsx2('./sample_data.xlsx',sheetIndex=2,header=T,startRow = 1,endRow = 42,
+                                colClasses=c(rep('character',3),'numeric'))
 
-## 载入数据
-dat=read.csv("./data/jiesuan.csv",header=T)
-shibor<-dat[,2]
-shibor<-shibor[1:2484]
-shibor.date<-as.Date(dat[,1])
-shibor.date<-shibor.date[1:2484]
-
-#计算对数收益率
-shibor.rt<-diff(log(shibor))
-shibor.rt<-shibor.rt[1:2483]
-shibor.rt = na.omit(shibor.rt)
+## ---norisk-rate,fig.cap="近十年一年期定期整存整取利率"---------------
+plot(date,no_risk_rate,type='l',ylim=c(0,4))
 
 
-## ----stat1, results='markup'---------------------------------------------
-shibor.rt1<-basicStats(shibor.rt)
-shibor.rt2<- cbind("基本统计量",as.data.frame(t(shibor.rt1[c(7,14,15,16),])))
-colnames(shibor.rt2) <- c("黄金期货对数收益率","均值","标准差","偏态系数","峰态系数")
+## ---cubicspline------------------------------------
+n=length(stock_test$Stkcd)
+## cubic spline
+debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_book_value,n+1)
+debt_book_value_date=as.Date(debt_book_value_test$Accper)
 
-kable(shibor.rt2,row.names =F,align = "c", caption="黄金期货对数收益率描述性分析结果",
+
+## --cubspline,fig.cap ="平安银行插值后日债务账面价值"-------------
+plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值",xaxt='n')
+axis(1, at=1:41,labels = debt_book_value_test$Accper)
+lines(debt_book_value$x,debt_book_value$y)
+
+## ---return-----------------------------------------
+price=stock_test[,'price_new']
+date=as.Date(stock_test[,'Trddt'])
+price_rt=diff(log(price))
+
+
+## ---log-return,fig.cap = "平安银行近十年日收盘价和对数收益率时序图"--------------------------
+par(mfrow=c(2,1))
+par(mar=c(2,4,1,2))
+plot(date,price,type="l",main="(a)平安银行近十年收盘价时序图")
+plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行近十年对数收益率时序图')
+
+
+## ---price-rt-stats--------------------------------------
+price_rt_stats=basicStats(price_rt)
+JB=jarque.bera.test(price_rt)
+price_rt_stats_desc=as.data.frame(t(c(price_rt_stats[c(7,14,16,15),1],as.numeric(JB[[1]][1]))))
+colnames(price_rt_stats_desc) <- c("均值","标准差","偏态系数","峰态系数","J-B统计量")
+
+kable(price_rt_stats_desc,row.names =F,align = "c", caption="平安银行对数收益率描述性统计量",
       longtable = TRUE, booktabs = TRUE, linesep="")
 
 
-## ----fig-ts1,eval=T,fig.cap = "我国黄金期货主力合约对数收益率时序图", dev='png'----
+## ---adf-test--------------------------------------
+ADF=adf.test(price_rt)
+PP=pp.test(price_rt)
+adf_test=data.frame(a=c(ADF$statistic[1],PP$statistic[1]),b=c(0.0001,0.0001))
+colnames(adf_test)=c("检验统计量的值","P值")
+rownames(adf_test)=c("ADF检验","PP检验")
+
+kable(adf_test,row.names =T,align = "c", caption="平安银行对数收益率平稳性检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+
+
+## ---acf-pacf, fig.cap="Shibor收益率自相关图和偏自相关图"-------------------
 par(mfrow=c(2,1))
-par(mar=c(2,4,1,2))
-plot(shibor.date,shibor,type="l",xlab="日期",ylab="每日结算价")
-plot(shibor.date[-1],shibor.rt,type="l",xlab="日期",ylab="黄金期货对数收益率",cex.main=0.95,las=1)
-#显然具有波动应聚集的特征
-
-
-## ------------------------------------------------------------------------
-#平稳性检验
-pp.test(shibor.rt)  #平稳
-
-
-## ----hist, fig.cap="我国黄金期货主力合约收益率频率分布直方图和正态Q-Q图", dev='png'----
-par(mfrow=c(1,2))
-#绘制直方图
-hist(shibor.rt,main=NULL,breaks = 50)
-
-#正态性检验
-qqnorm(shibor.rt,main =NULL)
-qqline(shibor.rt)                #QQ图检验非正态
-
-
-## ------------------------------------------------------------------------
-#正态性检验
-jarque.bera.test(shibor.rt)    #JB检验非正态
-
-
-## ------------------------------------------------------------------------
-acf(shibor.rt,plot = F,lag.max = 15)
-pacf(shibor.rt,plot = F,lag.max = 15)
-Box1=Box.test(shibor.rt,lag=10,type = "Ljung")
-library(forecast)
-library(stats)
-fit1=Arima(shibor.rt,order = c(1,0,1))
-fit1.res=c("fit1",AIC(fit1),BIC(fit1))
-fit2=arima(shibor.rt,order = c(1,0,2))
-fit2.res=c("fit2",AIC(fit2),BIC(fit2))
-fit3=arima(shibor.rt,order = c(2,0,1))
-fit3.res=c("fit3",AIC(fit3),BIC(fit3))
-fit4=arima(shibor.rt,order = c(2,0,2))
-fit4.res=c("fit4",AIC(fit4),BIC(fit4))
-res1=data.frame(fit1.res,fit2.res,fit3.res,fit4.res)
-res1
-auto.arima(shibor.rt)
-fit111=arima(shibor.rt,order = c(1,0,1))
-resi<-resid(fit111,standardize=F)
-res.ts<-ts(resi,frequency = 250)
-Box2=Box.test(resi,lag=10,type = "Ljung")
-
-
-## ----acf-pacf, fig.cap="我国黄金期货主力合约收益率自相关图和偏自相关图",fig.height=8,dev='png'----
-#自相关性检验
-par(mfrow=c(2,1)) 
-acf(shibor.rt,main="",xlab="滞后期",ylab="ACF")#画自相关图
-title(main = "(a)the ACF of Return",cex.main=0.95)
-pacf(shibor.rt,main="",xlab="滞后期",ylab="PACF",las=1)#画偏自相关图
+acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
+title(main="(a)the ACF of Return",cex.main=0.95)
+pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#画偏自相关图
 title(main="(b)the PACF of Return",cex.main=0.95)
 
 
-## ------------------------------------------------------------------------
-fit=stats::arima(shibor.rt,order = c(1,0,1))
-shibor.rt.r<-stats::residuals(fit)
+## ---resi2, fig.cap="平安银行对数收益率去均值后残差平方时序图"------------------
+resi=price_rt-mean(price_rt)
+resi2=(price_rt-mean(price_rt))^2
+plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方')
 
 
-## ----residual, fig.cap="我国黄金期货主力合约收益率残差序列图", dev='png'----
-plot(shibor.date[-1],shibor.rt.r,type="l",
-     xlab="日期",ylab="残差",cex.main=0.95,las=1)
+## ---garch---------------------------------
+gjrgarch11_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit11 = ugarchfit(spec=gjrgarch11_spec, data=price_rt)
+
+gjrgarch12_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(1,2)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit12 = ugarchfit(spec=gjrgarch12_spec, data=resi)
+
+gjrgarch21_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(2,1)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit21 = ugarchfit(spec=gjrgarch21_spec, data=resi)
 
 
-## ------------------------------------------------------------------------
-#ARCH效应检验
-ArchTest(shibor.rt.r,lag=12)  #存在ARCH效应
+## ---gjr-garch-------------------------------------
+garchfit11_coef=data.frame(garchfit11@fit$matcoef)
+garchfit12_coef=data.frame(garchfit12@fit$matcoef)
+garchfit21_coef=data.frame(garchfit21@fit$matcoef)
+garchfit_coef=list(garchfit11_coef=garchfit11_coef,
+                   garchfit12_coef=garchfit12_coef,
+                   garchfit21_coef=garchfit21_coef)
+for(j in 1:3){
+  for(i in 1:nrow(garchfit_coef[[j]])){
+    garchfit_coef[[j]][i,5]=paste(substr(garchfit_coef[[j]][i,1],1,7),
+                                  if(garchfit_coef[[j]][i,4]<=0.01){'***'}
+                                  else{if(garchfit_coef[[j]][i,4]>0.01 & garchfit_coef[[j]][i,4]<=0.05){'**'}
+                                    else{if(garchfit_coef[[j]][i,4]>0.05 & garchfit_coef[[j]][i,4]<=0.1){'*'}
+                                      else{''}}},
+                                  sep='',collapse = '')
+  }
+}
+coef_result=data.frame(row.names=c('omega','alpha1','alpha2','beta1','beta2','gamma1','gamma2','AIC','BIC'))
+coef_result[,1]=c(garchfit_coef$garchfit11_coef[1:2,5],'',
+                  garchfit_coef$garchfit11_coef[3,5],'',
+                  garchfit_coef$garchfit11_coef[4,5],'',signif(infocriteria(garchfit11)[1:2],5))
+coef_result[,2]=c(garchfit_coef$garchfit12_coef[1:2,5],'',
+                  garchfit_coef$garchfit12_coef[3:5,5],'',signif(infocriteria(garchfit12)[1:2],5))
+coef_result[,3]=c(garchfit_coef$garchfit21_coef[1:4,5],'',
+                  garchfit_coef$garchfit21_coef[5:6,5],signif(infocriteria(garchfit21)[1:2],5))
+colnames(coef_result)=c('GJR-GARCH(1,1)','GJR-GARCH(1,2)','GJR-GARCH(2,1)')
+kable(coef_result,row.names =T,align = "c", caption="平安银行对数收益率GJR-GARCH模型拟合结果",
+      longtable = TRUE, booktabs = TRUE, linesep="")
 
 
-## ----arma-fit, fig.cap="残差平方相关图",fig.height=8,dev="png"-----------
-#拟合GARCH
-#残差平方的自相关性分析
-par(mfrow=c(2,1))
-rt.square<-shibor.rt.r^2
-acf(rt.square,main="",xlab="lag(c)",ylab="ACF",las=1)#画自相关图
-title(main = "(c)the ACF of resi Square",cex.main=0.95)
-pacf(rt.square,main="",xlab="Lag(d)",ylab="PACF",las=1)#画偏自相关图
-title(main = "(d)the PACF of resi Square",cex.main=0.95)
-Box.test(rt.square,lag = 10,type = "Ljung")
+## ---gjrgarch-resi-----------------------------
+gjr_resi=residuals(garchfit11,standardize=T)
+gjr_resi2=gjr_resi^2
+
+## ---cca-solve------------------------------------
+### cca
+##输入时间
+r=stock_test$norisk_rate[-1]/100
+T=1
+B=debt_book_value$y[-c(1:2)]
+##输入股权波动率和股权价值
+EquityTheta=garchfit11@fit$sigma*sqrt(250)
+E=stock_test$stock_market_value_new[-1]
+##KMV 方程变形及求解
+EtoB=E/B
+x0=matrix(rep(1,2*nrow(stock_test)),nrow=nrow(stock_test))
+z=list();Va=vector();AssetTheta=vector()
+for (i in 1:(nrow(stock_test)-1)) {
+  KMVfun=function(x){
+    y=numeric(2);
+    d1=(log(x[1]*EtoB[i])+(r[i]+0.5*x[2]^2)*T)/(x[2]*sqrt(T));
+    d2=d1-x[2]*sqrt(T);
+    y[1]=x[1]*pnorm(d1)-exp(-r[i]*T)*pnorm(d2)/EtoB[i]-1;
+    y[2]=pnorm(d1)*x[1]*x[2]-EquityTheta[i];
+    y
+  }
+  z[[i]]<-nleqslv(x0[i,], KMVfun, method="Newton") 
+  Va[i]<-z[[i]]$x[1]*E[i]
+  AssetTheta[i]<-z[[i]]$x[2]
+}
+##计算违约距离
+DD=(Va-B)/(Va*AssetTheta)
 
 
-## ------------------------------------------------------------------------
-gasspec=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=FALSE,scale=FALSE,shape=FALSE))
-gasspec0=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=FALSE,scale=TRUE,shape=FALSE))
-gasspec1=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=FALSE,scale=TRUE,shape=TRUE))
-gasspec2=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=TRUE,scale=TRUE,shape=TRUE))
-
-InSampleData987 = shibor.rt.r[1:1733]
-gasfit=UniGASFit(gasspec,data=InSampleData987,fn.optimizer = fn.optim, Compute.SE = TRUE)
-gasfit0=UniGASFit(gasspec0,data=InSampleData987,fn.optimizer = fn.optim, Compute.SE = TRUE)
-gasfit1=UniGASFit(gasspec1,data=InSampleData987,fn.optimizer = fn.optim, Compute.SE = TRUE)
-gasfit2=UniGASFit(gasspec2,data=InSampleData987,fn.optimizer = fn.optim, Compute.SE = TRUE)
-
-L1RT1<-2*(gasfit0@GASDyn$dLLK-gasfit@GASDyn$dLLK)
-P1_value1<-1-pchisq(L1RT1,1) 
-
-L1RT2<-2*(gasfit1@GASDyn$dLLK-gasfit0@GASDyn$dLLK)
-P1_value2<-1-pchisq(L1RT2,1) 
-
-L1RT3<-2*(gasfit2@GASDyn$dLLK-gasfit1@GASDyn$dLLK)
-P1_value3<-1-pchisq(L1RT3,1) 
+## ---pinganbank-dd, fig.cap="平安银行近十年违约剧烈时序图"--------------------
+datedd=as.Date(stock_test$Trddt[-1])
+plot(datedd,DD,type='l')
 
 
-## ----test-LRT-tab,eval=T,echo=F------------------------------------------
-test_LRT=data.frame(a=c(L1RT1,L1RT2,L1RT3),
-                    b=c(P1_value1,P1_value2,P1_value3),
-                    c=c(1733,1733,1733))
-test_LRT<- cbind(c("u1 vs u0","u2 vs u1","u3 vs u2"), test_LRT)
-colnames(test_LRT)=c("假设","LRT","P值","样本量")
-rownames(test_LRT)=c("u1 vs u0","u2 vs u1","u3 vs u2")
-write.csv(test_LRT, "testLRT.csv", row.names = F)
+## ---import-sector-dd------------------------------
+data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
+                   colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
+dd_date=as.Date(data_dd[,1])
+insurance=data_dd[,2]
+multi_finance=data_dd[,3]
+house=data_dd[,4]
+stock=data_dd[,5]
+bank=data_dd[,6]
+
+## ---bank-sector-dd,fig.cap = "银行板块近十年系统性风险时序图"-------------------------
+plot(dd_date,bank,type="l",ylim=c(0,6.5))
+
+## ---multi-fin-sector-dd,eval=T,fig.cap = "多元金融板块近十年系统性风险时序图"-------------------------
+plot(dd_date,multi_finance,type="l",ylim=c(0,6.5))
 
 
-## ----test-LRT, eval=T,results='markup', cache=F--------------------------
-tablrt <- read.csv('./testLRT.csv')
-knitr::kable(tablrt, row.names =F, align = "l", caption="似然比检验对GAS（1，1)模型的测试结果",
-      longtable = TRUE, booktabs = TRUE, linesep  = "", escape = F)
+## ---stock-sector-dd,eval=T,fig.cap = "券商信托板块近十年系统性风险时序图"-------------------------
+plot(dd_date,stock,type="l",ylim=c(0,6.5))
 
 
-## ----fig8,echo=FALSE,fig.cap="模型估计结果比较表",fig.height=20,fig.width=40,cache=F,dev="png",results='markup'----
-knitr::include_graphics("./SELECT1.png")
+## ---house-sector-dd,eval=T,fig.cap = "房地产板块近十年系统性风险时序图"-------------------------
+plot(dd_date,house,type="l",ylim=c(0,6.5))
 
 
-## ------------------------------------------------------------------------
-InSampleData = shibor.rt.r[1:1733]
-OutSampleData = shibor.rt.r[1734:2483]
-
-herspec=UniGASSpec(Dist="std",ScalingType="Identity",GASPar=list(location=TRUE,scale=TRUE,shape=TRUE))
-
-herfit=UniGASFit(herspec,data=InSampleData,fn.optimizer = fn.optim, Compute.SE = TRUE)
-
-
-## ----best-model-tab,eval=T,echo=F----------------------------------------
-best_model=data.frame(a=c(herfit@Estimates[["lParList"]][["vKappa"]][1],herfit@Estimates[["lParList"]][["vKappa"]][2],herfit@Estimates[["lParList"]][["vKappa"]][3],herfit@Estimates[["lParList"]][["mA"]][1,1],herfit@Estimates[["lParList"]][["mA"]][2,2],herfit@Estimates[["lParList"]][["mA"]][3,3],herfit@Estimates[["lParList"]][["mB"]][1,1],herfit@Estimates[["lParList"]][["mB"]][2,2],herfit@Estimates[["lParList"]][["mB"]][3,3]),
-                    b=c(1.10E-04,3.87E-02,1.12E-01,1.19E-09,2.82E-02,3.73E-03,2.66E-05,4.01E-03,6.30E-03),
-                    c=c(-0.5593643,-4.867983,-7.7252002,837.5653786,6.7397406,254.4799865,18762.6533,244.1425435,100.4244369),
-                    d=c(2.88E-01,5.64E-07,5.55E-15,0.00E+00,7.93E-12,0.00E+00,0.00E+00,0.00E+00,0.00E+00))
-best_model <- cbind(c("k1","k2","k3","a1","a2","a3","b1","b2","b3"), best_model)
-colnames(best_model)=c("参数","估计值","标准误","t值","P值")
-rownames(best_model)=c("k1","k2","k3","a1","a2","a3","b1","b2","b3")
-write.csv(best_model, "bestmodel.csv", row.names = F)
-
-
-## ----best-model, eval=T,results='markup', cache=F------------------------
-bestmodel <- read.csv('./bestmodel.csv')
-knitr::kable(bestmodel, row.names =F, align = "l", caption="最佳模型估计结果",
-      longtable = TRUE, booktabs = TRUE, linesep  = "", escape = F,digits=6)
-
-
-## ----fig10,echo=FALSE,fig.cap="波动率拟合图",cache=F,dev="png",fig.height=13,results='markup'----
-knitr::include_graphics("./vol.png")
+## ---insurance-sector-dd,eval=T,fig.cap = "保险板块近十年系统性风险时序图"-------------------------
+plot(dd_date,insurance,type="l",ylim=c(0,6.5))
 
