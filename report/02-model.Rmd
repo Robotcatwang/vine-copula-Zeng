@@ -44,9 +44,9 @@ Sys.setlocale("LC_ALL", "Chinese")
 
 ### Black-Sholes-Merton期权定价模型
 
-布莱克-舒尔斯-墨顿模型（Black–Scholes–Merton model），简称为BSM模型，是一种为期权或权证等金融
-衍生工具定价的数学模型。该模型提供了一种由基础资产与无风险利率构成、完全复制期权价格变动的资产
-组合，定价过程就是以无风险利率为折现率，计算期权权益在风险中性测度的折现值。模型具体形式如下：
+布莱克-舒尔斯-墨顿模型（Black-Scholes-Merton model），简称为BSM模型，是一种为期权或
+权证等金融衍生工具定价的数学模型。该模型提供了一种由基础资产与无风险利率构成、完全复制期权价格变动的资
+产组合，定价过程就是以无风险利率为折现率，计算期权权益在风险中性测度的折现值。模型具体形式如下：
 
 $$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)$${#eq:bsm-model}
 
@@ -57,7 +57,7 @@ $$d_1= \frac{\ln\frac{S}{L}+\left(r+\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}
 $$d_2=\frac{\ln\frac{S}{L}+\left(r-\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}=d_1-\sigma\sqrt T$${#eq:bsm-d2}
 
 在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示期权权益在风险中性时的合理价格，
-$S$表示期权所对应的金融资产的现价，$N\left(\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
+$S$表示期权所对应的金融资产的现价，$N\left(d_n\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
 $L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效天数与365的比值，$\sigma^2$表示期权所
 对应的金融资产的波动率。在使用该BSM期权定价公式时，有如下五个基本假设：
 
@@ -69,7 +69,7 @@ $L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效�
 
 （4）该金融资产不存在红利或其他特殊收益；
 
-（5）该期权为欧式期权，在期权到期日前不可提前行权。
+（5）该期权为欧式期权，在期权到期日前不可提前行权。^[Black F, Scholes M. The pricing of options and corporate liabilities[J]. Journal of political economy, 1973, 81(3): 637-654.]
 
 只有在上述假设成立时，使用BSM公式对期权的定价才具有准确性。
 
@@ -79,7 +79,6 @@ $L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效�
 通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建风险资产负债表，进而对企业的风
 险进行整体分析的一种方法。CCA模型将企业的市场价值（$A$）拆分为股权市场价值（低级别权益，$E$）和债务市场
 价值（高级别权益，$D$）。当企业市场价值小于债务市场价值时，表明该企业无力偿还债务，即违约发生，风险出现。
-
 需要注意的是，或有权益模型中的企业价值和债务价值均为市场价值，不能通过企业财报得到直接
 数据。因此CCA方法指出，可通过以下方法间接计算得到企业的市场价值。具体做法为将股权看为价值为$A$，行权价格为债务账面价值$B$的欧式看涨期权，根据BSM
 公式可得股权的市场价值为：
@@ -94,7 +93,7 @@ $$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\s
 $B$表示企业债务的账面价值，$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），
 $\sigma_A^2$表示企业资产市场价值的波动率。
 
-但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、$\sigma_A$均未知，因此需增加一个条件：
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、$\sigma_A^2$均未知，因此需增加一个条件：
 
 $$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
 
@@ -118,7 +117,7 @@ $$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqr
 通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
 进而计算出企业的债务市场价值$D$。-->
 
-<!--除此之外，通过CCA模型也-->进而可计算得出企业的违约距离DD和企业的违约概率PD。违约距离DD的计算公式为：
+<!--除此之外，通过CCA模型也-->进而可计算得出企业的违约距离DD和企业的违约概率PD。违约距离DD的计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]：
 
 $$DD=\frac{A-B}{A \cdot \sigma_A}$${#eq:dd}
 
@@ -151,7 +150,7 @@ $$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_
 
 ### 基于Copula模型的传染效应测度方式
 
-在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数及尾部相关系数进行判断。
+在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数^[籍艳丽. 基于Copula函数的秩相关和尾相关研究[J]. 经济问题, 2009 (5): 120-122.]及尾部相关系数进行判断。
 
 Kendall's $\tau$秩相关系数主要从一致性的角度对变量之间的相关关系进行测度。设$\left(x_i,y_i\right)$
 和$\left(x_j,y_j\right)$是随机变量$X$，$Y$的两组情况，当$\left(x_j-x_i\right)\left(y_j-y_i\right)>0$
@@ -193,7 +192,7 @@ $$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq F_y^{-1}
 ### Pair Copula分解原理
 
 正如前文对Sklar定理的阐述，变量的联合分布函数可由这些变量的边缘分布通过联结函数$C$联结起来。构成
-这些变量的多元联合分布函数。。但是一旦面对多元变量的情况，就会陷入“维数灾难”之中：一来会使得Copula
+这些变量的多元联合分布函数。。但是一旦面对多元变量的情况，就会陷入“维数灾难”^[“维数灾难”是指随着维数的增加，计算量呈指数倍增长的一种现象。]之中：一来会使得Copula
 函数的形式过于复杂，所需估计的参数过多，二来甚至有Copula函数不存在的可能，不利于进一步的分析。因
 此在处理多元问题时需通过降维的方式，简化问题。在Sklar定理中提到对于仅包含两个变量的情况，且这两个
 变量均服从[0,1]的均匀分布时，一定存在一个联结函数$C$，使得二元联合分布函数可用两个变量的边缘分布
@@ -249,10 +248,8 @@ $3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因�
 
 ### 规则藤结构概述
 
-按照Pair Copula分解原理，对于一个包含n维变量的联合密度函数，将会存在$n!/2$种分解方法。针对如此繁多
-的分解方法，Bedford和Cooke[^Bedford T, Cooke R M. Probability Density Decomposition for Condition-
-ally Dependent Random Variables Modeled by Vines[J]. Annals of Mathematics and
-Artificial Intelligence, 2001, 32(1): 245–268.]在2001年进行了归纳总结，并依赖“图论”思想，提出了“藤”的模式。藤Copula解决
+按照Pair Copula分解原理，对于一个包含n维变量的联合密度函数，将会存在$n!/2$种分解方法^[Aas K, Czado C, Frigessi A, et al. Pair-copula constructions of multiple dependence[J]. Insurance: Mathematics and economics, 2009, 44(2): 182-198.]。针对如此繁多
+的分解方法，Bedford和Cooke在2001年进行了归纳总结，并依赖“图论”思想，提出了“藤”的模式^[Bedford T, Cooke R M. Probability Density Decomposition for Conditionally Dependent Random Variables Modeled by Vines[J]. Annals of Mathematics and Artificial Intelligence, 2001, 32(1): 245–268.]。藤Copula解决
 了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤。由于本文在建模时主要采
 用的为R藤结构，因此主要介绍R藤Copula模型的概况。
 
@@ -276,8 +273,8 @@ f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot
 \\& &c_{1,4\left|2,3,5\right.} 
 \end{array}$${#eq:vine}
 
-当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann[^Dißmann J F. Statistical inference for regular vines and application[J]. 2010.]提出可用下三角矩阵描述
-这种结构信息。例如，针对概念图中的结构，可构造以下结构矩阵：
+当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann提出可用下三角矩阵描述
+这种结构信息^[Dißmann J F. Statistical inference for regular vines and application[J]. 2010.]。例如，针对概念图中的结构，可构造以下结构矩阵：
 
 $$M=\left(\begin{matrix}
 1&{}&{}&{}&{}\\
