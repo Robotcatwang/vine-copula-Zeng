@@ -56,20 +56,12 @@
 \LoadClass[a4paper,12pt,openany]{book}
 \fi
 % -------------------------------------------------------------------------------
-%%% Insert a blank page after current page
-\def\blankpage{%
-      \clearpage%
-      \thispagestyle{empty}%
-      % \addtocounter{page}{-1}%
-      \null%
-      \clearpage}
-
 
 % -----------------------------------加载宏包------------------------------------
 \RequirePackage[includeheadfoot]{geometry}
 \RequirePackage[center,pagestyles]{titlesec}
 \RequirePackage{titletoc}
-\RequirePackage[config]{subfig}
+\RequirePackage{subfig}
 \RequirePackage[doublespacing]{setspace}
 \setstretch{1.5}
 
@@ -145,6 +137,7 @@
 \RequirePackage{wrapfig}
 \RequirePackage{colortbl}
 \RequirePackage{pdflscape}
+\RequirePackage{pdfpages}
 \RequirePackage{tabu}
 \RequirePackage{threeparttable}
 \RequirePackage{threeparttablex}
@@ -155,6 +148,20 @@
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % -------------------------------------------------------------------------
 
+\usepackage{xassoccnt}
+\newcounter{realpage}
+\DeclareAssociatedCounters{page}{realpage}
+\AtBeginDocument{%
+  \stepcounter{realpage}
+}
+
+%%% Insert a blank page after current page
+\def\blankpage{%
+      \clearpage%
+      \thispagestyle{empty}%
+      % \addtocounter{page}{-1}%
+      \null%
+      \clearpage}
 
 % ---------------------------------------字体定义---------------------------
 \defaultfontfeatures{Mapping=tex-text}
@@ -253,9 +260,6 @@
 
 
 % ------------------------------------中文元素-----------------------------------
-
-
-
 \newcommand{\china}{中华人民共和国}
 \def\thuthesis{\textsc{Thu}-\textsc{Thesis}}
 \def\nudtpaper{\textsc{Nudt}\textsc{Paper}}
@@ -319,12 +323,12 @@
         \ifistwoside
         {
           \ifodd \value{page} % 奇数页
-          {基于GAS模型的黄金期货市场风险测度研究}
+          {\@title}
           \else % 偶数页
           \chaptertitle \fi
         }
         \else
-        {基于GAS模型的黄金期货市场风险测度研究}\fi
+        {\@title}\fi
         \else %标题不作为页眉
         \chaptertitle\fi}
       \fi
@@ -348,7 +352,7 @@
         \ifistwoside
         {
           \ifodd \value{page} % 奇数页
-          基于GAS模型的黄金期货市场风险测度研究
+         \@title 
           \else % 偶数页
           %{第\thechapter 章\hspace{1em}\chaptertitle} \fi
 	   {第\CJKnumber{\thechapter}章\hspace{1em}\chaptertitle} \fi        % 学校格式要求
@@ -356,7 +360,8 @@
         \else
         {第\thechapter 章\hspace{1em}\chaptertitle}\fi
         \else %标题不作为页眉
-        基于GAS模型的黄金期货市场风险测度研究\fi}
+	\@title
+	\fi}
       \fi
     }
   }{}
@@ -378,14 +383,14 @@
         \ifistwoside
         {
           \ifodd \value{page} % 奇数页
-          基于GAS模型的黄金期货市场风险测度研究
+          \@title
           \else % 偶数页
           {附录\thechapter\hspace{1em}\chaptertitle}\fi
         }
         \else
         {附录\thechapter\hspace{1em}\chaptertitle}\fi
         \else %标题不作为页眉
-        基于GAS模型的黄金期货市场风险测度研究\fi}
+        \@title\fi}
       \fi
     }
   }{}
@@ -407,14 +412,14 @@
         \ifistwoside
         {
           \ifodd \value{page} % 奇数页
-          基于GAS模型的黄金期货市场风险测度研究
+          \@title
           \else % 偶数页
           {\chapterlabel}\fi
         }
         \else
         {\chapterlabel}\fi
         \else %标题不作为页眉
-        基于GAS模型的黄金期货市场风险测度研究\fi}
+        \@title\fi}
       \fi
     }
   }{}
@@ -477,7 +482,7 @@
     Dissertation for the Degree of Doctor of Philosophy
 
     \vskip 30pt
-    \kaishu \bfseries \yihao 基于GAS模型的黄金期货市场风险测度研究\\
+    \kaishu \bfseries \yihao \@title\\
     \rmfamily\bf \xiaoer Semiparametric Regression Model and \\[-1ex]
     Its Application
     \vskip 30pt
