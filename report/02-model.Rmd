@@ -44,9 +44,10 @@ Sys.setlocale("LC_ALL", "Chinese")
 
 ### Black-Sholes-Merton期权定价模型
 
-布莱克-舒尔斯-墨顿模型（Black-Scholes-Merton model），简称为BSM模型，是一种为期权或
-权证等金融衍生工具定价的数学模型。该模型提供了一种由基础资产与无风险利率构成、完全复制期权价格变动的资
-产组合，定价过程就是以无风险利率为折现率，计算期权权益在风险中性测度的折现值。模型具体形式如下：
+布莱克-舒尔斯-墨顿模型（Black-Scholes-Merton model），简称为BSM模型，是一种为期
+权等其他各类金融衍生工具提供理论定价的基础模型。该模型首先假设存在如下资产组合：
+由基础资产和无风险利率构成，可以完全复制期权价格变动的资产组合。然后考虑在风险中
+性的前提下，期权权益在当前时点的折现价值。模型具体形式如下：
 
 $$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)$${#eq:bsm-model}
 
@@ -56,32 +57,36 @@ $$d_1= \frac{\ln\frac{S}{L}+\left(r+\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}
 
 $$d_2=\frac{\ln\frac{S}{L}+\left(r-\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}=d_1-\sigma\sqrt T$${#eq:bsm-d2}
 
-在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示期权权益在风险中性时的合理价格，
-$S$表示期权所对应的金融资产的现价，$N\left(d_n\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
-$L$表示期权的有效期，$r$表示无风险利率，$T$表示期权有效天数与365的比值，$\sigma^2$表示期权所
+在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示在假定风险中性的条件下，所研究期权权益的理论交易价格，$S$表示期权所对应的理论资产组合中基础金融资产在当前时点的价格，$N\left(d_n\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
+$L$表示所研究期权在到期时或交割时的价格，$r$表示无风险利率，$T$表示期权有效时间，但需以年为计量单位，$\sigma^2$表示期权所
 对应的金融资产的波动率。在使用该BSM期权定价公式时，有如下五个基本假设：
 
-（1）金融资产的对数收益率服从正态分布；
+（1）基础资产的对数收益率服从正态分布；
 
-（2）在期权的有效时间内，无风险利率和该金融资产的收益稳定；
+（2）无风险利率和该金融资产的收益较为稳定；
 
 （3）在市场中进行交易时没有交易成本和税赋；
 
 （4）该金融资产不存在红利或其他特殊收益；
 
-（5）该期权为欧式期权，在期权到期日前不可提前行权。^[Black F, Scholes M. The pricing of options and corporate liabilities[J]. Journal of political economy, 1973, 81(3): 637-654.]
+（5）该期权为欧式期权，在期权到期日前不可提前行权^[Black F, Scholes M. The
+pricing of options and corporate liabilities[J]. Journal of political economy,
+1973, 81(3): 637-654.]。
 
 只有在上述假设成立时，使用BSM公式对期权的定价才具有准确性。
 
-### CCA模型理论
 
-或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton期权定价模型的基础上，
-通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建风险资产负债表，进而对企业的风
-险进行整体分析的一种方法。CCA模型将企业的市场价值（$A$）拆分为股权市场价值（低级别权益，$E$）和债务市场
-价值（高级别权益，$D$）。当企业市场价值小于债务市场价值时，表明该企业无力偿还债务，即违约发生，风险出现。
-需要注意的是，或有权益模型中的企业价值和债务价值均为市场价值，不能通过企业财报得到直接
-数据。因此CCA方法指出，可通过以下方法间接计算得到企业的市场价值。具体做法为将股权看为价值为$A$，行权价格为债务账面价值$B$的欧式看涨期权，根据BSM
-公式可得股权的市场价值为：
+### CCA模型理论
+ 
+或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton期权定
+价模型的基础上，通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建
+风险资产负债表，进而对企业的风险进行整体分析的一种方法。CCA模型将一个企业的资产
+市场价值（$A$）拆分为股权的市场资本价值（$E$）和债务的市场资本价值（$D$）。当一个企业
+的债务市场价值高于该企业的资产市场价值时，表明该企业可能会存在违约行为，不能到期
+及时偿还债务。需要注意的是，或有权益模型中的企业资产的价值和债务的价值均为市场资
+本价值，不能通过企业财报得到直接数据。因此CCA方法指出，可通过以下方法间接计算得
+到企业资产的市场价值，即将股权看为价值为$A$，交割价格为企业资产负债表中的债务价值$B$
+的欧式看涨期权，根据BSM公式可得股权的市场价值为：
 
 $$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
 
@@ -89,17 +94,20 @@ $$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\s
 
 $$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-equity-d2}
 
-其中，$E$表示股权的市场价值，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，
-$B$表示企业债务的账面价值，$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），
-$\sigma_A^2$表示企业资产市场价值的波动率。
+其中，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，$B$
+表示企业资产负债表中的债务价值，$E$表示股权的市场资本价值，$r$表示无风险利率，
+$T$表示当前时刻到到期日的时间（按年计算），$\sigma_A^2$表示企业资产市场价值的波
+动率。
 
-但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、$\sigma_A^2$均未知，因此需增加一个条件：
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、
+$\sigma_A^2$均未知，因此需增加一个条件：
 
 $$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
 
-其中$\sigma_E$为股权波动率，可通过市场数据得到。综上，通过联立[@eq:cca-equity]、[@eq:cca-equity-d1]、
-[@eq:cca-equity-d2]和[@eq:cca-equity-sigma]即可解出企业资产的市场价值$A$和企
-业资产市场价值的波动率$\sigma_A$。
+其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
+[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
+[@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
+场价值$A$。
 
 <!--在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
 
@@ -115,52 +123,56 @@ $$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqr
 $$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-debt-d2}
 
 通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
-进而计算出企业的债务市场价值$D$。-->
-
-<!--除此之外，通过CCA模型也-->进而可计算得出企业的违约距离DD和企业的违约概率PD。违约距离DD的计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]：
+进而计算出企业的违约距离$DD$,计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]:-->
 
 $$DD=\frac{A-B}{A \cdot \sigma_A}$${#eq:dd}
 
-企业的违约距离DD越短，违约概率越大，企业的风险暴露越大；违约距离DD越长，违约概率越小，企业的风险暴露越小。
+企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
+小，企业的风险越小。
 
 ## Copula函数理论基础
 
 ### Sklar定理
 
-Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函数$C$，将多个变量的边缘分布联结起来，
-构成这些变量的多元联合分布函数。特别的，对于仅包含两个变量的情况，且这两个变量均服从[0,1]的均匀
-分布时，一定存在一个联结函数$C$，使得二元联合分布函数可用两个变量的边缘分布函数表示。
+Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函数$C$，将多个变量的边
+缘分布联结起来，构成这些变量的多元联合分布函数。特别的，对于仅包含两个变量的情
+况，且这两个变量均服从U（0，1）时，一定存在一个联结函数C，使得其联合分布函数可由
+各变量的边缘函数直接构成。
+
 
 Copula函数的表达形式为：
 
 $$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$${#eq:copula}
 
-其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，$c\left(\right)$表
-示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布函数。若边缘分布函数的反函数均存在，
-则Copula函数的计算公式为：
+其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，
+$c\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布
+函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
 
 $$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$${#eq:copula-solve}
 
-在模型使用过程中，更多的是用式[@eq:copula-solve]。在已知多元联合分布函数和各边缘分布函数时，就可以
-通过式[@eq:copula-solve]得到联结函数的形式及各参数值，进而可对变量之间的相关程度进行研究。
+在模型使用过程中，更多的是用式[@eq:copula-solve]。在已知多元联合分布函数和各边缘
+分布函数时，就可以通过式[@eq:copula-solve]得到联结函数的形式及各参数值，进而可对
+变量之间的相关程度进行研究。
 
-<!--### 几种常见的Copula形式
-
-常见的Copula主要包含两大类型：椭球类Copula函数和阿基米德类Copula函数。两类Copula函数最大的区别在于椭球类Copula函数主要用于刻画尾部对称的相关关系，而阿基米德类Copula函数则在刻画尾部相关性非对称时具有良好的效果。-->
 
 ### 基于Copula模型的传染效应测度方式
 
-在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数^[籍艳丽. 基于Copula函数的秩相关和尾相关研究[J]. 经济问题, 2009 (5): 120-122.]及尾部相关系数进行判断。
+在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数^[籍艳丽
+. 基于Copula函数的秩相关和尾相关研究[J]. 经济问题, 2009 (5): 120-122.]及尾部相关
+系数进行判断。
 
-Kendall's $\tau$秩相关系数主要从一致性的角度对变量之间的相关关系进行测度。设$\left(x_i,y_i\right)$
-和$\left(x_j,y_j\right)$是随机变量$X$，$Y$的两组情况，当$\left(x_j-x_i\right)\left(y_j-y_i\right)>0$
-时，即$x_j-x_i$与$y_j-y_i$同号时，则认为随机变量$X$和$Y$具有一致性。反之，当
-$\left(x_j-x_i\right)\left(y_j-y_i\right)<0$时，即$x_j-x_i$与$y_j-y_i$异号时，则认为随机变量$X$和
-$Y$是不一致的。根据这一原理，可得到Kendall's $\tau$秩相关系数的计算公式为：
+其中$Kendall's $\tau$秩相关系数主要从一致性的角度对变量之间的相关关系进行测度。
+设$\left(x_i,y_i\right)$和$\left(x_j,y_j\right)$是随机变量$X$，$Y$的两组情况，当
+$\left(x_j-x_i\right)\left(y_j-y_i\right)>0$时，即$x_j-x_i$与$y_j-y_i$同号时，则
+认为随机变量$X$和$Y$具有一致性。反之，当
+$\left(x_j-x_i\right)\left(y_j-y_i\right)<0$时，即$x_j-x_i$与$y_j-y_i$异号时，则
+认为随机变量$X$和$Y$是不一致的。根据这一原理，可得到Kendall's $\tau$秩相关系数的
+计算公式为：
 
 $$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$${#eq:tau}
 
-结合Copula函数理论和Kendall's $\tau$的计算公式，可得到的在使用Copula模型时，两个变量间的Kendall's $\tau$相关系数，推导过程如下：
+结合Copula函数理论和Kendall's $\tau$的计算公式，可得到在使用Copula模型时，两个变
+量间的Kendall's $\tau$相关系数，推导过程如下：
 
 $$\begin{array}{lcl}
 \tau_{X,Y}&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)<0\right]
@@ -176,31 +188,37 @@ $$\begin{array}{lcl}
 \\&=&4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
 \end{array}$${#eq:copula-tau}
 
-进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系数，并以此为依据进行下一步的分析。
+进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系
+数，并以此为依据进行下一步的分析。
 
-尾部相关系数则被广泛的应用于极值理论的测度，它表示当一个观测变量的实现值为极值时，另一个变量也出现极
-值的概率。尾部相关可以分为上尾相关和下尾相关。令X、Y为两个连续的随机变量，分别具有边缘分布F（X）和F（Y），那么，上尾相关系数可定义为：
+而尾部相关系数包括上尾相关系数和下尾相关系数。
 
-$$\lambda_u=\lim\limits_{u \to 1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$${#eq:lambda-u}
+其中上尾相关系数表示在变量$Y$的取值在右尾时，$X$的取值也落在右尾概率，用公式表示为：
 
-同理，下尾相关系数可定义为：
+$$\lambda_u=\lim\limits_{u \to
+1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$${#eq:lambda-u}
 
-$$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq F_y^{-1}(u)\right.\right\}$${#eq:lambda-l}
+同理，下尾相关系数表示在变量$Y$的取值在左尾时，$X$的取值也落在左尾的概率，用公式表示为:
+
+$$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq
+F_y^{-1}(u)\right.\right\}$${#eq:lambda-l}
 
 ## VineCopula模型理论基础
 
 ### Pair Copula分解原理
 
-正如前文对Sklar定理的阐述，变量的联合分布函数可由这些变量的边缘分布通过联结函数$C$联结起来。构成
-这些变量的多元联合分布函数。。但是一旦面对多元变量的情况，就会陷入“维数灾难”^[“维数灾难”是指随着维数的增加，计算量呈指数倍增长的一种现象。]之中：一来会使得Copula
-函数的形式过于复杂，所需估计的参数过多，二来甚至有Copula函数不存在的可能，不利于进一步的分析。因
-此在处理多元问题时需通过降维的方式，简化问题。在Sklar定理中提到对于仅包含两个变量的情况，且这两个
-变量均服从[0,1]的均匀分布时，一定存在一个联结函数$C$，使得二元联合分布函数可用两个变量的边缘分布
-函数表示。所以可通过Pair Copula 的方法对多元Copula函数进行分解。
+正如前文对Sklar定理的阐述，联结函数$C$可起到联结各变量的作用。但是一旦面对多元变
+量的情况，就会陷入"维数灾难"^[“维数灾难”是指随着维数的增加，计算量呈指数倍增长的
+一种现象。]之中：一来会使得Copula函数的形式过于复杂，所需估计的参数过多，二来甚
+至有Copula函数不存在的可能，不利于进一步的分析。因此在处理多元问题时需通过降维的
+方式简化问题。在Sklar定理中特别提到对于仅包含两个变量时，且
+这两个变量均服从U（0，1）时，一定可以找到一个联结函数$C$，使得其联合分布函数可由各
+变量的边缘函数直接构成。因此，可通过Pair Copula的方法对多元Copula函数进行分解。
 
 例如，针对二维变量的情况有：
 
-$$f\left(x_1,x_2\right)=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot f_1\left(x_1\right)\cdot f_2\left(x_2\right)$${#eq:paircopula-2}
+$$f\left(x_1,x_2\right)=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot
+f_1\left(x_1\right)\cdot f_2\left(x_2\right)$${#eq:paircopula-2}
 
 根据链式法则可得：
 
@@ -208,54 +226,72 @@ $$f\left(x_1\left|x_2\right.\right)=\frac{f\left(x_1,x_2\right)}{f_2\left(x_2\ri
 
 针对三维变量的情况可得到：
 
-$$\begin{array}{lcl}
-f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
-\\&=&f_1\left(x_1\right)\cdot c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot f_2\left(x_1\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
-\end{array}
+$$\begin{array}{lcl} f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot
+f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
+\\&=&f_1\left(x_1\right)\cdot
+c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot
+f_2\left(x_1\right)\cdot f\left(x_3\left|x_1,x_2\right.\right) \end{array}
 $${#eq:paircopula-3}
 
-其中$f\left(x_3\left|\right.x_1,x_2\right)$需通过变换条件，达到求解的目的，具体转换方法如下：
+其中$f\left(x_3\left|\right.x_1,x_2\right)$需通过变换条件，达到求解的目的，具体
+转换方法如下：
 
 $$\begin{array}{lcl}
 f\left(x_3\left|x_1,x_2\right.\right)&=&\frac{f\left(x_2,x_3\left|x_1\right.\right)}{f\left(x_2\left|x_1\right.\right)}
-\\&=&\frac{c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1\right.\right)}{f\left(x_2\left|x_1\right.\right)}
-\\&=&c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot f\left(x_3\left|x_1\right.\right)
-\\&=&c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot f_3\left(x_3\right)
-\end{array}$${#eq:paircopula-3-1}
+\\&=&\frac{c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot
+f\left(x_2\left|x_1\right.\right)\cdot
+f\left(x_3\left|x_1\right.\right)}{f\left(x_2\left|x_1\right.\right)}
+\\&=&c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot
+f\left(x_3\left|x_1\right.\right)
+\\&=&c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot
+c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot
+f_3\left(x_3\right) \end{array}$${#eq:paircopula-3-1}
 
 因此，可得到$f\left(x_1,x_2,x_3\right)$经过Pair Copula方法展开后的结果为：
 
-$$\begin{array}{lcl}
-f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot 
-\\& &c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot 
-\\& &c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)
+$$\begin{array}{lcl} f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot
+f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot \\&
+&c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot
+c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot \\&
+&c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)
 \end{array}$${#eq:paircopula3-2}
 
 但是，需要注意的是，在假定$x_1$，$x_2$，$x_3$不可相互替代时，我们在前面计算
-$f\left(x_1,x_2,x_3\right)$时采用的是$f_1\left(x_1\right)\cdot f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)$
-变换得到的，但我们也可以证明$f_2\left(x_2\right)\cdot f\left(x_3\left|x_2\right.\right)\cdot f\left(x_1\left|x_2,x_3\right.\right)$同样可以推导至$f\left(x_1,x_2,x_3\right)$，
-不过此时再进行Pair Copula分解时，得到的结果为：
+$f\left(x_1,x_2,x_3\right)$时采用的是$f_1\left(x_1\right)\cdot
+f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)$变
+换得到的，但我们也可以证明$f_2\left(x_2\right)\cdot
+f\left(x_3\left|x_2\right.\right)\cdot f\left(x_1\left|x_2,x_3\right.\right)$同
+样可以推导至$f\left(x_1,x_2,x_3\right)$，不过此时再进行Pair Copula分解时，得到的
+结果为：
 
-$$\begin{array}{lcl}
-f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot 
-\\& &c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot c_{2,3}\left(F_2\left(x_2\right),F_3\left(x_3\right)\right)\cdot 
-\\& &c_{13\left|2\right.}\left(F\left(x_1\left|x_2\right.\right),F\left(x_3\left|x_2\right.\right)\right)
+$$\begin{array}{lcl} f\left(x_1,x_2,x_3\right)&=&f_1\left(x_1\right)\cdot
+f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot \\&
+&c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot
+c_{2,3}\left(F_2\left(x_2\right),F_3\left(x_3\right)\right)\cdot \\&
+&c_{13\left|2\right.}\left(F\left(x_1\left|x_2\right.\right),F\left(x_3\left|x_2\right.\right)\right)
 \end{array}$${#eq:paircopula3-3}
 
-可以发现式[@eq:paircopula3-2]与式[@eq:paircopula3-3]存在较大差异。在三维变量的情况下，共存在
-$3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因此在研究分析时，具体选择哪一种分析方式
-就成为了一个新的问题。关于该问题将在下一节进行解释和回答。
+可以发现式[@eq:paircopula3-2]与式[@eq:paircopula3-3]存在较大差异。在三维变量的情
+况下，共存在$3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因此在研究分析
+时，具体选择哪一种分析方式就成为了一个新的问题。关于该问题将在下一节进行解释和回
+答。
 
 ### 规则藤结构概述
 
-按照Pair Copula分解原理，对于一个包含n维变量的联合密度函数，将会存在$n!/2$种分解方法^[Aas K, Czado C, Frigessi A, et al. Pair-copula constructions of multiple dependence[J]. Insurance: Mathematics and economics, 2009, 44(2): 182-198.]。针对如此繁多
-的分解方法，Bedford和Cooke在2001年进行了归纳总结，并依赖“图论”思想，提出了“藤”的模式^[Bedford T, Cooke R M. Probability Density Decomposition for Conditionally Dependent Random Variables Modeled by Vines[J]. Annals of Mathematics and Artificial Intelligence, 2001, 32(1): 245–268.]。藤Copula解决
-了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤。由于本文在建模时主要采
-用的为R藤结构，因此主要介绍R藤Copula模型的概况。
+按照PairCopula分解原理，对于一个包含n维变量的联合密度函数，将会存在n!/2种分解方
+法^[Aas K, Czado C, Frigessi A, et al. Pair-copula constructions of multiple
+dependence[J]. Insurance: Mathematics and economics, 2009, 44(2): 182-198.]。针
+对如此繁多的分解方法，Bedford和Cooke在2001年进行了归纳总结，并依赖"图论"思想，提
+出了"藤"的模式^[Bedford T, Cooke R M. Probability Density Decomposition for
+Conditionally Dependent Random Variables Modeled by Vines[J]. Annals of
+Mathematics and Artificial Intelligence, 2001, 32(1): 245–268.]。藤Copula解决了
+传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤。由于本
+文在建模时主要采用的为R藤结构，因此主要介绍R藤Copula模型的概况。
 
-不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为$T_1$，$T_2$，$T_3$，$T_4$，
-设五个变量分别为1,2,3,4,5，则对于第一棵树$T_1$，1,2,3,4,5也是其5个节点，节点与节点间的线段表示
-Copula函数的某一种类型。“|”之后的变量表示条件变量。
+不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为$T_1$，
+$T_2$，$T_3$，$T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵树$T_1$，1,2,3,4,5也
+是其5个节点，节点与节点间的线段表示Copula函数的某一种类型。“|”之后的变量表示条件
+变量。
 
 则可构造如下五维R藤模型的概念图：
 
@@ -265,16 +301,16 @@ knitr::include_graphics("./vine.png")
 
 针对上述概念图可得到这五维变量的多元联合密度函数：
 
-$$\begin{array}{lcl}
-f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot 
-\\& &c_{1,2}\cdot c_{2,3}\cdot c_{3,4}\cdot c_{3,5}\cdot 
-\\& &c_{1,3\left|2\right.}\cdot c_{2,5\left|3\right.}\cdot c_{2,4\left|3\right.}\cdot 
-\\& &c_{1,5\left|2,3\right.}\cdot c_{4,5\left|2,3\right.}\cdot 
-\\& &c_{1,4\left|2,3,5\right.} 
+$$\begin{array}{lcl} f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot \\&
+&c_{1,2}\cdot c_{2,3}\cdot c_{3,4}\cdot c_{3,5}\cdot \\&
+&c_{1,3\left|2\right.}\cdot c_{2,5\left|3\right.}\cdot
+c_{2,4\left|3\right.}\cdot \\& &c_{1,5\left|2,3\right.}\cdot
+c_{4,5\left|2,3\right.}\cdot \\& &c_{1,4\left|2,3,5\right.}
 \end{array}$${#eq:vine}
 
-当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann提出可用下三角矩阵描述
-这种结构信息^[Dißmann J F. Statistical inference for regular vines and application[J]. 2010.]。例如，针对概念图中的结构，可构造以下结构矩阵：
+当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann提出
+可用下三角矩阵描述这种结构信息^[Dißmann J F. Statistical inference for regular
+vines and application[J]. 2010.]。例如，针对概念图中的结构，可构造以下结构矩阵：
 
 $$M=\left(\begin{matrix}
 1&{}&{}&{}&{}\\
@@ -284,11 +320,15 @@ $$M=\left(\begin{matrix}
 2&3&3&5&3
 \end{matrix}\right)$${#eq:vine-matrix}
 
-在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图 \@ref(fig:vine)中第一棵树
-$T_1$的边，即集合$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\right\},\left\{3,5\right\}\right\}$;
-对角线上的值和矩阵倒数第二行的值在一矩阵最后一行为条件时，则共同构成了图\@ref(fig:vine)中第二棵树$T_2$的边，
-即集合$\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}\right\}$，
-同理可根据矩阵[@eq:vine-matrix]推导出树$T_3$、$T_4$。综上，当结构矩阵$M$唯一确定时，则R藤结构也确定下来，同时可以发现其没有特殊的结构限制，具有较强的灵活性，可以更好的识别不同变量间复杂的相关关系。
+在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图
+\@ref(fig:vine)中第一棵树$T_1$的边，即集合
+$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\right\},\left\{3,5\right\}\right\}$;
+对角线上的值和矩阵倒数第二行的值在一矩阵最后一行为条件时，则共同构成了图
+\@ref(fig:vine)中第二棵树$T_2$的边，即集合
+$\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}\right\}$，
+同理可根据矩阵[@eq:vine-matrix]推导出树$T_3$、$T_4$。综上，当结构矩阵$M$唯一确定
+时，则R藤结构也确定下来，同时可以发现其没有特殊的结构限制，因而其灵活性更好，可
+以用于处理变量过多，变量间关系较复杂的情况。
 
 
 <!-- # 参考文献 {-} -->
