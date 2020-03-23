@@ -1,31 +1,11 @@
 \begin{cabstract}
   \renewcommand{\chapterlabel}{摘\hspace{2em}要}
 
- 防范化解重大风险，特别是防控系统性金融风险被列为我国“三大攻坚战”之首。根据 2019 年中央经济工作会议
- 相关精神，防范金融市场异常波动和共振，打好防范化解系统性风险这一重点战役，是保持经济持续健康发展的
- 重要保障。近年来随着各金融部门的资产和信贷风险之间的协同流动不断增加，致使系统性金融风险呈现显著的
- 跨部门传导效应，这意味着如果只侧重于单个金融部门内部的风险传导，而忽视了机构间的关联性，就可能低估
- 相互依赖的金融机构对系统性金融风险的整体贡献，从而无法正确衡量金融系统中的风险溢出效应。同时“金融机
- 构‘太大而不能倒’的传统观念正逐步向‘太关联而不能倒’的思想转变”。正是由于证券市场中的各行业板块的股
- 价日趋呈现出交叉联动的特点，研究证券市场板块间风险传染路径、机制以及风险相关程度、影响力度，为政策
- 制定及投资决定提供参考建议，成为一个日渐紧迫的任务，越来越具有现实意义。
- 
-因此本文首先以 CCA 模型为基础对金融各板块的系统性风险进行计算。但是在计算中，本文并非直接使用板块指
-数等整体性指标计算板块的系统性风险，而是通过化整为零，先计算各板块样本股的违约距离，再进行汇总得到
-板块的系统性风险，尽可能减小系统性风险测度过程中存在的误差。然后对各部门系统性风险指标确定最优的 R
-藤结构形式，将金融板块的基本风险网络搭建出来，并进行相应的分析。最后确定并估计藤结构中节点与节点间
-边的 Copula 类型及参数值，通过分析Copula 的类型和相应的取值，分析板块间的尾部相依系数、无条件 Kendall
-相关系数和条件 Kendall 相关系数，分析得到板块间系统性风险的传染效应。
+  就我国目前的经济环境来看，当下最首要的任务就是如何防范化解系统性金融风险。监控和避免金融市场的异常波动及震荡共振，打好防范化解系统性风险这一重点战役，是保持经济持续健康发展的重要保障。近年来随着各金融部门的资产和信贷风险之间的协同流动不断增加，致使系统性金融风险呈现显著的跨部门传导效应，这意味着如果只侧重于单个金融部门内部的风险传导，而忽略了部门间的关联作用，就可能无法准确认识到相互依赖的金融部门对系统性风险产生的催化作用，从而导致我们无法正确地衡量金融系统发展过程中的潜在风险及其溢出效应。正是由于证券市场中的各行业板块的股价日趋呈现出交叉联动的特点，研究证券市场板块间风险传染路径、机制以及风险相关程度、影响力度，为政策制定及投资决定提供参考建议，成为一个日渐紧迫的任务，越来越具有现实意义。
 
-在研究过程中得出以下研究结论：（1）从各板块的系统性风险情况来看，在2015 年前均处于较稳定的状态，
-但实际上证券市场积累的杠杆、配资已经十分庞大，所以当证监会宣布彻查场外配资时，所有金融板块的系统
-性风险在 2015 年下半年都有了显著的增加，其中尤以券商信托板块最为严重。不过随着国家政策的逐步推进，
-从 2016 年起各板块的风险指标均有了显著的好转，但是各板块的风险指标波动浮动相较前五年依然有明显的
-增大。（2）从板块间的风险传染结构来看，券商信托板块处于核心节点的位置，而银行板块处于整个结构的边
-缘位置，表明券商信托板块属于金融板块中的风险核心，并且从 Copula 的类型来说，券商信托板块与其他板
-块间均为对尾部变化比较敏感的 Copula 形式，说明当券商信托板块出现系统性风险损失时，其他板块都有可
-能受到系统性风险的感染。在所有的条件板块中，券商信托板块出现的次数最多，保险板块其次，再次表明券
-商信托板块是金融板块系统性风险传染过程中的关键点。
+  因此本文首先以 CCA模型为基础对金融各板块的系统性风险进行计算。但是在计算中，本文并非直接使用板块指数等整体性指标计算板块的系统性风险，而是通过化整为零，先计算各板块样本股的违约距离，再进行汇总得到板块的系统性风险，尽可能减小系统性风险测度过程中存在的误差。然后对各部门系统性风险指标确定最优的R藤结构形式，将金融板块的基本风险网络搭建出来，并进行相应的分析。最后确定并估计藤结构中节点与节点间边的Copula 类型及参数值，通过分析Copula的类型和相应的取值，分析板块间的尾部相依系数、无条件 Kendall相关系数和条件 Kendall 相关系数，分析得到板块间系统性风险的传染效应。
+  
+  在研究过程中得出以下研究结论：（1）从各板块的系统性风险情况来看，在2015年前均处于较稳定的状态，但实际上证券市场积累的杠杆、配资已经十分庞大，所以当证监会宣布彻查场外配资时，所有金融板块的系统性风险在2015年下半年都有了显著的增加，其中尤以券商信托板块最为严重。不过随着国家政策的逐步推进，从2016年起各板块的风险指标均有了显著的好转，但是各板块的风险指标波动浮动相较前五年依然有明显的增大。（2）从板块间的风险传染结构来看，券商信托板块处于核心节点的位置，而银行板块处于整个结构的边缘位置，表明券商信托板块属于金融板块中的风险核心，并且从Copula 的类型来说，券商信托板块与其他板块间均为对尾部变化比较敏感的Copula形式，说明当券商信托板块出现系统性风险损失时，其他板块都有可能受到系统性风险的感染。在所有的条件板块中，券商信托板块出现的次数最多，保险板块其次，再次表明券商信托板块是金融板块系统性风险传染过程中的关键点。
  
   
   \bigbreak
@@ -39,54 +19,70 @@
 
 
 \begin{eabstract}
-  Preventing and resolving major risks is listed as the hardest and the most important mission of 
-  the ”three major battles” in China, especially the prevention and control of systemic financial 
-  risks. Guarding against the abnormal fluctuations and resonances of the financial market and 
-  playing a key role in preventing and mitigating systemic risks are important guarantees for 
-  maintaining the sustainable and healthy development of the economy, according to the relevant 
-  spirit of the 2019 Central Economic Working Conference. In recent years, systemic financial 
-  risks have a significant cross-sectorial transmission effect with the continuous increase in 
-  the synergistic flow between assets and credit risks in various financial sectors, which means 
-  that if we focus on risk transmission within a single financial sector, it is possible to 
-  underestimate the overall contribution of interdependent financial institutions to systemic 
-  financial risk and fail to measure the risk spillover effects in the financial system correctly. 
-  At the same time, the traditional notion that “financial institutions are too big to fail” 
-  is gradually changing to “they are too connected to fail”. It is an increasingly urgent and 
-  realistic task to studying the risk transmission path, mechanism, degree of risk correlation, 
-  and influence between securities market sectors to provide references for policy formulation 
-  and investment decisions, because of the stock prices of various industry sectors are 
-  increasingly showing cross-linking characteristics.
-  
-Therefore, this paper calculates the systemic risk of various financial sectors based on the CCA 
-model at the beginning. It calculates the default distance of the sample stocks of each sector 
-by rounding to zero, and then summarizes the systemic risk of the sector, instead of using the 
-overall index and other overall indicators, in order to minimize errors in the systematic 
-risk measurement process. Next it determines the optimal R rattan structure for the systemic 
-risk indicators of each department, and build the basic risk network of the financial sector to 
-conduct corresponding analysis. Finally, the Copula types and parameter values of the nodes in 
-the rattan structure are determined and estimated. Thus the contagious effects of systemic risk 
-across sectors are revealed by analyzing the Copula types and corresponding values, the tail 
-dependence coefficients, unconditional Kendall correlation coefficients, and conditional Kendall correlation coefficients.
+  Preventing and resolving major risks is listed as the hardest and the
+most important mission of the "three major battles" in China, especially
+the prevention and control of systemic financial risks. Guarding against
+the abnormal fluctuations and resonances of the financial market and
+playing a key role in preventing and mitigating systemic risks are
+important guarantees for maintaining the sustainable and healthy
+development of the economy, according to the relevant spirit of the 2019
+Central Economic Working Conference. In recent years, systemic financial
+risks have a significant cross-sectorial transmission effect with the
+continuous increase in the synergistic flow between assets and credit
+risks in various financial sectors, which means that if we focus on risk
+transmission within a single financial sector, it is possible to
+underestimate the overall contribution of interdependent financial
+institutions to systemic financial risk and fail to measure the risk
+spillover effects in the financial system correctly. At the same time,
+the traditional notion that "financial institutions are too big to fail"
+is gradually changing to "they are too connected to fail". It is an
+increasingly urgent and realistic task to studying the risk transmission
+path, mechanism, degree of risk correlation, and influence between
+securities market sectors to provide references for policy formulation
+and investment decisions, because of the stock prices of various
+industry sectors are increasingly showing cross-linking characteristics.
 
-In the course of the research, the following conclusions were drawn: (1) the risk of single sector 
-was relatively stable before 2015, but in fact the accumulated leverage and allocation of 
-securities markets have been very large, judging from the systemic risk situation of each 
-sector. Therefore, systemic risks in all financial sectors increased significantly in the 
-second half of 2015, with the brokerage trust sector being the most serious when the 
-Securities Regulatory Commission announced a thorough investigation of over-the-counter funding.
-However, with the gradual advancement of national policies, the risk indicators of each sector 
-have significantly improved since 2016, but the fluctuations of the risk index fluctuations of 
-each sector have still increased significantly compared with the previous five years. (2) From 
-the perspective of the risk contagion structure between the sectors, the brokerage trust sector 
-is at the core node position, and the bank sector is at the edge of the entire structure. It is 
-said that the securities trust sector and other sectors are all Copula forms that are more sensitive 
-to changes in the tail, indicating that when the securities trust has a systemic risk loss, 
-other sectors may be infected by systemic risks. Among all the conditional sectors, the 
-securities trust appears the most frequently, followed by the insurance, which again shows that 
-the securities trust is the key point in the systemic transmission of systemic risks in the 
-financial sectors.
+Therefore, this paper calculates the systemic risk of various financial
+sectors based on the CCA model at the beginning. It calculates the
+default distance of the sample stocks of each sector by rounding to
+zero, and then summarizes the systemic risk of the sector, instead of
+using the overall index and other overall indicators, in order to
+minimize errors in the systematic risk measurement process. Next it
+determines the optimal R rattan structure for the systemic risk
+indicators of each department, and build the basic risk network of the
+financial sector to conduct corresponding analysis. Finally, the Copula
+types and parameter values of the nodes in the rattan structure are
+determined and estimated. Thus the contagious effects of systemic risk
+across sectors are revealed by analyzing the Copula types and
+corresponding values, the tail dependence coefficients, unconditional
+Kendall correlation coefficients, and conditional Kendall correlation
+coefficients.
+
+In the course of the research, the following conclusions were drawn: (1)
+the risk of single sector was relatively stable before 2015, but in fact
+the accumulated leverage and allocation of securities markets have been
+very large, judging from the systemic risk situation of each sector.
+Therefore, systemic risks in all financial sectors increased
+significantly in the second half of 2015, with the brokerage trust
+sector being the most serious when the Securities Regulatory Commission
+announced a thorough investigation of over-the-counter funding. However,
+with the gradual advancement of national policies, the risk indicators
+of each sector have significantly improved since 2016, but the
+fluctuations of the risk index fluctuations of each sector have still
+increased significantly compared with the previous five years. (2) From
+the perspective of the risk contagion structure between the sectors, the
+brokerage trust sector is at the core node position, and the bank sector
+is at the edge of the entire structure. It is said that the securities
+trust sector and other sectors are all Copula forms that are more
+sensitive to changes in the tail, indicating that when the securities
+trust has a systemic risk loss, other sectors may be infected by
+systemic risks. Among all the conditional sectors, the securities trust
+appears the most frequently, followed by the insurance, which again
+shows that the securities trust is the key point in the systemic
+transmission of systemic risks in the financial sectors.
   \\*
 
 \end{eabstract}
 
-\ekeywords{Financial Sectors;Systemic Risk;CCA Model;Vine-Copula Model;Risk Contagion  }
+\ekeywords{Financial Sectors；Systemic Risk；CCA Model；Vine-Copula
+Model；Risk Contagion  }
