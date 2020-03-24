@@ -8,7 +8,7 @@ output:
   pdf_document: default
   word_document: default
 css: ./style/markdown.css
-bibliography: Bibfile.bib
+bibliography: [Bibfile.bib]
 eqnPrefixTemplate: ($$i$$)
 link-citations: true
 linkReferences: true

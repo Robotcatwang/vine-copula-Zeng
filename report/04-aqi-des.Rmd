@@ -7,7 +7,7 @@ output:
   word_document: default
 csl: ./style/chinese-gb7714-2005-numeric.csl
 css: ./style/markdown.css
-bibliography: Bibfile.bib
+bibliography: [Bibfile.bib]
 eqnPrefixTemplate: ($$i$$)
 link-citations: true
 linkReferences: true
