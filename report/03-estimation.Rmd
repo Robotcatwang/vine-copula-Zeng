@@ -184,9 +184,9 @@ kable(price_rt_stats_desc,row.names =F,align = "c", caption="平安银行对数�
       longtable = TRUE, booktabs = TRUE, linesep="")
 ```
 
-从表 \@ref(tab:price-rt-stats) 中可以看出，对数收益率的偏度为`r
-price_rt_stats_desc[1,3] `，峰度为`r price_rt_stats_desc[1,4]` ，表明对数收益率
-具有右偏尖峰的特征。
+从表 \@ref(tab:price-rt-stats) 中可以看出，
+对数收益率的偏度为`r price_rt_stats_desc[1,3] `，
+峰度为`r price_rt_stats_desc[1,4]` ，表明对数收益率具有右偏尖峰的特征。
 
 而J-B统计量的值为`r price_rt_stats_desc[1,5]`，显然大于5%显著性水平对应的临界
 值，拒绝对数收益率服从正态分布的原假设。
@@ -239,8 +239,8 @@ plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残�
 
 （四）样本股对数收益率ARCH效应检验
 
-本文在进行ARCH效应检验时，采用LM统计量进行判断。对去均值化后的残差平方进行ARCH效应检验，计算得到的LM  
-统计量的值为`r ArchTest(resi2,lag=5)[[1]][1]`，对应的P值为0.0001，在5%的显著性水平上拒绝残差独立的原  
+本文在进行ARCH效应检验时，采用LM统计量进行判断。对去均值化后的残差平方进行ARCH效应检验，计算得到的LM
+统计量的值为`r ArchTest(resi2,lag=5)[[1]][1]`，对应的P值为0.0001，在5%的显著性水平上拒绝残差独立的原
 假设，表明去均值化后的残差平方存在ARCH效应。因此需对对数收益率的残差拟合GARCH模型，以消除ARCH效应。
 
 （五）样本股对数收益率GARCH模型的拟合和股权波动率的计算
@@ -307,10 +307,10 @@ gjr_resi2=gjr_resi^2
 从表 \@ref(tab:gjr-garch) 中可以看出，GJR-GARCH(1,1)的AIC值和BIC值在三个模型中均
 是最小的，说明该模型在三个模型中模型拟合效果较好。而且该模型的alpha、beta、gamma
 系数在1%的显著性水平下均显著，表明该模型的参数估计的准确性也较高。同时原序列经过
-GJR-GARCH(1,1)模型拟合后得到的标准化残差平方序列的LM统计量的值为`r
-ArchTest(gjr_resi2,lag=5)[[1]][1]`，对应的P值为`r
-ArchTest(gjr_resi2,lag=5)[[3]][1]`，在5%的显著性水平上接受残差独立的原假设，表明
-经GJR-GARCH模型处理后已消除ARCH效应。最终平安银行对数收益率的模型解析式如下式所
+GJR-GARCH(1,1)模型拟合后得到的标准化残差平方序列的LM统计量的值
+为`r ArchTest(gjr_resi2,lag=5)[[1]][1]`，
+对应的P值为`r ArchTest(gjr_resi2,lag=5)[[3]][1]`，在5%的显著性水平上接受残差独立
+的原假设，表明经GJR-GARCH模型处理后已消除ARCH效应。最终平安银行对数收益率的模型解析式如下式所
 示：
 
 $$\left\{\begin{array}{l}
@@ -319,8 +319,9 @@ r_t=0.0002496+\varepsilon _t\\
 \sigma_t^2=0.0000011+\left(0.0570125\varepsilon_{t-1}^2-0.0262933I_{t-1}\varepsilon_{t-1}^2 \right)+0.9550297\sigma _{t - 1}^2
 \end{array}\right.$${#eq:gjr-garch}
 
-从式[@eq:gjr-garch]中可以看出参数$\alpha$、$\beta$和$\gamma$之和小于1，表明整个过程是平稳的^[Teräsvirta T. An introduction to univariate GARCH models[M]//Handbook of Financial time series. Springer, Berlin, Heidelberg, 2009: 17-42.]，可用于进一步的分析。
-但需要注意的是式[@eq:gjr-garch]中$\gamma$项的系数为负，其原因在于平安银行属于典型的大盘股，总市值达
+从式[@eq:gjr-garch]中可以看出参数$\alpha$、 $\beta$ 和$\gamma$之和小于1，
+表明整个过程是平稳的^[Teräsvirta T. An introduction to univariate GARCH models[M]//Handbook of Financial time series. Springer, Berlin, Heidelberg, 2009: 17-42.]，可用于进一步的分析。
+但需要注意的是式[@eq:gjr-garch]中 $\gamma$ 项的系数为负，其原因在于平安银行属于典型的大盘股，总市值达
 到3000多亿元，且其业绩优良，属于蓝筹股的范畴，因此其抗跌性较强，当股价下跌时，其股权波动率反而有所下降。
 
 ## 金融各板块系统性风险计算与分析
@@ -336,8 +337,7 @@ r_t=0.0002496+\varepsilon _t\\
 率。]；二是该方程组属于较复杂的非线性方程组，不存在解析解，因此本文通过调用R中的
 nleqslv函数求解该非线性方程组：
 
-首先定义新变量$AtoE=\frac{A}{E}$，然后对方程组中所有变量$A$转化为$AtoE \cdot
-E$，最后经过适当变形可得到如下新的方程组：
+首先定义新变量$AtoE=\frac{A}{E}$，然后对方程组中所有变量$A$转化为$AtoE \cdot E$，最后经过适当变形可得到如下新的方程组：
 
 $$\left\{\begin{array}{l} y_1=AtoE \cdot
 N\left(d_1\right)-\frac{B}{E}e^{-rT}N\left(d_2\right)-1\\
@@ -347,7 +347,7 @@ d_2==d_1-\sigma_A\sqrt{T}\\
 y_2=N\left(d_1\right) \cdot AtoE \cdot \sigma_A-\sigma_E
 \end{array}\right.$${#eq:cca-solve1}
 
-令方程组[@eq:cca-solve1]中的$y_1$和$y_2$趋近于0，通过Newton优化算法即可解得$A$和
+令方程组[@eq:cca-solve1]中的$y_1$和 $y_2$趋近于0，通过Newton优化算法即可解得$A$和
 $\sigma_A$的近似解。按照上述思路即可得到个股的违约距离序列。例如平安银行近十年的
 违约距离序列如下图所示：
 
@@ -431,9 +431,9 @@ plot(dd_date,bank,type="l",ylim=c(0,6.5))
 与银行板块自身的特性有关：一是当市场波动开始加剧时，投资者的避险欲望逐渐变的强
 烈，银行股作为证券市场的“稳定器”，其较高的安全边际受到投资者的青睐；二是银行极难
 倒闭的观念已经深根于投资者的心中，因此银行板块的系统性风险仅处于温和的增长过程。
-自2015年底起，银行板块承担的系统性风险开始显著减少，风险指标最高达到 `r
-max(bank)` ，并于2017年进入回调过程。整体来看，银行板块的风险距离围绕3波动，所承
-受的系统性风险不大。
+自2015年底起，银行板块承担的系统性风险开始显著减少，
+风险指标最高达到 `r max(bank)` ，并于2017年进入回调过程。
+整体来看，银行板块的风险距离围绕3波动，所承受的系统性风险不大。
 
 ```{r multi-fin-sector-dd,eval=T,fig.cap = "多元金融板块近十年系统性风险时序图", dev='png'}
 plot(dd_date,multi_finance,type="l",ylim=c(0,6.5))
@@ -511,7 +511,7 @@ plot(dd_date,insurance,type="l",ylim=c(0,6.5))
 
 综上所述，可以发现板块间的系统性风险具有较强的相依性风险关系。因此本文将在下一节
 通过藤理论运用定量的方式研究板块间的风险传染效应，从投资者和市场监管两个角度，提
-出相应的建议，为当下如何更有效防范化解系统性风险提供理论依据。 
+出相应的建议，为当下如何更有效防范化解系统性风险提供理论依据。
 
 
 <!--# 参考文献 {-}-->

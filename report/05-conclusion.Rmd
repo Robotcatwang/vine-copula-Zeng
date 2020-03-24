@@ -117,4 +117,3 @@ Joe-Copula等多种新颖的Copula函数，除此外还可以对Copula增加旋�
 <!-- # 参考文献 {-} -->
 [//]: # (\bibliography{Bibfile})
 
-\bibliographystyle{gbt7714-plain-zuel.bst}
