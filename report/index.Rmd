@@ -1,7 +1,7 @@
 --- 
 title: "我国证券市场金融板块间系统性风险传染效应研究"
-author: ""
-date: "`r Sys.Date()`"
+author: "曾远征"
+date: "二〇二〇年三月十日"
 site: bookdown::bookdown_site
 css: ./style/markdown.css
 autoEqnLabels: true 
