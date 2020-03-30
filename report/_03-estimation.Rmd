@@ -64,7 +64,7 @@ Sys.setlocale("LC_ALL", "Chinese")
 受到系统性风险冲击时，会快速影响到其它个体。在股票价格的调节过程中，及时发现板块
 间股价变动的联动性，也可以一定程度上避免受到板块间风险传染的影响。
 
-# 研究意义
+## 研究意义
 
 从国内国外的经济状况看，我国当前金融体系内的系统性风险正在加速酝酿，但是部分金融
 机构或部门对金融风险的防范意识相对淡薄，而且在直面风险时的管理水平较弱。同时"金
@@ -257,7 +257,7 @@ plot(date,no_risk_rate,type='l',ylim=c(0,4))
 关键是显著的提高了插值函数的光滑性等优点，在数值逼近等问题的解决上得到了越来越多
 的广泛应用 [@曹德欣2001三次样条插值函数的数值稳定性],所以本文也采用三次样条法对
 个股的季度债务账面价值进行插值，得到该股当日债务账面价值。以平安银行为例，经过插
-值后得到的日债务账面价值如图 \@ref(fig:debt_value) 所示:
+值后得到的日债务账面价值如图 \@ref(fig:debt-value1) 所示:
 
 ```{r cubicspline}
 n=length(stock_test$Stkcd)
@@ -266,13 +266,13 @@ debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_boo
 debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
-```{r debt_value,eval=T,fig.cap ="平安银行插值后日债务账面价值", dev='png'}
+```{r debt-value1,eval=T,fig.cap ="平安银行插值后日债务账面价值", dev='png'}
 plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值",xaxt='n')
 axis(1, at=1:41,labels = debt_book_value_test$Accper)
 lines(debt_book_value$x,debt_book_value$y)
 ```
 
-图 \@ref(fig:debt_value) 中展示了平安银行经过三次样条插值后的债务市场价值。图中的
+图 \@ref(fig:debt-value1) 中展示了平安银行经过三次样条插值后的债务市场价值。图中的
 空心点表示平安银行近十年季报中的债务账面价值，曲线表示其日债务市场价值。可以发现
 曲线平滑度较高，曲线首尾两端均为真实值，且曲线穿过所有空心点，表明插值符合三次样
 条插值的规范，插值效果较好，可以用于模型的分析。
@@ -458,6 +458,61 @@ r_t=0.0002496+\varepsilon _t\\
 表明整个过程是平稳的 [@terasvirta2009introduction],可用于进一步的分析。
 但需要注意的是式[@eq:gjr-garch]中 $\gamma$ 项的系数为负，其原因在于平安银行属于典型的大盘股，总市值达
 到3000多亿元，且其业绩优良，属于蓝筹股的范畴，因此其抗跌性较强，当股价下跌时，其股权波动率反而有所下降。
+
+## CCA模型理论
+ 
+或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton期权定
+价模型的基础上，通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建
+风险资产负债表，进而对企业的风险进行整体分析的一种方法。CCA模型将一个企业的资产
+市场价值（$A$）拆分为股权的市场资本价值（$E$）和债务的市场资本价值（$D$）。当一个企业
+的债务市场价值高于该企业的资产市场价值时，表明该企业可能会存在违约行为，不能到期
+及时偿还债务。需要注意的是，或有权益模型中的企业资产的价值和债务的价值均为市场资
+本价值，不能通过企业财报得到直接数据。因此CCA方法指出，可通过以下方法间接计算得
+到企业资产的市场价值，即将股权看为价值为$A$，交割价格为企业资产负债表中的债务价值$B$
+的欧式看涨期权，根据BSM公式可得股权的市场价值为：
+
+$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-equity-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-equity-d2}
+
+其中，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，$B$
+表示企业资产负债表中的债务价值，$E$表示股权的市场资本价值，$r$表示无风险利率，
+$T$表示当前时刻到到期日的时间（按年计算），$\sigma_A^2$表示企业资产市场价值的波
+动率。
+
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、
+$\sigma_A^2$均未知，因此需增加一个条件：
+
+$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
+
+其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
+[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
+[@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
+场价值$A$。
+
+<!--在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
+
+$$D=B-P$${#eq:cca-debt-basic}
+
+而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
+可得到预期损失净现值的计算公式：
+
+$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$${#eq:cca-debt}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-debt-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-debt-d2}
+
+通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
+进而计算出企业的违约距离$DD$,计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]:-->
+
+$$DD=\frac{A-B}{A \cdot \sigma_A}$${#eq:dd}
+
+企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
+小，企业的风险越小。
+
 
 # 金融各板块系统性风险计算与分析
 
