@@ -9,7 +9,7 @@ bookdown::html_document2:
   - pandoc-crossref
   - -M
   - eqnPrefix=
-  seq_numbering: false
+  seq_numbering: true 
   toc: true
 bookdown::pdf_document2:
   keep_tex: true
@@ -21,6 +21,7 @@ bookdown::pdf_document2:
   - pandoc-crossref
   template: ./style/default-1.17.0.2.tex
   toc: false
+  citation_package: natbib
 slidy_presentation:
   highlight: haddock
 bookdown::word_document2:
@@ -57,6 +58,8 @@ bookdown::gitbook:
     edit: https://github.com/rstudio/bookdown-demo/edit/master/%s
     download: ["pdf", "epub"]
 bookdown::pdf_book:
+  includes:
+    after_body: backmatters.tex
   keep_tex: yes
   toc: true
   toc_depth: 3
