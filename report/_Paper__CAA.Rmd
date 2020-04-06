@@ -1,0 +1,701 @@
+---
+title: "基于CCA模型的金融各板块系统性风险测度"
+author: "Zeng"
+date: '2019-12-10'
+css: ./style/markdown.css
+autoEqnLabels: true
+eqnPrefixTemplate: ($$i$$)
+linkReferences: true
+bibliography: [Bibfile.bib]
+notice: '@*'
+csl: ./style/chinese-gb7714-2005-numeric.csl
+link-citations: true
+---
+
+
+
+```{r setup, echo=F}
+
+################# 第 3 章 R 程序代码  ####################
+
+
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+# CCA模型建模
+## CCA模型理论
+___
+
+或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Scholes-Merton期权定
+价模型的基础上，通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来构建
+风险资产负债表，进而对企业的风险进行整体分析的一种方法。CCA模型将一个企业的资产
+市场价值（$A$）拆分为股权的市场资本价值（$E$）和债务的市场资本价值（$D$）。当一个企业
+的债务市场价值高于该企业的资产市场价值时，表明该企业可能会存在违约行为，不能到期
+及时偿还债务。需要注意的是，或有权益模型中的企业资产的价值和债务的价值均为市场资
+本价值，不能通过企业财报得到直接数据。因此CCA方法指出，可通过以下方法间接计算得
+到企业资产的市场价值，即将股权看为价值为$A$，交割价格为企业资产负债表中的债务价值$B$
+的欧式看涨期权，根据BSM公式可得股权的市场价值为：
+
+___
+
+$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-equity-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
+{#eq:cca-equity-d2}
+
+其中，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，$B$
+表示企业资产负债表中的债务价值，$E$表示股权的市场资本价值，$r$表示无风险利率，
+$T$表示当前时刻到到期日的时间（按年计算），$\sigma_A^2$表示企业资产市场价值的波
+动率。
+
+___
+
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、
+$\sigma_A^2$均未知，因此需增加一个条件：
+
+$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
+
+其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
+[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
+[@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
+场价值$A$。
+
+在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
+
+$$D=B-P$${#eq:cca-debt-basic}
+
+___
+
+而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
+可得到预期损失净现值的计算公式：
+
+$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$${#eq:cca-debt}
+
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-debt-d1}
+
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-debt-d2}
+
+___
+
+通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
+进而计算出企业的违约距离$DD$,计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]:
+
+$$DD=\frac{A-B}{A \cdot \sigma_A}$${#eq:dd}
+
+企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
+小，企业的风险越小。
+
+## CCA模型参数的选择与计算
+
+___
+
+本文选取的样本均为在我国沪市和深市上市的金融企业（由于建模所需数据涉及上市公司的
+财务数据，因此本文不将2019年上半年上市的企业纳入样本中），并以证监会和证交所制定
+的行业板块分类标准进行划分。最终共包括银行板块的31只股票，券商信托板块的41只股
+票，保险板块的7只股票、多元金融板块的25只股票和房地产板块的141只股票。本文的研究
+区间为2009年7月1日至2019年6月30日。
+
+在计算各股违约距离时以平安银行（股票代码：000001）为例，
+
+___
+
+```{r library-package,echo=TRUE}
+rm(list=ls())
+##getwd()
+## path='D:/github_paper/vine-copula-Zeng'
+## setwd(path)
+## load package
+library(readxl)
+library(xlsx)
+library(splines)
+library(fBasics)
+library(tseries)
+library(forecast)
+library(fGarch)
+library(nleqslv)
+library(knitr)
+library(FinTS)
+library(rugarch)
+library(VineCopula)
+```
+___
+
+```{r import-data,echo=TRUE}
+## load data
+norisk_rate=read.csv('./no_risk_rate.csv',header=T)
+no_risk_rate=norisk_rate[,3];date=as.Date(norisk_rate[,2])
+stock_test=read.xlsx2('./sample_data.xlsx',sheetIndex=1,header=T,startRow = 1,endRow = 2359,
+                      colClasses=c('character','character','numeric','numeric','numeric','character','character',rep('numeric',5)))
+debt_book_value_test=read.xlsx2('./sample_data.xlsx',sheetIndex=2,header=T,startRow = 1,endRow = 42,
+                      colClasses=c(rep('character',3),'numeric'))
+```
+
+
+### 到期期限与无风险利率的选择
+
+CCA模型中到期期限一般取1年，因此本文选择中国人民银行发布的一年期定期整存整取利率
+^[数据来源：中国人民银行调查统计司
+（http://www.pbc.gov.cn/diaochatongjisi/）。]，作为无风险利率，无风险利率整体的
+波动趋势如图 \@ref(fig:norisk-rate) 所示：
+```{r norisk-rate,eval=T, fig.cap="近十年一年期定期整存整取利率", dev='png',echo=TRUE}
+plot(date,no_risk_rate,type='l',ylim=c(0,4),lwd=2)
+```
+___
+
+从图 \@ref(fig:norisk-rate) 中可以发现，无风险利率经过了先上升再下降的一个过程。
+在2008年全球金融危机爆发后，全球投资情绪都较为低落，大量资金转投向无风险产品；央行为了避免损失的进一步扩大，
+通过提高无风险利率，保证国家经济的平稳发展。从2012年3季度到2014年年底，无风险利
+率趋稳。但是从2015年开始，无风险利率经过了多次显著的下调。主要原因可概括为"内忧
+外患"：（1）出于应对2008年经济危机所施行的“4万亿计划”^[2008年9月，国际金融危机
+全面爆发后，中国经济增速快速回落，经济面临硬着陆的风险。为了应对这种危局，中国政
+府于2008年11月推出了进一步扩大内需、促进经济平稳较快增长的十项措施。初步匡算，实
+施这十大措施，到2010年底约需投资4万亿元。]。（2）国内经济发展放缓，房产等投资减速，企业效益欠
+佳，国内许多实业企业都出现了资金链紧张情况，只有网络等虚拟经济在创新中驱动发展；
+（3）作为全球最大印钞机的美联储反复提出加息，要收回钞票，这给全球带来了巨大的流
+动性缺口。所以，央行通过多次降息，释放流动性，一来鼓励投资者进行实业投资，刺激市
+场，推动经济的健康发展，二来通过补充流动性，对冲美联储带来的流动性缺口。
+
+### 三次光滑样条插值法（样本股股权市场价值和债权账面价值的计算）
+
+在计算债权账面价值时，可以通过公开消息得到的仅有个股债务账面价值的季度数据，而
+本文在分析过程中，采用的均为当日数据，因此需对个股债务账面价值数据进行插值处理。
+而在常见的插值方法中，三次光滑样条插值法由于其计算简单、稳定性好、收敛性有保证，
+关键是显著的提高了插值函数的光滑性等优点，在数值逼近等问题的解决上得到了越来越多
+的广泛应用 [@曹德欣2001三次样条插值函数的数值稳定性],所以本文也采用三次样条法对
+个股的季度债务账面价值进行插值，得到该股当日债务账面价值。以平安银行为例，经过插
+值后得到的日债务账面价值如图 \@ref(fig:debt-value1) 所示:
+
+___
+
+```{r cubicspline,echo=TRUE}
+n=length(stock_test$Stkcd)
+  ## cubic spline
+debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_book_value,n+1)
+debt_book_value_date=as.Date(debt_book_value_test$Accper)
+```
+
+___
+
+```{r debt-value1,eval=T,fig.cap ="平安银行插值后日债务账面价值", dev='png',echo=TRUE}
+plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值",xaxt='n')
+axis(1, at=1:41,labels = debt_book_value_test$Accper)
+lines(debt_book_value$x,debt_book_value$y)
+```
+___
+
+图 \@ref(fig:debt-value1) 中展示了平安银行经过三次样条插值后的债务市场价值。图中的
+空心点表示平安银行近十年季报中的债务账面价值，曲线表示其日债务市场价值。可以发现
+曲线平滑度较高，曲线首尾两端均为真实值，且曲线穿过所有空心点，表明插值符合三次样
+条插值的规范，插值效果较好，可以用于模型的分析。
+
+
+
+### 样本股对数收益率描述性统计分析
+
+```{r return,echo=TRUE}
+price=stock_test[,'price_new']
+date=as.Date(stock_test[,'Trddt'])
+price_rt=diff(log(price))
+```
+___
+
+```{r log-return,eval=T,fig.cap = "平安银行近十年日收盘价和对数收益率时序图", dev='png',echo=TRUE}
+par(mfrow=c(2,1))
+par(mar=c(2,4,1,2))
+plot(date,price,type="l",main="(a)平安银行近十年收盘价时序图")
+plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行近十年对数收益率时序图')
+```
+___
+
+___
+
+如图 \@ref(fig:log-return1) 和 \@ref(fig:log-return2) 所示，从日收盘价时序
+图可以看出，平安银行整体行情向好，但其中也经过了4次较大的波动；从平安银行近十年
+对数收益率时序图看，该股的收益率在2013年上半年、2015年全年和2018年全年波动幅度较
+大，具有明显的"波动性聚集"特征。需要注意的是，平安银行的股价和对数收益率自2010年
+中下旬出现不连续的特征，其原因在于当时深发展A正在与该股协调进行资产重组的事宜，
+但是由于该事件可能影响较大，且不确定性较高，因此深交所发文该股自2010年6月30日起
+停牌，并于2010年9月1日复牌。
+
+___
+
+平安银行对数收益率的相关描述性统计量如表 \@ref(tab:price-rt-stats) 所示：
+
+```{r price-rt-stats, results='markup',echo=TRUE}
+price_rt_stats=basicStats(price_rt)#计算基本统计量
+JB=jarque.bera.test(price_rt)#检验对数收益率序列是否服从正态分布
+price_rt_stats_desc=as.data.frame(t(c(price_rt_stats[c(7,14,15,16),1],as.numeric(JB[[1]][1]))))
+colnames(price_rt_stats_desc) <- c("均值","标准差","偏态系数","峰态系数","J-B统计量")
+
+kable(price_rt_stats_desc,row.names =F,align = "c", caption="平安银行对数收益率描述性统计量",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+
+
+___
+
+从表 \@ref(tab:price-rt-stats) 中可以看出，
+对数收益率的偏度为`r price_rt_stats_desc[1,3] `，
+峰度为`r price_rt_stats_desc[1,4]` ，表明对数收益率具有右偏尖峰的特征。
+
+而J-B统计量的值为`r price_rt_stats_desc[1,5]`，显然大于5%显著性水平对应的临界
+值，拒绝对数收益率服从正态分布的原假设。
+
+### 样本股对数收益率单位根检验
+
+由于只有对平稳时间序列时建模才有统计意义。因此本文将使用ADF检验法和PP检验法对平安银行的对数收益率进行平稳性检验，检验结果如表 \@ref(tab:adf-test) 所示：
+
+```{r adf-test, results='markup',echo=TRUE}
+ADF=adf.test(price_rt)
+PP=pp.test(price_rt)
+adf_test=data.frame(a=c(ADF$statistic[1],PP$statistic[1]),b=c(0.0001,0.0001))
+colnames(adf_test)=c("检验统计量的值","P值")
+rownames(adf_test)=c("ADF检验","PP检验")
+
+kable(adf_test,row.names =T,align = "c", caption="平安银行对数收益率平稳性检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+
+
+___
+
+从表 \@ref(tab:adf-test) 中可以看出，平安银行对数收益率两种检验的P值均小于1%，说
+明平安银行的对数收益率序列已经平稳，可进行下一步的检验。
+
+### 样本股对数收益率自相关、偏自相关检验
+
+接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF
+图和PACF图的特征判断对数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
+
+___
+
+```{r acf-pacf1, fig.cap="Shibor收益率自相关图和偏自相关图", dev='png',echo=TRUE}
+##par(mfrow=c(2,1))
+acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
+title(main="(a)the ACF of Return",cex.main=0.95)
+```
+
+
+
+
+
+
+___
+
+```{r acf-pacf2,fig.cap="Shibor收益率自相关图和偏自相关图", dev='png',echo=TRUE}
+pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#画偏自相关图
+title(main="(b)the PACF of Return",cex.main=0.95)
+```
+
+
+
+
+
+
+
+___
+
+从图 \@ref(fig:acf-pacf) 中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后
+阶数20阶以内均在95%置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关
+性时，PACF图中的偏自相关系数在滞后阶数20阶以内也均在95%置信区间内，表明序列不具
+有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型。
+
+___
+
+经标准化后得到的残差平方时序图如下图所示：
+
+```{r resi2, fig.cap="平安银行对数收益率去均值后残差平方时序图", dev='png',echo=TRUE}
+resi=price_rt-mean(price_rt)#去均值
+resi2=(price_rt-mean(price_rt))^2 #计算残差的平方
+plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方')
+```
+
+
+
+
+___
+
+从图 \@ref(fig:resi2) 中可以看出，去均值化后的残差依然有较显著的波动性聚集特征。
+因此需进一步对该去均值化后的残差进行ARCH效应检验。
+
+### 样本股对数收益率ARCH效应检验
+
+本文在进行ARCH效应检验时，采用LM统计量进行判断。对去均值化后的残差平方进行ARCH效应检验，计算得到的LM
+统计量的值为`r ArchTest(resi2,lag=5)[[1]][1]`，对应的P值为0.0001，在5%的显著性水平上拒绝残差独立的原
+假设，表明去均值化后的残差平方存在ARCH效应。因此需对对数收益率的残差拟合GARCH模型，以消除ARCH效应。
+
+### GJR-GARCH模型的拟合和股权波动率的计算
+
+
+从平安银行对数收益率的描述性统计量中可以看出，收益率序列具有明显的有偏性，表明正
+负信息的冲击不完全对称。因此在计算股权波动率时，本文通过GJR-GARCH模型拟合平安银
+行对数收益率的残差序列，因为GJR-GARCH能够捕捉到一个GARCH 模型无法描述的一个实证
+现象，即t−1 时刻的负面冲击与正面冲击对 t时刻的方差有不完全相同的影响，因此本文以
+GJR-GARCH模型建模。
+
+___
+
+标准的GJR-GARCH模型：
+$$\begin{array}{l}
+x_{t}=\varphi_{0}+\sum_{i=1} \varphi_{i} x_{t-j}+\varepsilon_{t}, \varepsilon_{t}^{2}=h_{t} z_{t} \\
+h_{t}=\omega+\sum_{j=1}^{q} \alpha_{i} \varepsilon_{t-j}^{2}+\sum_{j=1}^{p} \beta_{j} h_{t-j}+\gamma_{1} D_{1} \varepsilon_{t-1}^{2}
+\end{array}$$
+式中，D1是虚拟变量，$: \varepsilon_{t}<0, D_{1}=1 ; \varepsilon_{t}<0, D_{1}=0$；$Y_{1} D_{1} \varepsilon^{2}_{t-1}$为非对称效应项。
+同时出于模型简洁性的考虑，本文仅考虑GJR-GARCH(1,1)、
+GJR-GARCH(1,2)和GJR-GARCH(2,1)三种模型形式。三种模型的拟合结果如下表所示：
+
+___
+
+```{r garch,echo=TRUE}
+gjrgarch11_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit11 = ugarchfit(spec=gjrgarch11_spec, data=price_rt)
+
+gjrgarch12_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(1,2)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit12 = ugarchfit(spec=gjrgarch12_spec, data=resi)#模型的参数beta2不显著
+
+gjrgarch21_spec = ugarchspec(
+  variance.model = list(model="gjrGARCH", garchOrder=c(2,1)),
+  mean.model = list(armaOrder=c(0,0),include.mean=F))
+garchfit21 = ugarchfit(spec=gjrgarch21_spec, data=resi)#模型的alpha1、alpha2、gamma1、gamma2均不显著
+```
+___
+
+```{r gjr-garch, results='markup',echo=TRUE}
+garchfit11_coef=data.frame(garchfit11@fit$matcoef)
+garchfit12_coef=data.frame(garchfit12@fit$matcoef)
+garchfit21_coef=data.frame(garchfit21@fit$matcoef)
+garchfit_coef=list(garchfit11_coef=garchfit11_coef,
+                   garchfit12_coef=garchfit12_coef,
+                   garchfit21_coef=garchfit21_coef)
+for(j in 1:3){
+  for(i in 1:nrow(garchfit_coef[[j]])){
+    garchfit_coef[[j]][i,5]=paste(substr(garchfit_coef[[j]][i,1],1,7),
+                           if(garchfit_coef[[j]][i,4]<=0.01){'***'}
+                           else{if(garchfit_coef[[j]][i,4]>0.01 & garchfit_coef[[j]][i,4]<=0.05){'**'}
+                             else{if(garchfit_coef[[j]][i,4]>0.05 & garchfit_coef[[j]][i,4]<=0.1){'*'}
+                               else{''}}},
+                           sep='',collapse = '')
+  }
+}
+```
+
+___
+
+```{r coef,results='markup',echo=TRUE}
+coef_result=data.frame(row.names=c('omega','alpha1','alpha2','beta1','beta2','gamma1','gamma2','AIC','BIC'))
+coef_result[,1]=c(garchfit_coef$garchfit11_coef[1:2,5],'',
+                  garchfit_coef$garchfit11_coef[3,5],'',
+                  garchfit_coef$garchfit11_coef[4,5],'',signif(infocriteria(garchfit11)[1:2],5))
+coef_result[,2]=c(garchfit_coef$garchfit12_coef[1:2,5],'',
+                  garchfit_coef$garchfit12_coef[3:5,5],'',signif(infocriteria(garchfit12)[1:2],5))
+coef_result[,3]=c(garchfit_coef$garchfit21_coef[1:4,5],'',
+                  garchfit_coef$garchfit21_coef[5:6,5],signif(infocriteria(garchfit21)[1:2],5))
+                  
+```
+
+___
+
+```{r coeffc,results='markup',echo=TRUE}
+colnames(coef_result)=c('GJR-GARCH(1,1)','GJR-GARCH(1,2)','GJR-GARCH(2,1)')
+
+kable(coef_result,row.names =T,align = "c", caption="平安银行对数收益率GJR-GARCH模型拟合结果",
+      longtable = TRUE, booktabs = TRUE, linesep="")
+```
+
+
+
+
+
+
+
+
+
+___
+
+```{r gjrgarch-resi,echo=TRUE}
+gjr_resi=residuals(garchfit11,standardize=T) #计算GJR-GARCH(1,1)的残差
+gjr_resi2=gjr_resi^2 #残差的平方
+```
+
+从表 \@ref(tab:gjr-garch) 中可以看出，GJR-GARCH(1,1)的AIC值和BIC值在三个模型中均
+是最小的，说明该模型在三个模型中模型拟合效果较好。而且该模型的alpha、beta、gamma
+系数在1%的显著性水平下均显著，表明该模型的参数估计的准确性也较高。同时原序列经过
+GJR-GARCH(1,1)模型拟合后得到的标准化残差平方序列的LM统计量的值
+为`r ArchTest(gjr_resi2,lag=5)[[1]][1]`，
+对应的P值为`r ArchTest(gjr_resi2,lag=5)[[3]][1]`，在5%的显著性水平上接受残差独立
+的原假设，表明经GJR-GARCH模型处理后已消除ARCH效应。最终平安银行对数收益率的模型解析式如下式所
+示：
+
+___
+
+$$\left\{\begin{array}{l}
+r_t=0.0002496+\varepsilon _t\\
+\varepsilon_t=\sigma_tz_t\\
+\sigma_t^2=0.0000011+\left(0.0570125\varepsilon_{t-1}^2-0.0262933I_{t-1}\varepsilon_{t-1}^2 \right)+0.9550297\sigma _{t - 1}^2
+\end{array}\right.$$ {#eq:gjr-garch}
+
+从式[@eq:gjr-garch]中可以看出参数$\alpha$、 $\beta$ 和$\gamma$之和小于1，
+表明整个过程是平稳的 [@terasvirta2009introduction],可用于进一步的分析。
+但需要注意的是式[@eq:gjr-garch]中 $\gamma$ 项的系数为负，其原因在于平安银行属于典型的大盘股，总市值达
+到3000多亿元，且其业绩优良，属于蓝筹股的范畴，因此其抗跌性较强，当股价下跌时，其股权波动率反而有所下降。
+
+___
+
+
+
+## 金融各板块系统性风险计算与分析
+
+### 金融各板块违约距离的计算
+
+在模型介绍部分已经介绍了CCA模型的原理：通过联立式[@eq:cca-equity]、
+[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和[@eq:cca-equity-sigma]解出企业资产的市
+场价值$A$和企业资产市场价值的波动率$\sigma_A$，进而根据式[@eq:dd]得到个股的违约
+距离。但在解该方程组时需注意两点：一是通过GJR-GARCH模型得到的股权波动率需要乘以$\sqrt{250}$得到
+年化后的股权波动率，本文假设一年共有250个交易日。同时由于方差具有可加性，因此年
+化股权波动方差=$\sqrt{250}$×日股权波动方差，所以年化股权波动率= ×日股权波动
+率。；二是该方程组属于较复杂的非线性方程组，不存在解析解，因此本文通过调用R中的
+nleqslv函数求解该非线性方程组：
+
+___
+
+首先定义新变量$AtoE=\frac{A}{E}$，然后对方程组中所有变量$A$转化为$AtoE \cdot E$，最后经过适当变形可得到如下新的方程组：
+
+$$\left\{\begin{array}{l} y_1=AtoE \cdot
+N\left(d_1\right)-\frac{B}{E}e^{-rT}N\left(d_2\right)-1\\
+d_1=\frac{\ln\left(AtoE \cdot
+\frac{E}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}\\
+d_2==d_1-\sigma_A\sqrt{T}\\
+y_2=N\left(d_1\right) \cdot AtoE \cdot \sigma_A-\sigma_E
+\end{array}\right.$${#eq:cca-solve1}
+
+令方程组[@eq:cca-solve1]中的$y_1$和 $y_2$趋近于0，通过Newton优化算法即可解得$A$和
+$\sigma_A$的近似解。按照上述思路即可得到个股的违约距离序列。例如平安银行近十年的
+违约距离序列如下图所示：
+
+___
+
+```{r cca-solve,echo=TRUE}
+##输入时间
+r=stock_test$norisk_rate[-1]/100
+T=1
+B=debt_book_value$y[-c(1:2)]
+##输入股权波动率和股权价值
+EquityTheta=garchfit11@fit$sigma*sqrt(250)
+E=stock_test$stock_market_value_new[-1]
+##KMV 方程变形及求解
+EtoB=E/B
+x0=matrix(rep(1,2*nrow(stock_test)),nrow=nrow(stock_test))
+z=list();Va=vector();AssetTheta=vector()
+```
+___
+
+```{r cca_solve2,echo=TRUE}
+for (i in 1:(nrow(stock_test)-1)) {
+  KMVfun=function(x){
+    y=numeric(2);
+    d1=(log(x[1]*EtoB[i])+(r[i]+0.5*x[2]^2)*T)/(x[2]*sqrt(T));
+    d2=d1-x[2]*sqrt(T);
+    y[1]=x[1]*pnorm(d1)-exp(-r[i]*T)*pnorm(d2)/EtoB[i]-1;
+    y[2]=pnorm(d1)*x[1]*x[2]-EquityTheta[i];
+    y
+  }
+  z[[i]]<-nleqslv(x0[i,], KMVfun, method="Newton") 
+  Va[i]<-z[[i]]$x[1]*E[i]
+  AssetTheta[i]<-z[[i]]$x[2]
+}
+##计算违约距离
+DD=(Va-B)/(Va*AssetTheta)
+```
+___
+
+```{r pinganbank-dd, fig.cap="平安银行近十年违约距离时序图", dev='png',echo=TRUE}
+datedd=as.Date(stock_test$Trddt[-1])
+plot(datedd,DD,type='l')
+```
+
+___
+
+从图 \@ref(fig:pinganbank-dd) 中可以看出，近十年平安银行的违约距离大部分在2上下
+徘徊，但中间经过了三次巨大的波动：第一次大波动发生在2012年下半年，原因有二，一是
+平安银行董事长和行长均在当年提出离职；二是从整个银行业来看，在已知的上市银行中，
+有7家银行不良贷款和不良贷款增长率都有所增加，其中尤以平安银行最为严重，在当年新
+增不良贷款近35.75亿，总共达68.66亿，不良率从0.53%暴涨至0.95%，增长幅度接近翻倍，
+尽管其当年净利润同2011年比增加近30%，达到130多亿，但随即在2013年第一季度中，平安
+银行净利润同比增幅就暴跌至上市银行中倒数第一，这导致了平安银行的违约距离自2012年
+年中开始急速下降，一度降至0.63，违约概率极高，风险极大。第二次显著波动则发生在
+2015年上半年，整个中国股市进入恐慌的一年，股市崩盘，上证指数近乎腰斩，导致了平安
+银行的违约距离也紧跟大盘显著缩短。第三次猛烈波动是在2017年，但这一次波动却是利好
+的波动，从宏观角度看，中国实体经济的增长向好，2017年经济增长率同比增长0.2个百分
+点，从微观层面看，随着金融治理的加强，平安银行不良贷款率、不良贷款增长率也在下
+降，两方面原因使得该股的违约距离增加，发生系统性风险的概率下降。
+
+___
+
+按照上述的计算过程和分析思路即可得到所有样本股的违约距离。再以各股资产市场价值为
+权重，加权平均即可得到各板块的系统性风险指标。加权平均的过程主要通过Excel的数据
+透视表功能和VLOOKUP函数实现。
+
+
+### 金融各板块系统性风险的分析
+
+```{r import-sector-dd,echo=TRUE}
+data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
+           colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
+dd_date=as.Date(data_dd[,1])
+insurance=data_dd[,2]
+multi_finance=data_dd[,3]
+house=data_dd[,4]
+stock=data_dd[,5]
+bank=data_dd[,6]
+```
+___
+
+经过前文所述的计算流程后，各板块的系统性风险指标如下图所示：
+
+```{r bank-sector-dd,eval=T,fig.cap = "银行板块近十年系统性风险时序图", dev='png',echo=TRUE}
+plot(dd_date,bank,type="l",ylim=c(0,6.5))
+```
+
+
+
+
+
+
+
+___
+
+图 \@ref(fig:bank-sector-dd) 展示了银行板块的系统性风险指标近十年的变化情况。可
+以看出银行板块的违约距离经过了先下降后上升的过程。该板块从2009年至2015年所承受
+的系统性风险一直处于上升的趋势，在2013年出现了第一次较为显著的突变，这主要与那一
+时间点的钱荒事件有关，但从这段时间整体趋势来看银行的系统性风险上升的趋势较缓，这
+与银行板块自身的特性有关：一是当市场波动开始加剧时，投资者的避险欲望逐渐变的强
+烈，银行股作为证券市场的“稳定器”，其较高的安全边际受到投资者的青睐；二是银行极难
+倒闭的观念已经深根于投资者的心中，因此银行板块的系统性风险仅处于温和的增长过程。
+自2015年底起，银行板块承担的系统性风险开始显著减少，
+风险指标最高达到 `r max(bank)` ，并于2017年进入回调过程。
+整体来看，银行板块的风险距离围绕3波动，所承受的系统性风险不大。
+
+___
+
+```{r multi-fin-sector-dd,eval=T,fig.cap = "多元金融板块近十年系统性风险时序图", dev='png',echo=TRUE}
+plot(dd_date,multi_finance,type="l",ylim=c(0,6.5))
+```
+
+
+
+
+
+
+___
+
+从图 \@ref(fig:multi-fin-sector-dd) 中可以看出，多元金融板块的系统性风险指标大致
+在2左右，且整体较平稳。其原因主要在于多元金融板块内部个股的特点决定。多元金融企
+业广义上也可称为非银机构，其组织形式主要包括以下五种：一是大型银行通过控股参与信
+托、租赁等非银机构创立企业的形式；二是保险业依托于企业商业模式通过收购的方式进军
+银行业或信托业，建立类银行机构的形式；三是实业和金融的融合，通过产融结合打通顶层
+到底层的形式；四是从不良资产管理处置入手，为金融机构提供这部分金融服务而建设的企
+业；五是政府机关参与的金融控股公司^[资料来源：东方财富网
+（http://quote.eastmoney.com/web/BK07381）。]。通俗来讲，凡是涉及资金融通业务的
+但不属于银行、保险、券商的个股均可划分至多元金融板块。例如经纬纺机（000666）虽然
+主营业务为纺织机械，但其也有信托等业务。正因为该板块股票独有的多样性特征，使得其
+整体系统性风险波动较为稳定。
+
+___
+
+```{r stock-sector-dd,eval=T,fig.cap = "券商信托板块近十年系统性风险时序图", dev='png',echo=TRUE}
+plot(dd_date,stock,type="l",ylim=c(0,6.5))
+```
+
+
+
+
+
+___
+
+图 \@ref(fig:stock-sector-dd) 描述了券商信托板块系统性风险指标的波动情况。从2009
+年年中至2014年底风险距离尚且较为稳定，但自2015年年初起风险距离急速缩短达到近十年
+的最低值 `r min(stock)` 。不过随着国家调控政策的不断推行，风险距离又逐渐拉长。然
+而需要注意的是，近两年券商信托板块的风险指标一直处于下降的趋势，说明该板块所面临
+的系统性风险也在逐渐增强，需要加以重视。
+___
+
+```{r house-sector-dd,eval=T,fig.cap = "房地产板块近十年系统性风险时序图", dev='png',echo=TRUE}
+plot(dd_date,house,type="l",ylim=c(0,6.5))
+```
+
+
+
+
+___
+
+从图 \@ref(fig:house-sector-dd) 中可以发现，房地产板块的风险指标也较为平稳，整体
+围绕风险距离2.5上下浮动，表明房地产板块近十年所承受的系统性风险较稳定。但在浮动
+过程中，该板块的风险指标在2015年至2017年也经历了一次平稳期到波谷再到波峰最后回归
+稳定期的过程，且其在2018年后虽然仍在2.5左右，但其波动性相较前期还是更强。
+
+```{r insurance-sector-dd,eval=T,fig.cap = "保险板块近十年系统性风险时序图", dev='png',echo=TRUE}
+plot(dd_date,insurance,type="l",ylim=c(0,6.5))
+```
+___
+
+图 \@ref(fig:insurance-sector-dd) 展示了保险板块系统性风险的时序情况。可以发现保
+险板块经历了两次较为明显的系统性风险增大的过程，分别在2011年下半年和2015年。但在
+2016年后，风险距离显著拉长，系统性风险大幅下降，并随后进入新一轮的均衡状态。但该
+均衡状态的波动相比于2012年至2014年这一时期均衡状态要大，表明新一轮的系统性风险可
+能正在酝酿。
+
+___
+
+综合这五个板块的系统性风险指标时序图来看，可以发现如下共性：
+（1）各板块的系统性风险指标在2015年前均处于较稳定的状态，但在2015年却都有了显著
+的下降，板块间区别仅在于下降幅度的差异，其中券商信托板块下降的最明显，银行板块下
+降的最平稳，但其原因也仅在于银行板块风险指标下降的过程被拉长。这一次集体性的风险
+增强最主要的原因是当时整个证券市场积累的杠杆、配资太过巨大，当证监会宣布彻查场外
+配资时，整个证券市场犹如被点着引线的炸药，出现了让投资者至今仍然恐慌的崩盘。沪深
+市场在2015年6月1日总市值尚有71.61万亿，但在短短三个月之后，总市值蒸发近34%，仅剩
+46.88万亿^[数据来源：同花顺数据中心（http://data.10jqka.com.cn/）。]。上十次的千
+股跌停对整个市场产生了巨大冲击。在金融板块中尤以券商信托板块受到的冲击最大，因为
+券商本身就是通过市场盈利，市场的崩溃首先冲击的即是券商板块，对其产生的影响也最
+大。
+
+___
+
+（2）尽管各板块的系统性风险在2015年急速增加，但自2016年起各板块的风险指标均有了
+显著的好转。尽管去杠杆、查配资是2015年股灾的导火索，但随着政策的逐步推进，整个市
+场也从加杠杆的疯狂中冷静下来，金融系统逐渐回归稳定，因此各板块的风险距离也快速回
+升，表明金融板块的系统性风险也在减小。不过，也可以反向说明我国证券市场是典型的"
+政策市"，国家各项政策的实施对市场行情影响较为明显。
+
+___
+
+（3）随着"三去一降一补"五大任务的加紧落实，各板块的系统性风险指标也陆续于2017年
+达到最大值，随后进入一段时间的回调期。但是，从各板块的时序图可以发现，各板块的风
+险指标在2018年至2019年6月已经回归至均衡状态，但其波动浮动相较前五年依然有明显的
+增大。可能的原因有三个：一是我国的经济面临下行压力，截止2019年三季度，尽管从GDP
+总量来看较为乐观，但从GDP增速来看，按可比价格计算得到的同比增长率仅6.2%^[数据来
+源：国家统计局（http://data.stats.gov.cn/）]，经济增长持续放缓，对整个市场的情绪
+较为不利；二是监管层对IPO审核的放松，尽管这一举措有利于股市行情的复苏，但不排除
+上市公司会有不惜一切套现的冲动，这增加了整个板块的系统性风险；三是股市行情的一路
+下跌，使投资者的投资情绪大幅削弱，新资金较难入市，不利于股市的活跃。
+
+综上所述，可以发现板块间的系统性风险具有较强的相依性风险关系。
+
+# 参考文献 {-}
+[//]: # (\bibliography{Bibfile})
