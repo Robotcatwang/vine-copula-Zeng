@@ -975,7 +975,7 @@ plot(datedd,DD,type='l')
 
 
 ### 金融各板块系统性风险的分析
-```{r import-sector-dd,fig.height=6,fig.width=6, fig.pos="H", fig.cap="各板块近十年系统性风险时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r import-sector-dd,fig.height=6,fig.width=6, fig.pos="H", fig.cap="各板块近十年系统性风险时序图",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
            colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
 dd_date=as.Date(data_dd[,1])
@@ -1020,20 +1020,20 @@ plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="insurance section",cex.main=
 整体系统性风险波动较为稳定。
 
 
-图 \@ref(fig:import-sector-dd1) 描述了券商信托板块系统性风险指标的波动情况。从2009
+图 \@ref(fig:import-sector-dd) 描述了券商信托板块系统性风险指标的波动情况。从2009
 年年中至2014年底风险距离尚且较为稳定，但自2015年年初起风险距离急速缩短达到近十年
 的最低值 `r min(data_dd[,5])` 。不过随着国家调控政策的不断推行，风险距离又逐渐拉长。然
 而需要注意的是，近两年券商信托板块的风险指标一直处于下降的趋势，说明该板块所面临
 的系统性风险也在逐渐增强，需要加以重视。
 
 
-从图 \@ref(fig:import-sector-dd1) 中可以发现，房地产板块的风险指标也较为平稳，整体
+从图 \@ref(fig:import-sector-dd) 中可以发现，房地产板块的风险指标也较为平稳，整体
 围绕风险距离2.5上下浮动，表明房地产板块近十年所承受的系统性风险较稳定。但在浮动
 过程中，该板块的风险指标在2015年至2017年也经历了一次平稳期到波谷再到波峰最后回归
 稳定期的过程，且其在2018年后虽然仍在2.5左右，但其波动性相较前期还是更强。
 
 
-图 \@ref(fig:import-sector-dd1) 展示了保险板块系统性风险的时序情况。可以发现保
+图 \@ref(fig:import-sector-dd) 展示了保险板块系统性风险的时序情况。可以发现保
 险板块经历了两次较为明显的系统性风险增大的过程，分别在2011年下半年和2015年。但在
 2016年后，风险距离显著拉长，系统性风险大幅下降，并随后进入新一轮的均衡状态。但该
 均衡状态的波动相比于2012年至2014年这一时期均衡状态要大，表明新一轮的系统性风险可
