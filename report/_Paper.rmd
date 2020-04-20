@@ -695,9 +695,9 @@ debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_boo
 debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
-```{r cubspline,eval=T,fig.height=3.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值", dev='png'}
+```{r cubspline,eval=T,fig.height=3.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 plot(debt_book_value_test$debt_book_value/10000000000,type="p",xlab="日期
-",ylab="日债务账面价值(百亿)",xaxt='n')
+",ylab="日债务账面价值(百亿)",xaxt='n',cex.axis=0.6 )
 axis(1, at=1:41,labels = debt_book_value_test$Accper)
 lines(debt_book_value$x,debt_book_value$y/10000000000)
 ```
@@ -949,7 +949,7 @@ for (i in 1:(nrow(stock_test)-1)) {
 DD=(Va-B)/(Va*AssetTheta)
 ```
 
-```{r pinganbank-dd,fig.height=3, fig.width=5,fig.cap="平安银行近十年违约剧烈时序图", dev=c("cairo_pdf"),fig.align='center'}
+```{r pinganbank-dd,fig.height=3, fig.width=6,fig.cap="平安银行近十年违约剧烈时序图", dev=c("cairo_pdf"),fig.align='center'}
 datedd=as.Date(stock_test$Trddt[-1])
 plot(datedd,DD,type='l')
 #dev=c("cairo_pdf")
