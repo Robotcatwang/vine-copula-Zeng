@@ -723,7 +723,6 @@ debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
 ```{r cubspline,eval=T,fig.height=3.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
-par(oma=c(1.5,1,1.5,1),mar=c(2,2,2,2))
 plot(debt_book_value_test$debt_book_value/10000000000,type="p",xlab="日期
 ",ylab="日债务账面价值(百亿)",xaxt='n',cex.axis=0.6 )
 axis(1, at=1:41,labels = debt_book_value_test$Accper)
@@ -749,10 +748,10 @@ date=as.Date(stock_test[,'Trddt'])
 price_rt=diff(log(price))
 ```
 
-```{r log-return,eval=T,fig.height=2,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
-par(mfrow=c(1,2),oma=c(1.5,1,1.5,1),mar=c(2,2,2,2))
-plot(date,price,type="l",main="(a)平安银行2009-2019年收盘价时序图",cex.main=0.8,cex.axis=0.6,ylab="收盘价")
-plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行2009-2019年对数收益率时序图',cex.main=0.8,cex.axis=0.6,ylab="对数收益率")
+```{r log-return,eval=T,fig.height=2.5,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(mfrow=c(1,2))
+plot(date,price,type="l",main="(a)平安银行2009-2019年收盘价时序图",cex.main=0.8,cex.axis=0.6,ylab="收盘价",xlab="日期",cex.lab=0.8)
+plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行2009-2019年对数收益率时序图',cex.main=0.8,cex.axis=0.6,ylab="对数收益率",xlab="日期",cex.lab=0.8)
 ``` 
 如图 \@ref(fig:log-return) 所示，从日收盘价时序图可以看出，平安银行整体行情向
 好，但其中也经过了4次较大的波动；从平安银行近十年对数收益率时序图看，该股的收益
@@ -980,7 +979,6 @@ DD=(Va-B)/(Va*AssetTheta)
 
 ```{r pinganbank-dd,fig.height=3, fig.width=6,fig.cap="平安银行2009-2019年违约距离时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 datedd=as.Date(stock_test$Trddt[-1])
-par(oma=c(1.5,1,1.5,1),mar=c(2,2,2,2))
 plot(datedd,DD,type='l',ylab="违约距离",xlab="")
 #dev=c("cairo_pdf")
 ```
@@ -1005,7 +1003,7 @@ plot(datedd,DD,type='l',ylab="违约距离",xlab="")
 
 
 ### 金融各板块系统性风险的分析
-```{r import-sector-dd,fig.height=6,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r import-sector-dd,fig.height=4.5,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
            colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
 dd_date=as.Date(data_dd[,1])
@@ -1014,12 +1012,12 @@ multi_finance=data_dd[,3]
 house=data_dd[,4]
 stock=data_dd[,5]
 bank=data_dd[,6]
-par(mfrow=c(3,2),oma=c(1.5,1,1.5,1),mar=c(2,2,2,2))
-plot(dd_date,bank,type="l",ylim=c(0,6.5),main="银行板块",cex.main=0.8,cex.lab=0.7,xlab="")
-plot(dd_date,multi_finance,type="l",ylim=c(0,6.5),main="多元金融板块",cex.main=0.8,cex.lab=0.7,xlab="")
-plot(dd_date,stock,type="l",ylim=c(0,6.5),main="券商信托板块",cex.main=0.8,cex.lab=0.7,xlab="")
-plot(dd_date,house,type="l",ylim=c(0,6.5),main="房地产板块",cex.main=0.8,cex.lab=0.7,xlab="")
-plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="保险板块",cex.main=0.8,cex.lab=0.7,xlab="")
+par(mfrow=c(3,2),oma=c(0,0,0,0),mar=c(2,4,2,2))
+plot(dd_date,bank,type="l",ylim=c(0,6.5),main="银行板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,multi_finance,type="l",ylim=c(0,6.5),main="多元金融板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,stock,type="l",ylim=c(0,6.5),main="券商信托板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,house,type="l",ylim=c(0,6.5),main="房地产板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="保险板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
 
 ```
 经过前文所述的计算流程后，各板块的系统性风险指标如下图所示：
