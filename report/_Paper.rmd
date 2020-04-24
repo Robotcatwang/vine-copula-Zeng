@@ -29,6 +29,7 @@ options(digits=4)
 options(scipen=100)
 graphics.off()
 Sys.setlocale("LC_ALL", "Chinese")
+library("kableExtra")
 ```
 
 # 简介
@@ -201,19 +202,18 @@ MES方法，得出三家企业各自对保险业系统性风险的贡献程度�
 （3）SRISK法
 
 SRISK是一种计算系统各组成单元对系统性风险的贡献程度的指标，最早由Brownlees，
-Christian和Engle提出 [@brownlees2017srisk]. The Review of Financial Studies,
-2016, 30(1): 48-79.]，属于较为新颖的方法。其计算思路与MES法类似，但其综合考虑了
-负债规模、资本比率、市值等因素，以金融危机发生时单个金融机构面临的预期资本缺口作
-为风险指标。Laeven等（2016）在SRISK模型的基础上得到了系统性风险与银行规模成正相
-关，但系统性风险会随着银行资本的增加而减少的结论 [@laeven2016bank]。肖崎等（2018）
-结合分析企业经营状况时的杜邦分析法，同时由于研究对象银行的特殊性，将非利息收入占
-比、不良贷款率等指标和国家GDP等指标纳入SRISK模型中，实证研究了我国商业银行在轻型
-化转型过程中对银行业系统性风险的贡献程度 [@肖崎2018]。Varotto和Zhao(2018)同时使
-用了期望损失模型和SRISK模型，探究了美国和欧洲银行2004---2012年机构层面的系统性风
-险，得出一般的系统性风险主要受银行规模影响的结论，研究结果提示"大而不能倒"的机构
-应受到高度关注 [@varotto2018systemic]。陈湘鹏等（2019）则从方法比较的角度考虑，
-综合使用了MES、SES、∆CoVaR和SRISK等方法测量我国金融系统在微观角度下的系统性金融
-风险，比较各方法的结果来看，SRISK法作为我国微系统性金融风险的测量方法更好 [@陈湘鹏2019]。
+Christian和Engle提出 [@brownlees2017srisk]，属于较为新颖的方法。其计算思路与MES法类似，但其综合考虑了负债规
+模、资本比率、市值等因素，以金融危机发生时单个金融机构面临的预期资本缺
+口作为风险指标。Laeven等（2016）在SRISK模型的基础上得到了系统性风险与银行规模成
+正相关，但系统性风险会随着银行资本的增加而减少的结论 [@laeven2016bank]。肖崎等（2018）结合分析企业
+经营状况时的杜邦分析法，同时由于研究对象银行的特殊性，将非利息收入占比、不良贷款
+率等指标和国家GDP等指标纳入SRISK模型中，实证研究了我国商业银行在轻型化转型过程中
+对银行业系统性风险的贡献程度 [@肖崎2018]。Varotto和Zhao(2018)同时使用了期望损失模型和SRISK模
+型，探究了美国和欧洲银行2004---2012年机构层面的系统性风险，得出一般的系统性风险
+主要受银行规模影响的结论，研究结果提示"大而不能倒"的机构应受到高度关注 [@varotto2018systemic]。陈湘鹏等
+（2019）则从方法比较的角度考虑，综合使用了MES、SES、∆CoVaR和SRISK等方法测量我国
+金融系统在微观角度下的系统性金融风险，比较各方法的结果来看，SRISK法作为我国微系
+统性金融风险的测量方法更好 [@陈湘鹏2019]。
 
 3．网络模型法
 
@@ -295,13 +295,18 @@ Kendall相关系数和条件Kendall相关系数，分析得到板块间系统性
 由基础资产和无风险利率构成，可以完全复制期权价格变动的资产组合。然后考虑在风险中
 性的前提下，期权权益在当前时点的折现价值。模型具体形式如下：
 
-$$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)$${#eq:bsm-model}
+$$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)$$ 
+{#eq:bsm-model}
 
 其中：
 
-$$d_1= \frac{\ln\frac{S}{L}+\left(r+\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}$${#eq:bsm-d1}
+$$d_1= \frac{\ln\frac{S}{L}+\left(r+\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt
+T}$$
+{#eq:bsm-d1}
 
-$$d_2=\frac{\ln\frac{S}{L}+\left(r-\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt T}=d_1-\sigma\sqrt T$${#eq:bsm-d2}
+$$d_2=\frac{\ln\frac{S}{L}+\left(r-\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt
+T}=d_1-\sigma\sqrt T$$
+{#eq:bsm-d2}
 
 在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示在假定风险中性的条件下，所研究期权权益的理论交易价格，$S$表示期权所对应的理论资产组合中基础金融资产在当前时点的价格，$N\left(d_n\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
 $L$表示所研究期权在到期时或交割时的价格，$r$表示无风险利率，$T$表示期权有效时间，但需以年为计量单位，$\sigma^2$表示期权所
@@ -334,9 +339,11 @@ $L$表示所研究期权在到期时或交割时的价格，$r$表示无风险�
 
 $$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
 
-$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-equity-d1}
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$$
+{#eq:cca-equity-d1}
 
-$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-equity-d2}
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
+{#eq:cca-equity-d2}
 
 其中，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态分布的分布函数，$B$
 表示企业资产负债表中的债务价值，$E$表示股权的市场资本价值，$r$表示无风险利率，
@@ -346,30 +353,36 @@ $T$表示当前时刻到到期日的时间（按年计算），$\sigma_A^2$表�
 但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、
 $\sigma_A^2$均未知，因此需增加一个条件：
 
-$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$${#eq:cca-equity-sigma}
+$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$$
+{#eq:cca-equity-sigma}
 
 其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
 [@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
 [@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
 场价值$A$。
 
-<!--在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
+在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
 
-$$D=B-P$${#eq:cca-debt-basic}
+$$D=B-P$$
+{#eq:cca-debt-basic}
 
 而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
 可得到预期损失净现值的计算公式：
 
-$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$${#eq:cca-debt}
+$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$$
+{#eq:cca-debt}
 
-$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$${#eq:cca-debt-d1}
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$$
+{#eq:cca-debt-d1}
 
-$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$${#eq:cca-debt-d2}
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
+{#eq:cca-debt-d2}
 
 通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
-进而计算出企业的违约距离$DD$,计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]:-->
+进而计算出企业的违约距离$DD$,计算公式为^[违约距离的计算公式有两种，一种为本文式（1-8），另一种为DD=d2，其中第二种计算方法仅在资产对数收益率服从标准正态分布时较为准确，第一种方法更具有普遍性，因此本文以第一种计算方法为主。]:
 
-$$DD=\frac{A-B}{A \cdot \sigma_A}$${#eq:dd}
+$$DD=\frac{A-B}{A \cdot \sigma_A}$$
+{#eq:dd}
 
 企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
 小，企业的风险越小。
@@ -392,7 +405,8 @@ $$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),.
 $c\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布
 函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
 
-$$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$${#eq:copula-solve}
+$$c\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$$
+{#eq:copula-solve}
 
 在模型使用过程中，更多的是用式[@eq:copula-solve]。在已知多元联合分布函数和各边缘
 分布函数时，就可以通过式[@eq:copula-solve]得到联结函数的形式及各参数值，进而可对
@@ -412,7 +426,8 @@ $\left(x_j-x_i\right)\left(y_j-y_i\right)<0$时，即$x_j-x_i$与$y_j-y_i$异号
 认为随机变量$X$和$Y$是不一致的。根据这一原理，可得到Kendall's $\tau$秩相关系数的
 计算公式为：
 
-$$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$${#eq:tau}
+$$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$$
+{#eq:tau}
 
 结合Copula函数理论和Kendall's $\tau$的计算公式，可得到在使用Copula模型时，两个变
 量间的Kendall's $\tau$相关系数，推导过程如下：
@@ -429,7 +444,8 @@ $$\begin{array}{lcl}
 \\&=&2\left\{\iint_{D}C\left(u,v\right)dC\left(u,v\right)+\iint_{D}\left(1-u-v+C\left(u,v\right)\right)dC\left(u,v\right)\right\}-1
 \\&=&2\left\{\iint_{D}C\left(u,v\right)dC\left(u,v\right)+1-\frac{1}{2}-\frac{1}{2}+\iint_{D}C\left(u,v\right)dC\left(u,v\right)\right\}-1
 \\&=&4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
-\end{array}$${#eq:copula-tau}
+\end{array}$$
+{#eq:copula-tau}
 
 进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系
 数，并以此为依据进行下一步的分析。
@@ -439,12 +455,14 @@ $$\begin{array}{lcl}
 其中上尾相关系数表示在变量$Y$的取值在右尾时，$X$的取值也落在右尾概率，用公式表示为：
 
 $$\lambda_u=\lim\limits_{u \to
-1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$${#eq:lambda-u}
+1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$$
+{#eq:lambda-u}
 
 同理，下尾相关系数表示在变量$Y$的取值在左尾时，$X$的取值也落在左尾的概率，用公式表示为:
 
 $$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq
-F_y^{-1}(u)\right.\right\}$${#eq:lambda-l}
+F_y^{-1}(u)\right.\right\}$$
+{#eq:lambda-l}
 
 ## VineCopula模型理论基础
 
@@ -461,11 +479,14 @@ F_y^{-1}(u)\right.\right\}$${#eq:lambda-l}
 例如，针对二维变量的情况有：
 
 $$f\left(x_1,x_2\right)=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot
-f_1\left(x_1\right)\cdot f_2\left(x_2\right)$${#eq:paircopula-2}
+f_1\left(x_1\right)\cdot f_2\left(x_2\right)$$
+{#eq:paircopula-2}
 
 根据链式法则可得：
 
-$$f\left(x_1\left|x_2\right.\right)=\frac{f\left(x_1,x_2\right)}{f_2\left(x_2\right)}=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot f_1\left(x_1\right)$${#eq:paircopula-2-cond}
+$$f\left(x_1\left|x_2\right.\right)=\frac{f\left(x_1,x_2\right)}{f_2\left(x_2\right)}=c_{1,2}\left\{F_1\left(x_1\right),F_2\left(x_2\right)\right\}\cdot
+f_1\left(x_1\right)$$
+{#eq:paircopula-2-cond}
 
 针对三维变量的情况可得到：
 
@@ -474,7 +495,8 @@ f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)
 \\&=&f_1\left(x_1\right)\cdot
 c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot
 f_2\left(x_1\right)\cdot f\left(x_3\left|x_1,x_2\right.\right) \end{array}
-$${#eq:paircopula-3}
+$$
+{#eq:paircopula-3}
 
 其中$f\left(x_3\left|\right.x_1,x_2\right)$需通过变换条件，达到求解的目的，具体
 转换方法如下：
@@ -488,7 +510,8 @@ f\left(x_3\left|x_1\right.\right)}{f\left(x_2\left|x_1\right.\right)}
 f\left(x_3\left|x_1\right.\right)
 \\&=&c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)\cdot
 c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot
-f_3\left(x_3\right) \end{array}$${#eq:paircopula-3-1}
+f_3\left(x_3\right) \end{array}$$
+{#eq:paircopula-3-1}
 
 因此，可得到$f\left(x_1,x_2,x_3\right)$经过Pair Copula方法展开后的结果为：
 
@@ -497,7 +520,8 @@ f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot \\&
 &c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot
 c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot \\&
 &c_{23\left|1\right.}\left(F\left(x_2\left|x_1\right.\right),F\left(x_3\left|x_1\right.\right)\right)
-\end{array}$${#eq:paircopula3-2}
+\end{array}$$
+{#eq:paircopula3-2}
 
 但是，需要注意的是，在假定$x_1$，$x_2$，$x_3$不可相互替代时，我们在前面计算
 $f\left(x_1,x_2,x_3\right)$时采用的是$f_1\left(x_1\right)\cdot
@@ -512,7 +536,8 @@ f_2\left(x_2\right)\cdot f_3\left(x_3\right)\cdot \\&
 &c_{1,2}\left(F_1\left(x_1\right),F_2\left(x_2\right)\right)\cdot
 c_{2,3}\left(F_2\left(x_2\right),F_3\left(x_3\right)\right)\cdot \\&
 &c_{13\left|2\right.}\left(F\left(x_1\left|x_2\right.\right),F\left(x_3\left|x_2\right.\right)\right)
-\end{array}$${#eq:paircopula3-3}
+\end{array}$$
+{#eq:paircopula3-3}
 
 可以发现式[@eq:paircopula3-2]与式[@eq:paircopula3-3]存在较大差异。在三维变量的情
 况下，共存在$3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因此在研究分析
@@ -535,8 +560,8 @@ $T_2$，$T_3$，$T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵�
 
 则可构造如下五维R藤模型的概念图：
 
-```{r vine,echo=FALSE,fig.cap="五维R藤模型结构图",cache=F,dev="png",results='markup',fig.height=6}
-knitr::include_graphics("./vine.png")
+```{r vine,echo=FALSE,fig.cap="五维R藤模型结构图",cache=F,dev=c("cairo_pdf"),results='markup',fig.height=6}
+knitr::include_graphics("D:/github_repo/vine-copula-Zeng/vine.png")
 ```
 
 针对上述概念图可得到这五维变量的多元联合密度函数：
@@ -546,7 +571,8 @@ $$\begin{array}{lcl} f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot \\&
 &c_{1,3\left|2\right.}\cdot c_{2,5\left|3\right.}\cdot
 c_{2,4\left|3\right.}\cdot \\& &c_{1,5\left|2,3\right.}\cdot
 c_{4,5\left|2,3\right.}\cdot \\& &c_{1,4\left|2,3,5\right.}
-\end{array}$${#eq:vine}
+\end{array}$$
+{#eq:vine}
 
 当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann提出
 可用下三角矩阵描述这种结构信息 [@dissmann2010statistical]。例如，针对概念图中的结构，可构造以下结构矩阵：
@@ -557,7 +583,8 @@ $$M=\left(\begin{matrix}
 5&5&2&{}&{}\\
 3&2&5&3&{}\\
 2&3&3&5&3
-\end{matrix}\right)$${#eq:vine-matrix}
+\end{matrix}\right)$$
+{#eq:vine-matrix}
 
 在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图
 \@ref(fig:vine)中第一棵树$T_1$的边，即集合
@@ -591,7 +618,7 @@ $\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\
 
 ```{r import-data}
 rm(list=ls())
-## getwd()
+ getwd()
 ## path='F:/github_paper/vine-copula-Zeng'
 ## setwd(path)
 ## load package
@@ -623,8 +650,8 @@ CCA模型中到期期限一般取1年。因此本文选择中国人民银行发�
 （http://www.pbc.gov.cn/diaochatongjisi/）。]，作为无风险利率，无风险利率整体的
 波动趋势如图 \@ref(fig:norisk-rate) 所示：
 
-```{r norisk-rate,eval=T, fig.cap="近十年一年期定期整存整取利率", dev='png'}
-plot(date,no_risk_rate,type='l',ylim=c(0,4))
+```{r norisk-rate,eval=T,fig.height=3.5, fig.width=6, fig.cap="2009-2019年一年期定期整存整取利率", dev=c("png","cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="日期",ylab="无风险利率")
 ```
 
 从图 \@ref(fig:norisk-rate) 中可以发现，无风险利率经过了先上升再下降的一个过程。
@@ -665,10 +692,11 @@ debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_boo
 debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
-```{r cubspline,eval=T,fig.cap ="平安银行插值后日债务账面价值", dev='png'}
-plot(debt_book_value_test$debt_book_value,type="p",xlab="日期",ylab="日债务账面价值",xaxt='n')
+```{r cubspline,eval=T,fig.height=3.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+plot(debt_book_value_test$debt_book_value/10000000000,type="p",xlab="日期
+",ylab="日债务账面价值(百亿)",xaxt='n',cex.axis=0.6 )
 axis(1, at=1:41,labels = debt_book_value_test$Accper)
-lines(debt_book_value$x,debt_book_value$y)
+lines(debt_book_value$x,debt_book_value$y/10000000000)
 ```
 
 图 \@ref(fig:cubspline) 中展示了平安银行经过三次样条插值后的债务市场价值。图中的
@@ -690,13 +718,11 @@ date=as.Date(stock_test[,'Trddt'])
 price_rt=diff(log(price))
 ```
 
-```{r log-return,eval=T,fig.cap = "平安银行近十年日收盘价和对数收益率时序图", dev='png'}
-par(mfrow=c(2,1))
-par(mar=c(2,4,1,2))
-plot(date,price,type="l",main="(a)平安银行近十年收盘价时序图")
-plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行近十年对数收益率时序图')
-```
-
+```{r log-return,eval=T,fig.height=2.5,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(mfrow=c(1,2))
+plot(date,price,type="l",main="(a)平安银行2009-2019年收盘价时序图",cex.main=0.8,cex.axis=0.6,ylab="收盘价",xlab="日期",cex.lab=0.8)
+plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行2009-2019年对数收益率时序图',cex.main=0.8,cex.axis=0.6,ylab="对数收益率",xlab="日期",cex.lab=0.8)
+``` 
 如图 \@ref(fig:log-return) 所示，从日收盘价时序图可以看出，平安银行整体行情向
 好，但其中也经过了4次较大的波动；从平安银行近十年对数收益率时序图看，该股的收益
 率在2013年上半年、2015年全年和2018年全年波动幅度较大，具有明显的"波动性聚集"特
@@ -708,14 +734,16 @@ plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行近十�
 
 平安银行对数收益率的相关描述性统计量如表 \@ref(tab:price-rt-stats) 所示：
 
-```{r price-rt-stats, results='markup'}
+```{r price-rt-stats, results='markup',cache=F,eval=T}
+library("kableExtra")
 price_rt_stats=basicStats(price_rt)
 JB=jarque.bera.test(price_rt)
 price_rt_stats_desc=as.data.frame(t(c(price_rt_stats[c(7,14,16,15),1],as.numeric(JB[[1]][1]))))
 colnames(price_rt_stats_desc) <- c("均值","标准差","偏态系数","峰态系数","J-B统计量")
 
-kable(price_rt_stats_desc,row.names =F,align = "c", caption="平安银行对数收益率描述性统计量",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(price_rt_stats_desc,row.names =F,align = "l", caption="平安银行对数收益率描述性统计量",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+          kable_styling(full_width = T)
 ```
 
 从表 \@ref(tab:price-rt-stats) 中可以看出，
@@ -736,8 +764,9 @@ adf_test=data.frame(a=c(ADF$statistic[1],PP$statistic[1]),b=c(0.0001,0.0001))
 colnames(adf_test)=c("检验统计量的值","P值")
 rownames(adf_test)=c("ADF检验","PP检验")
 
-kable(adf_test,row.names =T,align = "c", caption="平安银行对数收益率平稳性检验",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(adf_test,row.names =T,align = "l", caption="平安银行对数收益率平稳性检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)
 ```
 
 从表 \@ref(tab:adf-test) 中可以看出，平安银行对数收益率两种检验的P值均小于1%，说
@@ -748,24 +777,24 @@ kable(adf_test,row.names =T,align = "c", caption="平安银行对数收益率平
 接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF
 图和PACF图的特征判断对数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
 
-```{r acf-pacf, fig.cap="Shibor收益率自相关图和偏自相关图", dev='png'}
-par(mfrow=c(2,1))
+```{r acf-pacf2,eval=T, fig.cap="Shibor收益率自相关图和偏自相关图",dev=c("cairo_pdf"),out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(mfrow=c(1,2))
 acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
 title(main="(a)the ACF of Return",cex.main=0.95)
 pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#画偏自相关图
 title(main="(b)the PACF of Return",cex.main=0.95)
 ```
-
+```
 从图 \@ref(fig:acf-pacf) 中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后
 阶数20阶以内均在95%置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关
 性时，PACF图中的偏自相关系数在滞后阶数20阶以内也均在95%置信区间内，表明序列不具
 有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型，经标准化后得到的残差平方时序
 图如下图所示：
 
-```{r resi2, fig.cap="平安银行对数收益率去均值后残差平方时序图", dev='png'}
+```{r resi2, eval=T,fig.height=3, fig.width=5,fig.cap="平安银行对数收益率去均值后残差平方时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 resi=price_rt-mean(price_rt)
 resi2=(price_rt-mean(price_rt))^2
-plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方')
+plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方',cex.lab=0.6,cex.axis=0.6)
 ```
 
 从图 \@ref(fig:resi2) 中可以看出，去均值化后的残差依然有较显著的波动性聚集特征。
@@ -829,8 +858,9 @@ coef_result[,2]=c(garchfit_coef$garchfit12_coef[1:2,5],'',
 coef_result[,3]=c(garchfit_coef$garchfit21_coef[1:4,5],'',
                   garchfit_coef$garchfit21_coef[5:6,5],signif(infocriteria(garchfit21)[1:2],5))
 colnames(coef_result)=c('GJR-GARCH(1,1)','GJR-GARCH(1,2)','GJR-GARCH(2,1)')
-kable(coef_result,row.names =T,align = "c", caption="平安银行对数收益率GJR-GARCH模型拟合结果",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(coef_result,row.names =T,align = "l", caption="平安银行对数收益率GJR-GARCH模型拟合结果",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)
 ```
 
 ```{r gjrgarch-resi}
@@ -851,7 +881,8 @@ $$\left\{\begin{array}{l}
 r_t=0.0002496+\varepsilon _t\\
 \varepsilon_t=\sigma_tz_t\\
 \sigma_t^2=0.0000011+\left(0.0570125\varepsilon_{t-1}^2-0.0262933I_{t-1}\varepsilon_{t-1}^2 \right)+0.9550297\sigma _{t - 1}^2
-\end{array}\right.$${#eq:gjr-garch}
+\end{array}\right.$$
+{#eq:gjr-garch}
 
 从式[@eq:gjr-garch]中可以看出参数$\alpha$、 $\beta$ 和$\gamma$之和小于1，
 表明整个过程是平稳的 [@terasvirta2009introduction]，可用于进一步的分析。
@@ -879,7 +910,8 @@ d_1=\frac{\ln\left(AtoE \cdot
 \frac{E}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}\\
 d_2==d_1-\sigma_A\sqrt{T}\\
 y_2=N\left(d_1\right) \cdot AtoE \cdot \sigma_A-\sigma_E
-\end{array}\right.$${#eq:cca-solve1}
+\end{array}\right.$$
+{#eq:cca-solve1}
 
 令方程组[@eq:cca-solve1]中的$y_1$和 $y_2$趋近于0，通过Newton优化算法即可解得$A$和
 $\sigma_A$的近似解。按照上述思路即可得到个股的违约距离序列。例如平安银行近十年的
@@ -915,12 +947,13 @@ for (i in 1:(nrow(stock_test)-1)) {
 DD=(Va-B)/(Va*AssetTheta)
 ```
 
-```{r pinganbank-dd, fig.cap="平安银行近十年违约剧烈时序图", dev='png'}
+```{r pinganbank-dd,fig.height=3, fig.width=6,fig.cap="平安银行2009-2019年违约距离时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 datedd=as.Date(stock_test$Trddt[-1])
-plot(datedd,DD,type='l')
+plot(datedd,DD,type='l',ylab="违约距离",xlab="")
+#dev=c("cairo_pdf")
 ```
 
-从图 \@ref(fig:pinganbank-dd) 中可以看出，近十年平安银行的违约距离大部分在2上下
+从图 \@ref(fig:pinganbank-dd) 中可以看出，2009-2019年平安银行的违约距离大部分在2上下
 徘徊，但中间经过了三次巨大的波动：第一次大波动发生在2012年下半年，原因有二，一是
 平安银行董事长和行长均在当年提出离职；二是从整个银行业来看，在已知的上市银行中，
 有7家银行不良贷款和不良贷款增长率都有所增加，其中尤以平安银行最为严重，在当年新
@@ -940,8 +973,7 @@ plot(datedd,DD,type='l')
 
 
 ### 金融各板块系统性风险的分析
-
-```{r import-sector-dd}
+```{r import-sector-dd,fig.height=4.5,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
 data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
            colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
 dd_date=as.Date(data_dd[,1])
@@ -950,15 +982,18 @@ multi_finance=data_dd[,3]
 house=data_dd[,4]
 stock=data_dd[,5]
 bank=data_dd[,6]
-```
+par(mfrow=c(3,2),oma=c(0,0,0,0),mar=c(2,4,2,2))
+plot(dd_date,bank,type="l",ylim=c(0,6.5),main="银行板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,multi_finance,type="l",ylim=c(0,6.5),main="多元金融板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,stock,type="l",ylim=c(0,6.5),main="券商信托板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,house,type="l",ylim=c(0,6.5),main="房地产板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="保险板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
 
+```
 经过前文所述的计算流程后，各板块的系统性风险指标如下图所示：
 
-```{r bank-sector-dd,eval=T,fig.cap = "银行板块近十年系统性风险时序图", dev='png'}
-plot(dd_date,bank,type="l",ylim=c(0,6.5))
-```
 
-图 \@ref(fig:bank-sector-dd) 展示了银行板块的系统性风险指标近十年的变化情况。可
+图 \@ref(fig:import-sector-dd) 展示了银行板块的系统性风险指标近十年的变化情况。可
 以看出银行板块的违约距离经过了先下降后上升的过程。该板块从2009年至2015年所承受
 的系统性风险一直处于上升的趋势，在2013年出现了第一次较为显著的突变，这主要与那一
 时间点的钱荒事件有关，但从这段时间整体趋势来看银行的系统性风险上升的趋势较缓，这
@@ -966,16 +1001,13 @@ plot(dd_date,bank,type="l",ylim=c(0,6.5))
 烈，银行股作为证券市场的“稳定器”，其较高的安全边际受到投资者的青睐；二是银行极难
 倒闭的观念已经深根于投资者的心中，因此银行板块的系统性风险仅处于温和的增长过程。
 自2015年底起，银行板块承担的系统性风险开始显著减少，
-风险指标最高达到 `r max(bank)` ，并于2017年进入回调过程。
+风险指标最高达到 `r max(data_dd[,6])` ，并于2017年进入回调过程。
 整体来看，银行板块的风险距离围绕3波动，所承受的系统性风险不大。
 
-```{r multi-fin-sector-dd,eval=T,fig.cap = "多元金融板块近十年系统性风险时序图", dev='png'}
-plot(dd_date,multi_finance,type="l",ylim=c(0,6.5))
-```
 
-从图 \@ref(fig:multi-fin-sector-dd) 中可以看出，多元金融板块的系统性风险指标大致
+从图 \@ref(fig:import-sector-dd) 中可以看出，多元金融板块的系统性风险指标大致
 在2左右，且整体较平稳。其原因主要在于多元金融板块内部个股的特点决定。多元金融企
-业广义上也可称为非银机构，其组织形式主要包括以下五种：一是大型银行通过控股参与信
+业广义上也可称���非银机构，其组织形式主要包括以下五种：一是大型银行通过控股参与信
 托、租赁等非银机构创立企业的形式；二是保险业依托于企业商业模式通过收购的方式进军
 银行业或信托业，建立类银行机构的形式；三是实业和金融的融合，通过产融结合打通顶层
 到底层的形式；四是从不良资产管理处置入手，为金融机构提供这部分金融服务而建设的企
@@ -985,30 +1017,21 @@ plot(dd_date,multi_finance,type="l",ylim=c(0,6.5))
 主营业务为纺织机械，但其也有信托等业务。正因为该板块股票独有的多样性特征，使得其
 整体系统性风险波动较为稳定。
 
-```{r stock-sector-dd,eval=T,fig.cap = "券商信托板块近十年系统性风险时序图", dev='png'}
-plot(dd_date,stock,type="l",ylim=c(0,6.5))
-```
 
-图 \@ref(fig:stock-sector-dd) 描述了券商信托板块系统性风险指标的波动情况。从2009
+图 \@ref(fig:import-sector-dd) 描述了券商信托板块系统性风险指标的波动情况。从2009
 年年中至2014年底风险距离尚且较为稳定，但自2015年年初起风险距离急速缩短达到近十年
-的最低值 `r min(stock)` 。不过随着国家调控政策的不断推行，风险距离又逐渐拉长。然
+的最低值 `r min(data_dd[,5])` 。不过随着国家调控政策的不断推行，风险距离又逐渐拉长。然
 而需要注意的是，近两年券商信托板块的风险指标一直处于下降的趋势，说明该板块所面临
 的系统性风险也在逐渐增强，需要加以重视。
 
-```{r house-sector-dd,eval=T,fig.cap = "房地产板块近十年系统性风险时序图", dev='png'}
-plot(dd_date,house,type="l",ylim=c(0,6.5))
-```
 
-从图 \@ref(fig:house-sector-dd) 中可以发现，房地产板块的风险指标也较为平稳，整体
+从图 \@ref(fig:import-sector-dd) 中可以发现，房地产板块的风险指标也较为平稳，整体
 围绕风险距离2.5上下浮动，表明房地产板块近十年所承受的系统性风险较稳定。但在浮动
 过程中，该板块的风险指标在2015年至2017年也经历了一次平稳期到波谷再到波峰最后回归
 稳定期的过程，且其在2018年后虽然仍在2.5左右，但其波动性相较前期还是更强。
 
-```{r insurance-sector-dd,eval=T,fig.cap = "保险板块近十年系统性风险时序图", dev='png'}
-plot(dd_date,insurance,type="l",ylim=c(0,6.5))
-```
 
-图 \@ref(fig:insurance-sector-dd) 展示了保险板块系统性风险的时序情况。可以发现保
+图 \@ref(fig:import-sector-dd) 展示了保险板块系统性风险的时序情况。可以发现保
 险板块经历了两次较为明显的系统性风险增大的过程，分别在2011年下半年和2015年。但在
 2016年后，风险距离显著拉长，系统性风险大幅下降，并随后进入新一轮的均衡状态。但该
 均衡状态的波动相比于2012年至2014年这一时期均衡状态要大，表明新一轮的系统性风险可
@@ -1052,8 +1075,8 @@ plot(dd_date,insurance,type="l",ylim=c(0,6.5))
 
 ```{r import-data2}
 rm(list=ls())
-## getwd()
-## path='F:/github_paper/vine-copula-Zeng'
+getwd()
+## path='D:/github_paper/vine-copula-Zeng'
 ## setwd(path)
 ## load package
 library(readxl)
@@ -1100,8 +1123,8 @@ bank=data_dd[,6]
 经过累计概率密度转换后的序列K-S检验值如下表所示：
 
 ```{r test-uniform-distribution}
-f_insurance=ecdf(data_dd[,2])
-co_insurance=f_insurance(data_dd[,2])
+f_insurance=ecdf(data_dd[,2])# 保险违约距离的逆累积经验分布函数
+co_insurance=f_insurance(data_dd[,2])#计算copula函数
 f_multi_finance=ecdf(data_dd[,3])
 co_multi_finance=f_multi_finance(data_dd[,3])
 f_house=ecdf(data_dd[,4])
@@ -1113,6 +1136,7 @@ co_bank=f_bank(data_dd[,6])
 ```
 
 ```{r test-uniform, results='markup'}
+# ks检验是否为均匀分布（原假设：服从均匀分布）
 test_uniform=data.frame(a=c(ks.test(co_insurance,'punif')[[1]],ks.test(co_insurance,'punif')[[2]]),
                     b=c(ks.test(co_multi_finance,'punif')[[1]],ks.test(co_multi_finance,'punif')[[2]]),
                     c=c(ks.test(co_house,'punif')[[1]],ks.test(co_house,'punif')[[2]]),
@@ -1120,8 +1144,10 @@ test_uniform=data.frame(a=c(ks.test(co_insurance,'punif')[[1]],ks.test(co_insura
                     e=c(ks.test(co_bank,'punif')[[1]],ks.test(co_bank,'punif')[[2]]))
 colnames(test_uniform)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
 rownames(test_uniform)=c("K-S","P值")
-kable(test_uniform,row.names =T,align = "c", caption="金融各板块系统性风险指标均匀分布检验",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(test_uniform,row.names =T,align = "c", caption="金融各板块系统性风险指标均匀分布检验",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)%>%
+      column_spec(1:4, width = c("0.85cm", "1.7cm", "2.6cm", "2.2cm", "2.6cm", "1.5cm"))
 ```
 
 由表 \@ref(tab:test-uniform) 可以看出，各板块经变换后的系统性风险指标在95%的置信
@@ -1135,11 +1161,13 @@ copula_data=data.frame(insurance=co_insurance,
                        house=co_house,
                        stock=co_stock,
                        bank=co_bank)
-cor0=cor(copula_data,method = 'kendall')
+cor0=cor(copula_data,method = 'kendall')#计算相关系数矩阵
 colnames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
 rownames(cor0)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
-kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指标相关系数矩阵",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指标相关系数矩阵",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)%>%
+      column_spec(1:4, width = c("3cm", "1.5cm", "2cm", "1.5cm", "2.5cm", "1cm"))
 ```
 
 从表 \@ref(tab:cor)可以看出券商信托板块与其他板块的相关系数均较大，而银行板块与
@@ -1151,7 +1179,7 @@ kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风险指�
 产、券商信托—多元金融、银行—保险、多元金融—房地产。通过相应的组合，可得到第一棵
 树的结构如下图所示：
 
-```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev="png",results='markup',fig.height=2}
+```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=2}
 knitr::include_graphics("./vine_first_tree.png")
 ```
 
@@ -1160,7 +1188,7 @@ knitr::include_graphics("./vine_first_tree.png")
 数排名第五的节点对——券商信托—保险纳入藤结构的考虑范畴，所以经过调整的第一棵树的
 结构为：
 
-```{r vine-first-tree-adj,echo=FALSE,fig.cap="调整后的金融板块间系统性风险R藤模型树T1结构图",cache=F,dev="png",results='markup',fig.height=2}
+```{r vine-first-tree-adj,echo=FALSE,fig.cap="调整后的金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=2}
 knitr::include_graphics("./vine_first_tree_adj.png")
 ```
 
@@ -1178,12 +1206,15 @@ RVM2=RVineMLE(copula_data,RVM,maxit=200)
 vine_matrix=data.frame(RVM2$RVM$Matrix) 
 rownames(vine_matrix)=c("A","B","C","D","E") 
 colnames(vine_matrix)=c("A","B","C","D","E") 
-kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结构矩阵表达式",    longtable = TRUE, booktabs = TRUE, linesep="") 
-```
+knitr::kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结
+构矩阵表达式", longtable =TRUE, booktabs = TRUE, linesep="")%>%
+kable_styling(full_width=T)
+
+``` 
 
 相应的藤结构图如下图所示：
 
-```{r vine-fit-fig,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型结构图",cache=F,dev="png",results='markup',fig.height=6}
+```{r vine-fit-fig,echo=FALSE,out.width="1.0\\textwidth",fig.cap="金融板块间系统性风险R藤模型结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=6}
 knitr::include_graphics("./vine_fit.png")
 ```
 
@@ -1205,8 +1236,9 @@ RVM_summary1=data.frame(summary(RVM2$RVM)[,c(1:2,4:6)])
 ```
 
 ```{r vine-copula, results='markup'}
-kable(RVM_summary1,row.names =F,align = "c", caption="板块间系统性风险最优Copula形式表",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(RVM_summary1,row.names =F,align = "c", caption="板块间系统性风险最优Copula形式表",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)
 ```
 
 正如前文模型介绍中所述，不同的Copula函数可以反应不同的相依关系 [@demarta2005t]。
@@ -1243,8 +1275,9 @@ RVM_summary2=data.frame(summary(RVM2$RVM)[,c(1:2,8:9)])
 ```
 
 ```{r vine-ultd, results='markup'}
-kable(RVM_summary2,row.names =F,align = "c", caption="板块间系统性风险尾部相依系数表",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(RVM_summary2,row.names =F,align = "c", caption="板块间系统性风险尾部相依系数表",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)
 ```
 
 由于Copula函数的特性，对于尾部敏感的Copula才具有相应的尾部系数，所以只有t-Copula
@@ -1276,8 +1309,9 @@ RVM_kendall=data.frame(summary(RVM2$RVM)[,c(1:2,7)])
 kendall=c(cor0[4,3],cor0[4,2],cor0[4,1],cor0[1,5],cor0[3,2],cor0[3,1],cor0[4,5],cor0[2,1],cor0[3,5],cor0[2,5])
 vine_kendall=cbind(RVM_kendall,kendall)
 colnames(vine_kendall)=c("tree","edge","cond-tau","tau")
-kable(vine_kendall,row.names =F,align = "c", caption="板块间系统性风险无条件Kendall相关系数与有条件Kendall相关系数对照表",
-      longtable = TRUE, booktabs = TRUE, linesep="")
+knitr::kable(vine_kendall,row.names =F,align = "c", caption="板块间系统性风险无条件Kendall相关系数与有条件Kendall相关系数对照表",
+      longtable = TRUE, booktabs = TRUE, linesep="")%>%
+      kable_styling(full_width=T)
 ```
 
 如表 \@ref(tab:vine-kendall) 所示，可以发现在经过藤Copula模型变换后，虽然从相关
@@ -1367,4 +1401,4 @@ Joe-Copula等多种新颖的Copula函数，除此外还可以对Copula增加旋�
 
 
 # 参考文献 
-[//]: # "\bibliography{Bibfile}"
+[//]: # (\bibliography{Bibfile})
