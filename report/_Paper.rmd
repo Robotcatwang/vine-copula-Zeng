@@ -650,8 +650,10 @@ CCA模型中到期期限一般取1年。因此本文选择中国人民银行发�
 （http://www.pbc.gov.cn/diaochatongjisi/）。]，作为无风险利率，无风险利率整体的
 波动趋势如图 \@ref(fig:norisk-rate) 所示：
 
-```{r norisk-rate,eval=T,fig.height=3.5, fig.width=6, fig.cap="2009-2019年一年期定期整存整取利率", dev=c("png","cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
-plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="日期",ylab="无风险利率")
+```{r norisk-rate,eval=T,fig.height=2.5, fig.width=6, fig.cap="2009-2019年一年期定期整存整取利率", dev=c("png","cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(oma=c(1,0,0,0),mar=c(2,4,2,2))
+plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="",ylab="无风险利率")
+
 ```
 
 从图 \@ref(fig:norisk-rate) 中可以发现，无风险利率经过了先上升再下降的一个过程。
@@ -684,7 +686,6 @@ plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="日期",ylab="无风险�
 的广泛应用 [@曹德欣2001三次样条插值函数的数值稳定性]。所以本文也采用三次样条法对个股的季度债务账面价值进行插
 值，得到该股当日债务账面价值。以平安银行为例，经过插值后得到的日债务账面价值如图
 \@ref(fig:cubspline) 所示:
-
 ```{r cubicspline}
 n=length(stock_test$Stkcd)
   ## cubic spline
@@ -692,9 +693,9 @@ debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_boo
 debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
-```{r cubspline,eval=T,fig.height=3.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
-plot(debt_book_value_test$debt_book_value/10000000000,type="p",xlab="日期
-",ylab="日债务账面价值(百亿)",xaxt='n',cex.axis=0.6 )
+```{r cubspline,eval=T,fig.height=2.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(oma=c(1,0,0,0),mar=c(2,4,2,2))
+plot(debt_book_value_test$debt_book_value/10000000000,type="p",xlab="",ylab="日债务账面价值(百亿)",xaxt='n',cex.axis=0.6 )
 axis(1, at=1:41,labels = debt_book_value_test$Accper)
 lines(debt_book_value$x,debt_book_value$y/10000000000)
 ```
@@ -718,8 +719,8 @@ date=as.Date(stock_test[,'Trddt'])
 price_rt=diff(log(price))
 ```
 
-```{r log-return,eval=T,fig.height=2.5,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
-par(mfrow=c(1,2))
+```{r log-return,eval=T,fig.height=4,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(mfrow=c(2,1),oma=c(1,0,0,0),mar=c(2,4,2,2))
 plot(date,price,type="l",main="(a)平安银行2009-2019年收盘价时序图",cex.main=0.8,cex.axis=0.6,ylab="收盘价",xlab="日期",cex.lab=0.8)
 plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行2009-2019年对数收益率时序图',cex.main=0.8,cex.axis=0.6,ylab="对数收益率",xlab="日期",cex.lab=0.8)
 ``` 
@@ -777,24 +778,25 @@ knitr::kable(adf_test,row.names =T,align = "l", caption="平安银行对数收�
 接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF
 图和PACF图的特征判断对数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
 
-```{r acf-pacf2,eval=T, fig.cap="Shibor收益率自相关图和偏自相关图",dev=c("cairo_pdf"),out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
-par(mfrow=c(1,2))
+```{r acf-pacf,eval=T,fig.height=3,fig.width=6, fig.cap="Shibor收益率自相关图和偏自相关图",dev=c("cairo_pdf"),out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(mfrow=c(2,1),oma=c(1,0,0,0),mar=c(2,4,2,2))
 acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
 title(main="(a)the ACF of Return",cex.main=0.95)
 pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#画偏自相关图
 title(main="(b)the PACF of Return",cex.main=0.95)
 ```
-```
+
 从图 \@ref(fig:acf-pacf) 中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后
 阶数20阶以内均在95%置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关
 性时，PACF图中的偏自相关系数在滞后阶数20阶以内也均在95%置信区间内，表明序列不具
 有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型，经标准化后得到的残差平方时序
 图如下图所示：
 
-```{r resi2, eval=T,fig.height=3, fig.width=5,fig.cap="平安银行对数收益率去均值后残差平方时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r resi2, eval=T,fig.height=2.5, fig.width=6,fig.cap="平安银行对数收益率去均值后残差平方时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(oma=c(1,0,0,0),mar=c(2,4,2,2))
 resi=price_rt-mean(price_rt)
 resi2=(price_rt-mean(price_rt))^2
-plot(date[-1],resi2,type='l',xlab='时间',ylab='对数收益率去均值后残差的平方',cex.lab=0.6,cex.axis=0.6)
+plot(date[-1],resi2,type='l',xlab='',ylab='对数收益率去均值后残差的平方',cex.lab=0.6,cex.axis=0.6)
 ```
 
 从图 \@ref(fig:resi2) 中可以看出，去均值化后的残差依然有较显著的波动性聚集特征。
@@ -947,7 +949,8 @@ for (i in 1:(nrow(stock_test)-1)) {
 DD=(Va-B)/(Va*AssetTheta)
 ```
 
-```{r pinganbank-dd,fig.height=3, fig.width=6,fig.cap="平安银行2009-2019年违约距离时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r pinganbank-dd,fig.height=2.5, fig.width=6,fig.cap="平安银行2009-2019年违约距离时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+par(oma=c(1,0,0,0),mar=c(2,4,2,2))
 datedd=as.Date(stock_test$Trddt[-1])
 plot(datedd,DD,type='l',ylab="违约距离",xlab="")
 #dev=c("cairo_pdf")
@@ -982,12 +985,12 @@ multi_finance=data_dd[,3]
 house=data_dd[,4]
 stock=data_dd[,5]
 bank=data_dd[,6]
-par(mfrow=c(3,2),oma=c(0,0,0,0),mar=c(2,4,2,2))
-plot(dd_date,bank,type="l",ylim=c(0,6.5),main="银行板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
-plot(dd_date,multi_finance,type="l",ylim=c(0,6.5),main="多元金融板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
-plot(dd_date,stock,type="l",ylim=c(0,6.5),main="券商信托板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
-plot(dd_date,house,type="l",ylim=c(0,6.5),main="房地产板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
-plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="保险板块",cex.main=0.8,cex.lab=0.8,xlab="",ylab="系统性风险")
+par(mfrow=c(3,2),oma=c(1,0,0,0),mar=c(2,4,2,2))
+plot(dd_date,bank,type="l",ylim=c(0,6.5),main="银行板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
+plot(dd_date,multi_finance,type="l",ylim=c(0,6.5),main="多元金融板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
+plot(dd_date,stock,type="l",ylim=c(0,6.5),main="券商信托板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
+plot(dd_date,house,type="l",ylim=c(0,6.5),main="房地产板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
+plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="保险板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
 
 ```
 经过前文所述的计算流程后，各板块的系统性风险指标如下图所示：
@@ -1179,7 +1182,7 @@ knitr::kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风
 产、券商信托—多元金融、银行—保险、多元金融—房地产。通过相应的组合，可得到第一棵
 树的结构如下图所示：
 
-```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=2}
+```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UILight"),results='markup',fig.height=2}
 knitr::include_graphics("./vine_first_tree.png")
 ```
 
