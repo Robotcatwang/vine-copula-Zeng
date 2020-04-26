@@ -202,18 +202,19 @@ MES方法，得出三家企业各自对保险业系统性风险的贡献程度�
 （3）SRISK法
 
 SRISK是一种计算系统各组成单元对系统性风险的贡献程度的指标，最早由Brownlees，
-Christian和Engle提出 [@brownlees2017srisk]，属于较为新颖的方法。其计算思路与MES法类似，但其综合考虑了负债规
-模、资本比率、市值等因素，以金融危机发生时单个金融机构面临的预期资本缺
-口作为风险指标。Laeven等（2016）在SRISK模型的基础上得到了系统性风险与银行规模成
-正相关，但系统性风险会随着银行资本的增加而减少的结论 [@laeven2016bank]。肖崎等（2018）结合分析企业
-经营状况时的杜邦分析法，同时由于研究对象银行的特殊性，将非利息收入占比、不良贷款
-率等指标和国家GDP等指标纳入SRISK模型中，实证研究了我国商业银行在轻型化转型过程中
-对银行业系统性风险的贡献程度 [@肖崎2018]。Varotto和Zhao(2018)同时使用了期望损失模型和SRISK模
-型，探究了美国和欧洲银行2004---2012年机构层面的系统性风险，得出一般的系统性风险
-主要受银行规模影响的结论，研究结果提示"大而不能倒"的机构应受到高度关注 [@varotto2018systemic]。陈湘鹏等
-（2019）则从方法比较的角度考虑，综合使用了MES、SES、∆CoVaR和SRISK等方法测量我国
-金融系统在微观角度下的系统性金融风险，比较各方法的结果来看，SRISK法作为我国微系
-统性金融风险的测量方法更好 [@陈湘鹏2019]。
+Christian和Engle提出 [@brownlees2017srisk]，属于较为新颖的方法。其计算思路与MES
+法类似，但其综合考虑了负债规模、资本比率、市值等因素，以金融危机发生时单个金融机
+构面临的预期资本缺口作为风险指标。Laeven等（2016）在SRISK模型的基础上得到了系统
+性风险与银行规模成正相关，但系统性风险会随着银行资本的增加而减少的结论
+[@laeven2016bank]。肖崎等（2018）结合分析企业经营状况时的杜邦分析法，同时由于研
+究对象银行的特殊性，将非利息收入占比、不良贷款率等指标和国家GDP等指标纳入SRISK模
+型中，实证研究了我国商业银行在轻型化转型过程中对银行业系统性风险的贡献程度 [@肖
+崎2018]。Varotto和Zhao(2018)同时使用了期望损失模型和SRISK模型，探究了美国和欧洲
+银行2004---2012年机构层面的系统性风险，得出一般的系统性风险主要受银行规模影响的
+结论，研究结果提示"大而不能倒"的机构应受到高度关注 [@varotto2018systemic]。陈湘
+鹏等（2019）则从方法比较的角度考虑，综合使用了MES、SES、∆CoVaR和SRISK等方法测量
+我国金融系统在微观角度下的系统性金融风险，比较各方法的结果来看，SRISK法作为我国
+微系统性金融风险的测量方法更好 [@陈湘鹏2019]。
 
 3．网络模型法
 
@@ -295,7 +296,7 @@ Kendall相关系数和条件Kendall相关系数，分析得到板块间系统性
 由基础资产和无风险利率构成，可以完全复制期权价格变动的资产组合。然后考虑在风险中
 性的前提下，期权权益在当前时点的折现价值。模型具体形式如下：
 
-$$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)$$ 
+$$C = SN\left(d_1\right) - Le^{-rT}N\left(d_2\right)+\alpha$$
 {#eq:bsm-model}
 
 其中：
@@ -308,9 +309,13 @@ $$d_2=\frac{\ln\frac{S}{L}+\left(r-\frac{\sigma ^2}{2} \right)T}{\sigma\sqrt
 T}=d_1-\sigma\sqrt T$$
 {#eq:bsm-d2}
 
-在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示在假定风险中性的条件下，所研究期权权益的理论交易价格，$S$表示期权所对应的理论资产组合中基础金融资产在当前时点的价格，$N\left(d_n\right)$表示标准正态分布的分布函数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
-$L$表示所研究期权在到期时或交割时的价格，$r$表示无风险利率，$T$表示期权有效时间，但需以年为计量单位，$\sigma^2$表示期权所
-对应的金融资产的波动率。在使用该BSM期权定价公式时，有如下五个基本假设：
+在[@eq:bsm-model]、[@eq:bsm-d1]、[@eq:bsm-d2]式中，$C$表示在假定风险中性的条件下，
+所研究期权权益的理论交易价格，$S$表示期权所对应的理论资产组合中基础金融资产在当
+前时点的价格，$N\left(d_n\right)$表示标准正态分布的分布函
+数（$\frac{1}{\sqrt {2\pi}}\int_{-\infty}^{d_n}{e^{-\frac{x^2}{2}}}dx$），
+$L$表示所研究期权在到期时或交割时的价格，$r$表示无风险利率，$T$表示期权有效时间，
+但需以年为计量单位，$\sigma^2$表示期权所对应的金融资产的波动率。在使用该BSM期权
+定价公式时，有如下五个基本假设：
 
 （1）基础资产的对数收益率服从正态分布；
 
@@ -337,7 +342,8 @@ $L$表示所研究期权在到期时或交割时的价格，$r$表示无风险�
 到企业资产的市场价值，即将股权看为价值为$A$，交割价格为企业资产负债表中的债务价值$B$
 的欧式看涨期权，根据BSM公式可得股权的市场价值为：
 
-$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$${#eq:cca-equity}
+$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$$
+{#eq:cca-equity}
 
 $$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$$
 {#eq:cca-equity-d1}
@@ -399,7 +405,8 @@ Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函
 
 Copula函数的表达形式为：
 
-$$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$${#eq:copula}
+$$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$$
+{#eq:copula}
 
 其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，
 $c\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布
@@ -561,7 +568,7 @@ $T_2$，$T_3$，$T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵�
 则可构造如下五维R藤模型的概念图：
 
 ```{r vine,echo=FALSE,fig.cap="五维R藤模型结构图",cache=F,dev=c("cairo_pdf"),results='markup',fig.height=6}
-knitr::include_graphics("D:/github_repo/vine-copula-Zeng/vine.png")
+knitr::include_graphics("./report/vine.png")
 ```
 
 针对上述概念图可得到这五维变量的多元联合密度函数：
@@ -784,7 +791,7 @@ title(main="(a)the ACF of Return",cex.main=0.95)
 pacf(price_rt,main="",xlab="滞后期",ylab="PACF",lag.max=20,ylim=c(-0.2,0.2))#画偏自相关图
 title(main="(b)the PACF of Return",cex.main=0.95)
 ```
-```
+
 从图 \@ref(fig:acf-pacf) 中可以看出，在判断自相关性时，ACF图中的自相关系数在滞后
 阶数20阶以内均在95%置信区间内，表明序列不具有自相关性，MA项为0阶；在判断偏自相关
 性时，PACF图中的偏自相关系数在滞后阶数20阶以内也均在95%置信区间内，表明序列不具
@@ -881,8 +888,7 @@ $$\left\{\begin{array}{l}
 r_t=0.0002496+\varepsilon _t\\
 \varepsilon_t=\sigma_tz_t\\
 \sigma_t^2=0.0000011+\left(0.0570125\varepsilon_{t-1}^2-0.0262933I_{t-1}\varepsilon_{t-1}^2 \right)+0.9550297\sigma _{t - 1}^2
-\end{array}\right.$$
-{#eq:gjr-garch}
+\end{array}\right.$${#eq:gjr-garch}
 
 从式[@eq:gjr-garch]中可以看出参数$\alpha$、 $\beta$ 和$\gamma$之和小于1，
 表明整个过程是平稳的 [@terasvirta2009introduction]，可用于进一步的分析。
@@ -910,8 +916,7 @@ d_1=\frac{\ln\left(AtoE \cdot
 \frac{E}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}\\
 d_2==d_1-\sigma_A\sqrt{T}\\
 y_2=N\left(d_1\right) \cdot AtoE \cdot \sigma_A-\sigma_E
-\end{array}\right.$$
-{#eq:cca-solve1}
+\end{array}\right.$${#eq:cca-solve1}
 
 令方程组[@eq:cca-solve1]中的$y_1$和 $y_2$趋近于0，通过Newton优化算法即可解得$A$和
 $\sigma_A$的近似解。按照上述思路即可得到个股的违约距离序列。例如平安银行近十年的
@@ -1008,7 +1013,7 @@ plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="保险板块",cex.main=0.8,c
 从图 \@ref(fig:import-sector-dd) 中可以看出，多元金融板块的系统性风险指标大致
 在2左右，且整体较平稳。其原因主要在于多元金融板块内部个股的特点决定。多元金融企
 业广义上也可称���非银机构，其组织形式主要包括以下五种：一是大型银行通过控股参与信
-托、租赁等非银机构创立企业的形式；二是保险业依托于企业商业模式通过收购的方式进军
+托、租赁等非银机构创立企业的形式；二是保险业依托于���业商业模式通过收购的方式进军
 银行业或信托业，建立类银行机构的形式；三是实业和金融的融合，通过产融结合打通顶层
 到底层的形式；四是从不良资产管理处置入手，为金融机构提供这部分金融服务而建设的企
 业；五是政府机关参与的金融控股公司^[资料来源：东方财富网
