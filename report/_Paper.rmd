@@ -13,14 +13,16 @@ link-citations: true
 ---
 
 
-
-
-
 ```{r setup, echo=F}
 ################# 第 3 章 R 程序代码  ####################
 knitr::opts_knit$set(root.dir = getwd())
 knitr::opts_chunk$set(echo = FALSE, results = 'hide')
 knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+knitr::opts_chunk$set(fig.align="center"
+                      ## ,out.width="0.9\\textwidth" # latex
+                      ,out.width="80%" # for both latex and html
+                      ,fig.width=5, fig.height=3
+                      )
 ```
 
 ```{r prepare}
@@ -251,11 +253,11 @@ TENET网络研究我国经济金融系统中不同行业间的系统性风险传
 
 第四部分是通过RVine-Copula模型分析金融板块间的系统性风险传染效应。该部分主要分为
 两节：第一节是构建RVine-Copula模型，首先使用第三部分计算得到的各板块违约距离序列
-通过经验分布函数转换为[0,1]上的均匀分布，然后以新序列为基础确定最优的R藤结构
-形式，将金融板块的基本网络搭建出来，并进行相应的分析，最后确定并估计藤结构中节点
-与节点间边的Copula类型及参数值，通过分析Copula的类型和相应的取值，分析板块间的上
-尾相关性或下尾相关性；第二节是在第一节的基础上计算板块间的尾部相依系数、无条件
-Kendall相关系数和条件Kendall相关系数，分析得到板块间系统性风险的传染效应。
+通过经验分布函数转换为[0,1]上的均匀分布，然后以新序列为基础确定最优的R藤结构形式，
+将金融板块的基本网络搭建出来，并进行相应的分析，最后确定并估计藤结构中节点与节点
+间边的Copula类型及参数值，通过分析Copula的类型和相应的取值，分析板块间的上尾相关
+性或下尾相关性；第二节是在第一节的基础上计算板块间的尾部相依系数、无条件Kendall
+相关系数和条件Kendall相关系数，分析得到板块间系统性风险的传染效应。
 
 第五部分是结论。该部分主要总结了本文在实证研究过程得到的结论。
 
@@ -292,7 +294,7 @@ Kendall相关系数和条件Kendall相关系数，分析得到板块间系统性
 ### Black-Sholes-Merton期权定价模型
 
 布莱克-舒尔斯-墨顿模型（Black-Scholes-Merton model），简称为BSM模型，是一种为期
-权等其他各类金融衍生工具提供理论定价的基础模型。该模型首先假设存在如下资产组合：
+权等各类金融衍生工具提供理论定价的基础模型。该模型首先假设存在如下资产组合：
 由基础资产和无风险利率构成，可以完全复制期权价格变动的资产组合。然后考虑在风险中
 性的前提下，期权权益在当前时点的折现价值。模型具体形式如下：
 
@@ -402,7 +404,6 @@ Sklar定理是Copula理论的基础。Copula理论简言之就是通过联结函
 况，且这两个变量均服从U（0，1）时，一定存在一个联结函数C，使得其联合分布函数可由
 各变量的边缘函数直接构成。
 
-
 Copula函数的表达形式为：
 
 $$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$$
@@ -436,30 +437,18 @@ $\left(x_j-x_i\right)\left(y_j-y_i\right)<0$时，即$x_j-x_i$与$y_j-y_i$异号
 $$\tau_{X,Y}=P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)>0\right]-P\left[\left(x_j-x_i\right)\left(y_j-y_i\right)<0\right]$$
 {#eq:tau}
 
-结合Copula函数理论和Kendall's $\tau$的计算公式，可得到在使用Copula模型时，两个变
-量间的Kendall's $\tau$相关系数，推导过程如下：
+结合Copula函数理论和Kendall's $\tau$的计算公式，可得到在使用Copula模型时，可以推导出两个变
+量间的Kendall's $\tau$相关系数为：
 
 $$\begin{array}{lcl}
-\tau_{X,Y}&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)<0\right]
-\\&=&P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-\left\{1-P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]\right\}
-\\&=&2P\left[\left(X_1-X_2\right)\left(Y_1-Y_2\right)>0\right]-1
-\\&=&2\left\{P\left(X_2<X_1,Y_2<Y_1\right)+P\left(X_1<X_2,Y_1<Y_2\right)\right\}-1
-\\&=&2\left\{\iint_{D}P\left(X_2<X,Y_2<Y\right)dC\left(F\left(x\right),G\left(y\right)\right)\right.
-\\& &\left.+\iint_{D}P\left(X_2>X,Y_2>Y\right)dC\left(F\left(x\right),G\left(y\right)\right)\right\}-1
-\\&=&2\left\{\iint_{D}C\left(F\left(x\right),G\left(y\right)\right)dC\left(F\left(x\right),G\left(y\right)\right)\right.
-\\& &\left.+\iint_{D}\left(1-F\left(x\right)-G\left(y\right)+C\left(F\left(x\right),G\left(y\right)\right)\right)dC\left(F\left(x\right),G\left(y\right)\right)\right\}-1
-\\&=&2\left\{\iint_{D}C\left(u,v\right)dC\left(u,v\right)+\iint_{D}\left(1-u-v+C\left(u,v\right)\right)dC\left(u,v\right)\right\}-1
-\\&=&2\left\{\iint_{D}C\left(u,v\right)dC\left(u,v\right)+1-\frac{1}{2}-\frac{1}{2}+\iint_{D}C\left(u,v\right)dC\left(u,v\right)\right\}-1
-\\&=&4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
+\tau_{X,Y}=4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
 \end{array}$$
 {#eq:copula-tau}
 
 进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系
 数，并以此为依据进行下一步的分析。
 
-而尾部相关系数包括上尾相关系数和下尾相关系数。
-
-其中上尾相关系数表示在变量$Y$的取值在右尾时，$X$的取值也落在右尾概率，用公式表示为：
+而尾部相关系数包括上尾相关系数和下尾相关系数。其中上尾相关系数表示在变量$Y$的取值在右尾时，$X$的取值也落在右尾概率，用公式表示为：
 
 $$\lambda_u=\lim\limits_{u \to
 1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$$
@@ -530,10 +519,10 @@ c_{1,3}\left(F_1\left(x_1\right),F_3\left(x_3\right)\right)\cdot \\&
 \end{array}$$
 {#eq:paircopula3-2}
 
-但是，需要注意的是，在假定$x_1$，$x_2$，$x_3$不可相互替代时，我们在前面计算
+需要注意的是，在假定$x_1$，$x_2$，$x_3$不可相互替代时，在前面计算
 $f\left(x_1,x_2,x_3\right)$时采用的是$f_1\left(x_1\right)\cdot
 f\left(x_2\left|x_1\right.\right)\cdot f\left(x_3\left|x_1,x_2\right.\right)$变
-换得到的，但我们也可以证明$f_2\left(x_2\right)\cdot
+换得到的，但也可以证明$f_2\left(x_2\right)\cdot
 f\left(x_3\left|x_2\right.\right)\cdot f\left(x_1\left|x_2,x_3\right.\right)$同
 样可以推导至$f\left(x_1,x_2,x_3\right)$，不过此时再进行Pair Copula分解时，得到的
 结果为：
@@ -548,7 +537,7 @@ c_{2,3}\left(F_2\left(x_2\right),F_3\left(x_3\right)\right)\cdot \\&
 
 可以发现式[@eq:paircopula3-2]与式[@eq:paircopula3-3]存在较大差异。在三维变量的情
 况下，共存在$3！/2=3$种分解方式，而每种分解方式得到的结果均不同。因此在研究分析
-时，具体选择哪一种分析方式就成为了一个新的问题。关于该问题将在下一节进行解释和回
+时，具体选择哪一种分析方式就成为了一个新的问题。关于该问题将在后面进行解释和回
 答。
 
 ### 规则藤结构概述
@@ -558,17 +547,17 @@ c_{2,3}\left(F_2\left(x_2\right),F_3\left(x_3\right)\right)\cdot \\&
 针对如此繁多的分解方法，Bedford和Cooke在2001年进行了归纳总结，并依赖"图论"思想，提
 出了"藤"的模式 [@bedford2001probability]。藤Copula解决了
 传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤。由于本
-文在建模时主要采用的为R藤结构，因此主要介绍R藤Copula模型的概况。
+文在建模时主要选择R藤结构，因此主要介绍R藤Copula模型的概况。
 
-不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为$T_1$，
-$T_2$，$T_3$，$T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵树$T_1$，1,2,3,4,5也
+不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为 $T_1$，
+$T_2$， $T_3$， $T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵树 $T_1$，1,2,3,4,5也
 是其5个节点，节点与节点间的线段表示Copula函数的某一种类型。“|”之后的变量表示条件
 变量。
 
 则可构造如下五维R藤模型的概念图：
 
-```{r vine,echo=FALSE,fig.cap="五维R藤模型结构图",cache=F,dev=c("cairo_pdf"),results='markup',fig.height=6}
-knitr::include_graphics("./report/vine.png")
+```{r vine,echo=FALSE,fig.cap="五维R藤模型结构图",cache=F,dev=c("png","cairo_pdf"),results='markup',fig.height=6}
+knitr::include_graphics("./vine.png")
 ```
 
 针对上述概念图可得到这五维变量的多元联合密度函数：
@@ -657,7 +646,7 @@ CCA模型中到期期限一般取1年。因此本文选择中国人民银行发�
 （http://www.pbc.gov.cn/diaochatongjisi/）。]，作为无风险利率，无风险利率整体的
 波动趋势如图 \@ref(fig:norisk-rate) 所示：
 
-```{r norisk-rate,eval=T,fig.height=2.5, fig.width=6, fig.cap="2009-2019年一年期定期整存整取利率", dev=c("png","cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r norisk-rate,eval=T,fig.height=2.5, fig.width=6, fig.cap="2009-2019年一年期定期整存整取利率", dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 par(oma=c(1,0,0,0),mar=c(2,4,2,2))
 plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="",ylab="无风险利率")
 
@@ -700,7 +689,7 @@ debt_book_value=spline(debt_book_value_test$Accper,debt_book_value_test$debt_boo
 debt_book_value_date=as.Date(debt_book_value_test$Accper)
 ```
 
-```{r cubspline,eval=T,fig.height=2.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r cubspline,eval=T,fig.height=2.5, fig.width=6,fig.cap ="平安银行插值后日债务账面价值",dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 par(oma=c(1,0,0,0),mar=c(2,4,2,2))
 plot(debt_book_value_test$debt_book_value/10000000000,type="p",xlab="",ylab="日债务账面价值(百亿)",xaxt='n',cex.axis=0.6 )
 axis(1, at=1:41,labels = debt_book_value_test$Accper)
@@ -726,11 +715,11 @@ date=as.Date(stock_test[,'Trddt'])
 price_rt=diff(log(price))
 ```
 
-```{r log-return,eval=T,fig.height=4,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r log-return,eval=T,fig.height=4,fig.width=6,fig.cap = "平安银行2009-2019年日收盘价和对数收益率时序图", dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 par(mfrow=c(2,1),oma=c(1,0,0,0),mar=c(2,4,2,2))
 plot(date,price,type="l",main="(a)平安银行2009-2019年收盘价时序图",cex.main=0.8,cex.axis=0.6,ylab="收盘价",xlab="日期",cex.lab=0.8)
 plot(date[-1],price_rt,type="l",cex.main=0.95,las=1,main='(b)平安银行2009-2019年对数收益率时序图',cex.main=0.8,cex.axis=0.6,ylab="对数收益率",xlab="日期",cex.lab=0.8)
-``` 
+```
 如图 \@ref(fig:log-return) 所示，从日收盘价时序图可以看出，平安银行整体行情向
 好，但其中也经过了4次较大的波动；从平安银行近十年对数收益率时序图看，该股的收益
 率在2013年上半年、2015年全年和2018年全年波动幅度较大，具有明显的"波动性聚集"特
@@ -785,7 +774,7 @@ knitr::kable(adf_test,row.names =T,align = "l", caption="平安银行对数收�
 接下来对平安银行的对数收益率进行自相关检验和偏自相关检验，主要方法为通过观察ACF
 图和PACF图的特征判断对数收益率的自相关性。绘制的自相关和偏自相关图如下图所示：
 
-```{r acf-pacf,eval=T,fig.height=3,fig.width=6, fig.cap="Shibor收益率自相关图和偏自相关图",dev=c("cairo_pdf"),out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r acf-pacf,eval=T,fig.height=3,fig.width=6, fig.cap="Shibor收益率自相关图和偏自相关图",dev=c("png","cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light")}
 par(mfrow=c(2,1),oma=c(1,0,0,0),mar=c(2,4,2,2))
 acf(price_rt,main="",xlab="滞后期",ylab="ACF",lag.max=20,ylim=c(-0.2,0.8))#画自相关图
 title(main="(a)the ACF of Return",cex.main=0.95)
@@ -799,7 +788,7 @@ title(main="(b)the PACF of Return",cex.main=0.95)
 有偏自相关性，AR项为0阶。因此，可不用拟合ARMA模型，经标准化后得到的残差平方时序
 图如下图所示：
 
-```{r resi2, eval=T,fig.height=2.5, fig.width=6,fig.cap="平安银行对数收益率去均值后残差平方时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r resi2, eval=T,fig.height=2.5, fig.width=6,fig.cap="平安银行对数收益率去均值后残差平方时序图", dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 par(oma=c(1,0,0,0),mar=c(2,4,2,2))
 resi=price_rt-mean(price_rt)
 resi2=(price_rt-mean(price_rt))^2
@@ -954,7 +943,7 @@ for (i in 1:(nrow(stock_test)-1)) {
 DD=(Va-B)/(Va*AssetTheta)
 ```
 
-```{r pinganbank-dd,fig.height=2.5, fig.width=6,fig.cap="平安银行2009-2019年违约距离时序图", dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r pinganbank-dd,fig.height=2.5, fig.width=6,fig.cap="平安银行2009-2019年违约距离时序图", dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 par(oma=c(1,0,0,0),mar=c(2,4,2,2))
 datedd=as.Date(stock_test$Trddt[-1])
 plot(datedd,DD,type='l',ylab="违约距离",xlab="")
@@ -981,7 +970,7 @@ plot(datedd,DD,type='l',ylab="违约距离",xlab="")
 
 
 ### 金融各板块系统性风险的分析
-```{r import-sector-dd,fig.height=4.5,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("cairo_pdf"),fig.align='center',out.width="1.0\\textwidth",dev.args=list(family="Microsoft YaHei UI Light")}
+```{r import-sector-dd,fig.height=4.5,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
            colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
 dd_date=as.Date(data_dd[,1])
@@ -1187,7 +1176,7 @@ knitr::kable(cor0,row.names =T,align = "c", caption="金融各板块系统性风
 产、券商信托—多元金融、银行—保险、多元金融—房地产。通过相应的组合，可得到第一棵
 树的结构如下图所示：
 
-```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UILight"),results='markup',fig.height=2}
+```{r vine-first-tree,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("png","cairo_pdf"),dev.args=list(family="Microsoft YaHei UILight"),results='markup',fig.height=2}
 knitr::include_graphics("./vine_first_tree.png")
 ```
 
@@ -1196,7 +1185,7 @@ knitr::include_graphics("./vine_first_tree.png")
 数排名第五的节点对——券商信托—保险纳入藤结构的考虑范畴，所以经过调整的第一棵树的
 结构为：
 
-```{r vine-first-tree-adj,echo=FALSE,fig.cap="调整后的金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=2}
+```{r vine-first-tree-adj,echo=FALSE,fig.cap="调整后的金融板块间系统性风险R藤模型树T1结构图",cache=F,dev=c("png","cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=2}
 knitr::include_graphics("./vine_first_tree_adj.png")
 ```
 
@@ -1218,11 +1207,11 @@ knitr::kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性�
 构矩阵表达式", longtable =TRUE, booktabs = TRUE, linesep="")%>%
 kable_styling(full_width=T)
 
-``` 
+```
 
 相应的藤结构图如下图所示：
 
-```{r vine-fit-fig,echo=FALSE,out.width="1.0\\textwidth",fig.cap="金融板块间系统性风险R藤模型结构图",cache=F,dev=c("cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=6}
+```{r vine-fit-fig,echo=FALSE,fig.cap="金融板块间系统性风险R藤模型结构图",cache=F,dev=c("png","cairo_pdf"),dev.args=list(family="Microsoft YaHei UI Light"),results='markup',fig.height=6}
 knitr::include_graphics("./vine_fit.png")
 ```
 
@@ -1409,4 +1398,4 @@ Joe-Copula等多种新颖的Copula函数，除此外还可以对Copula增加旋�
 
 
 # 参考文献 
-[//]: # (\bibliography{Bibfile})
+[//]: # "\bibliography{Bibfile}"
