@@ -29,9 +29,10 @@ knitr::opts_chunk$set(fig.align="center"
 rm(list=ls())
 options(digits=4)
 options(scipen=100)
+options(kableExtra.auto_format = FALSE) # word table
 graphics.off()
 Sys.setlocale("LC_ALL", "Chinese")
-library("kableExtra")
+library(kableExtra)
 ```
 
 # 简介
