@@ -626,7 +626,7 @@ bank=data_dd[,6]
 确保联结函数一定存在，需对前面计算得到的板块系统性风险指标进行累计概率密度转换，
 使用经过变换后服从U（0，1）的新序列进行建模分析 [@cherubini2004copula]。这里使用
 K-S检验对变化后的序列检验其是否服从0-1上的均匀分布。经过累计概率密度转换后的序列
-K-S检验值如下表所示：
+K-S检验值如表 \@ref(tab:test-uniform) 所示：
 
 ```{r test-uniform-distribution}
 f_insurance=ecdf(data_dd[,2])# 保险违约距离的逆累积经验分布函数
@@ -659,7 +659,7 @@ knitr::kable(test_uniform,row.names =T,align = "c", caption="金融各板块系�
 由表 \@ref(tab:test-uniform) 可以看出，各板块经变换后的系统性风险指标在95%的置信
 水平上均接受原假设，表明新序列均服从[0,1]的均匀分布。所以可进一步进行建模分析。
 
-对板块间的系统性风险指标计算Kendall’s $\tau$相关系数，得到的相关系数矩阵如下表所示：
+对板块间的系统性风险指标计算Kendall’s $\tau$相关系数，得到的相关系数矩阵如 \@ref(tab:cor) 所示：
 
 ```{r cor, results='markup'}
 copula_data=data.frame(insurance=co_insurance,
@@ -703,11 +703,12 @@ RVM2=RVineMLE(copula_data,RVM,maxit=200)
 
 ```{r vine-marix, results='markup'}
 vine_matrix=data.frame(RVM2$RVM$Matrix) 
-rownames(vine_matrix)=c("A","B","C","D","E") 
-colnames(vine_matrix)=c("A","B","C","D","E") 
+colnames(vine_matrix)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
+rownames(vine_matrix)=c("保险板块","多元金融板块","房地产板块","券商信托板块","银行板块")
 knitr::kable(vine_matrix,row.names =T,align = "c", caption="各板块系统性风险藤结
 构矩阵表达式", longtable =TRUE, booktabs = TRUE, linesep="")%>%
-kable_styling(full_width=T)
+kable_styling(full_width=T)%>%
+      column_spec(1:4, width = c("3cm", "1.5cm", "2cm", "1.5cm", "2.5cm", "1cm"))
 ```
 
 相应的藤结构图如下图所示：
@@ -727,15 +728,15 @@ knitr::include_graphics("./vine_fit.png")
 在确定最优的藤结构后，根据AIC、BIC准则即可得到藤结构中两两节点的边所对应的Copula
 函数及其参数。本文用作备选的Copula函数包括以下六种类型(括号的字母表示其代表字母)：
 独立Copula(I)、Gaussian-Copula(N)、t-Copula(t)、Clayton-Copula(C)、
-Gumbel-Copula(G)和Frank-Copula(F)。最终估计的结果如下表所示：
+Gumbel-Copula(G)和Frank-Copula(F)。最终估计的结果如 \@ref(tab:vine-copula) 所示：
 
 ```{r rvm-summary1}
-RVM_summary1=data.frame(summary(RVM2$RVM)[,c(1:2,4:6)])
+RVM_summary1=data.frame(summary(RVM2$RVM)[,c(1:2,4:6,8:9)])
 ```
 
 ```{r vine-copula, results='markup'}
-colnames(RVM_summary1) <- c("树","边缘节点", "Copula类型", "参数1", "参数2")
-knitr::kable(RVM_summary1,row.names =F,align = "c", caption="板块间系统性风险最优Copula形式表",
+colnames(RVM_summary1) <- c("树","边缘节点", "Copula类型", "参数1", "参数2","上尾部系数","下尾部系数")
+knitr::kable(RVM_summary1,row.names =F,align = "c", caption="板块间系统性风险最优Copula形式和尾部相依系数表",
       longtable = TRUE, booktabs = TRUE, linesep="")%>%
       kable_styling(full_width=T)
 ```
@@ -769,12 +770,12 @@ Gaussian-Copula函数，表明券商信托板块和保险板块间的上下尾�
 风险尾部相依关系如下表所示：
 
 ```{r rvm-summary2}
-RVM_summary2=data.frame(summary(RVM2$RVM)[,c(1:2,8:9)])
+RVM_summary2=data.frame(summary(RVM2$RVM)[,c(1:2,4:6,8:9)])
 ```
 
 ```{r vine-ultd, results='markup'}
-colnames(RVM_summary2) <- c("树","边缘节点","上尾部系数","下尾部系数")
-knitr::kable(RVM_summary2,row.names =F,align = "c", caption="板块间系统性风险尾部相依系数表",
+colnames(RVM_summary2) <- c("树","边缘节点","Copula类型", "参数1", "参数2","上尾部系数","下尾部系数")
+knitr::kable(RVM_summary2,row.names =F,align = "c", caption="板块间系统性风险最优Copula形式和尾部相依系数表",
       longtable = TRUE, booktabs = TRUE, linesep="")%>%
       kable_styling(full_width=T)
 ```
