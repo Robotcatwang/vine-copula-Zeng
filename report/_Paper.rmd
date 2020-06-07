@@ -8,7 +8,7 @@ eqnPrefixTemplate: ($$i$$)
 linkReferences: true
 bibliography: [Bibfile.bib]
 notice: '@*'
-csl: ./style/chinese-gb7714-2015-numeric.csl
+csl: ./style/chinese-gb7714-2015-author-JinRongYanJiu.csl
 link-citations: true
 ---
 
@@ -226,9 +226,9 @@ TENET网络研究我国经济金融系统中不同行业间的系统性风险传
 别对用于系统性风险测度的CCA模型，基于 Copula模型的相依性计量方法和藤 Copula 的理
 论进行了介绍。第三部分是以CCA模型为基础对金融各板块的系统性风险进行计算，并对近
 十年金融板块的系统性风险波动进行简要分析，寻找波动的原因并对整体趋势做一个评估。
-第四部分是通过RVine-Copula(R藤-Copula)模型分析金融板块间的系统性风险传染效应。首先构建
-藤Copula模型，并在此基础上计算板块间的尾部相依系数、无条件Kendall相关系数和
-条件Kendall相关系数，分析得到板块间系统性风险的传染效应。最后是结论和建议。
+第四部分是通过RVine-Copula(R藤-Copula)模型分析金融板块间的系统性风险传染效应。首
+先构建藤Copula模型，并在此基础上计算板块间的尾部相依系数、无条件Kendall相关系数
+和条件Kendall相关系数，分析得到板块间系统性风险的传染效应。最后是结论和建议。
 
 
 # 模型介绍
@@ -388,16 +388,13 @@ $\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\
 块分类标准进行划分。由于建模所需数据涉及上市公司的财务数据，因此本文不将2019年上
 半年上市的企业纳入样本中。最终共包括银行板块的31只股票，券商信托板块的41只股票，
 保险板块的7只股票、多元金融板块的25只股票和房地产板块的141只股票。随着中国金融混
-业经营发展，地产与传统金融部门之间的风险传导不断增强 [@杨子晖2018]。因此，现
-阶段对金融风险在中国传统金融部门和房地产部门间的传导效应展开深入研究十分必要。借
-鉴杨子晖等的做法，将房地产板块也纳为本文的研究对象。本文的研究区间为2009年7月1日
-至2019年6月30日。
+业经营发展，地产与传统金融部门之间的风险传导不断增强 [@杨子晖2018]。因此，现阶段
+对金融风险在中国传统金融部门和房地产部门间的传导效应展开深入研究十分必要。借鉴杨
+子晖等的做法，将房地产板块也纳为本文的研究对象。本文的研究区间为2009年7月1日至
+2019年6月30日。
 
 ```{r import-data}
 rm(list=ls())
- getwd()
-## path='F:/github_paper/vine-copula-Zeng'
-## setwd(path)
 ## load package
 library(readxl)
 library(xlsx)
@@ -484,7 +481,7 @@ $\sigma_A$的近似解。按照上述思路即可得到个股的违约距离序�
 
 经过前文所述的计算流程后，得到的金融各板块的系统性风险指标如下图所示：
 
-```{r import-sector-dd,fig.height=4.5,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("png","cairo_pdf"),fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
+```{r import-sector-dd,fig.height=4.5,fig.width=6, fig.pos="H", fig.cap="各板块2009-2019年系统性风险时序图",dev=c("png","cairo_pdf"),out.width="100%",fig.align='center',dev.args=list(family="Microsoft YaHei UI Light")}
 data_dd=read.xlsx2("./sector_dd.xlsx",sheetIndex = 1,as.data.frame = TRUE,header = TRUE,
            colClasses = c("Date","numeric","numeric","numeric","numeric","numeric"))
 dd_date=as.Date(data_dd[,1])
@@ -499,7 +496,6 @@ plot(dd_date,multi_finance,type="l",ylim=c(0,6.5),main="(b) 多元金融板块",
 plot(dd_date,stock,type="l",ylim=c(0,6.5),main="(c) 券商信托板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
 plot(dd_date,house,type="l",ylim=c(0,6.5),main="(d) 房地产板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
 plot(dd_date,insurance,type="l",ylim=c(0,6.5),main="(e) 保险板块",cex.main=1,cex.lab=1,xlab="",ylab="系统性风险")
-
 ```
 
 图 \@ref(fig:import-sector-dd) (a) 展示了银行板块的系统性风险指标近十年的变化情
@@ -741,8 +737,8 @@ knitr::kable(RVM_summary1,row.names =F,align = "c", caption="板块间系统性�
       kable_styling(full_width=T)
 ```
 
-正如前文模型介绍中所述，不同的Copula函数可以反应不同的相依关系 [@demarta2005t]。
-从表 \@ref(tab:vine-copula) 中的第一棵树可以看出，券商信托板块和保险板块之间为
+在Copula模型中，不同的Copula函数可以反应不同的相依关系。从
+表 \@ref(tab:vine-copula) 中的第一棵树可以看出，券商信托板块和保险板块之间为
 Gaussian-Copula函数，表明券商信托板块和保险板块间的上下尾风险具有一定的对称性；
 保险板块与银行板块之间和房地产板块与券商信托板块之间的Copula形式均为t-Copula函数，
 虽然也说明上尾和下尾的相关性具有一定的对称性，但是上述两个板块间却是具有厚尾相关
@@ -762,34 +758,10 @@ Gaussian-Copula函数，表明券商信托板块和保险板块间的上下尾�
 
 ## 金融板块间系统性风险传染效应分析
 
-### 板块间尾部相依系数的计算与分析
-
 在确定最优藤结构与各边的Copula类型后，通过极大似然估计法对整体藤Copula模型的参数
 进行估计，然后按照模型介绍部分所述的尾部相依系数的计算方法与Kendall's $\tau$相关
 系数的计算方法，即可得到各板块间的相关关系。按照上述思路，计算得到的板块间系统性
-风险尾部相依关系如表 \@ref(tab:vine-kendall) 所示：
-
-
-由于Copula函数的特性，对于尾部敏感的Copula才具有相应的尾部系数，所以只有t-Copula
-和阿基米德类Copula形式才能计算出各自的尾部相依系数。从表 \@ref(tab:vine-kendall) 中
-可以看出，在没有任何已知信息时，保险板块与银行板块之间和房地产板块与券商信托板块
-之间的上下尾相依系数都不低，分别为0.43、0.51，表明两板块间具有较强的尾部关系；而
-券商板块与多元金融板块间的下尾相关系数达到0.79，说明当其中一个板块发生系统性风险
-时，另一板块也极有可能受到风险的冲击，这是由于多元金融板块的特性决定，因为该板块
-的个股尽管不是标准的金融企业，但其涉及的主营业务却大多是关于证券投资、信托等，与
-券商信托板块的业务较像，因此其下尾相依系数大到0.79。当存在部分已知信息时，板块间
-的尾部相依系数均只有较为微弱的尾部关系存在，说明条件板块可能起到了风险催化的作用，
-需要注意的是，在券商信托板块的信息已知时，尽管多元金融板块与房地产板块间是通过
-t-Copula函数进行连接，但尾部相依系数却为0，其原因可从上一节的表
-\@ref(tab:vine-copula) 中找到，该节点对的Copula函数第二个参数的估计值为21.49，而
-该参数可近似理解为t分布的自由度，当t分布的自由度足够大时，t分布近似于标准正态分
-布，因此该节点对的t-Copula可近似为Gaussian-Copula，表明多元金融板块与房地产板块
-几乎不存在尾部相依性。
-
-### 板块间Kendall相关系数的计算与分析
-
-依据上一目所述的思路，可得到各金融板块间基于藤Copula模型的Kendall's $\tau$相关系
-数。通过将无条件Kendall相关系数和有条件Kendall相关系数按照板块组合进行分类可得：
+风险尾部相依关系、无条件Kendall相关系数和有条件Kendall相关系数如表 \@ref(tab:vine-kendall) 所示。
 
 ```{r rvm-summary3}
 RVM_kendall=data.frame(summary(RVM2$RVM)[,c(1:2,8:9,7)])
@@ -805,8 +777,25 @@ knitr::kable(vine_kendall,row.names =F,align = "c", caption="板块间系统性�
       column_spec(1:4, width = c("1cm", "1.8cm", "2.5cm", "2.5cm", "2.5cm", "1cm"))
 ```
 
-如表 \@ref(tab:vine-kendall) 所示，可以发现在经过藤Copula模型变换后，虽然从相关
-性强弱的顺序来看，条件相关系数与无条件相关系数差异不大，但从相关系数的数值上来看，
+由于Copula函数的特性，对于尾部敏感的Copula才具有相应的尾部系数，所以只有t-Copula
+和阿基米德类Copula形式才能计算出各自的尾部相依系数。从表 \@ref(tab:vine-kendall)
+中可以看出，在没有任何已知信息时，保险板块与银行板块之间和房地产板块与券商信托板
+块之间的上下尾相依系数都不低，分别为0.43、0.51，表明两板块间具有较强的尾部关系；
+而券商板块与多元金融板块间的下尾相关系数达到0.79，说明当其中一个板块发生系统性风
+险时，另一板块也极有可能受到风险的冲击，这是由于多元金融板块的特性决定，因为该板
+块的个股尽管不是标准的金融企业，但其涉及的主营业务却大多是关于证券投资、信托等，
+与券商信托板块的业务较像，因此其下尾相依系数大到0.79。当存在部分已知信息时，板块
+间的尾部相依系数均只有较为微弱的尾部关系存在，说明条件板块可能起到了风险催化的作
+用，需要注意的是，在券商信托板块的信息已知时，尽管多元金融板块与房地产板块间是通
+过t-Copula函数进行连接，但尾部相依系数却为0，其原因可从表 \@ref(tab:vine-copula)
+中找到，该节点对的Copula函数第二个参数的估计值为21.49，而该参数可近似理解为t分布
+的自由度，当t分布的自由度足够大时，t分布近似于标准正态分布，因此该节点对的
+t-Copula可近似为Gaussian-Copula，表明多元金融板块与房地产板块几乎不存在尾部相依
+性。
+
+
+在表 \@ref(tab:vine-kendall) 中，可以发现在经过藤Copula模型变换后，虽然从相关性
+强弱的顺序来看，条件相关系数与无条件相关系数差异不大，但从相关系数的数值上来看，
 板块间系统性风险的相关系数发生了较大的变化。不过，绝大多数的相关系数在增加条件信
 息后有所下降，这表明条件板块在板块间系统性风险传染上实际是起着催化剂的作用，作为
 一种传染介质，加快风险的传染。例如，在不考虑条件信息影响时，多元金融板块与房地产
