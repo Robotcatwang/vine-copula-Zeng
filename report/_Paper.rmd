@@ -35,7 +35,7 @@ Sys.setlocale("LC_ALL", "Chinese")
 library(kableExtra)
 ```
 
-**摘要**:本文通过对沪市和深市上市的245个金融企业2009 年 7 月 1 日至 2019 年 6 月
+**摘要**:本文利用沪市和深市上市的245个金融企业2009 年 7 月 1 日至 2019 年 6 月
 30 日的收益率数据，以CCA模型为基础对金融各板块的系统性风险进行了测算，并对近十年
 金融板块的系统性风险波动进行简要分析，构建藤 Copula 模型，并在此基础上计算板块间
 的尾部相依系数、无条件 Kendall 相关系数和条件Kendall 相关系数，分析得到板块间系
@@ -871,16 +871,31 @@ Kendall's $\tau$ 相关系数分析金融板块间的系统性风险传染效应
 府需要通过连续性的政策调动投资者的信心，增强市场活性，推动证券市场的平稳发展。
 
 \centering
-**English Title**
+**Systemic Risk Measurement and Contagion Effect Research among Financial Sectors in Securities Market**
 
-JIN Lin &emsp; Zeng Yuanzheng &emsp; WANG Mengyuan
+JIN Lin &emsp; ZENG Yuanzheng &emsp; WANG Mengyuan
 
 (School of Statistics and Mathematics, Zhongnan University of Economics and Law)
 
 \justifying
-**Abstract:** 
+**Abstract:** Based on the yield data of 245 financial enterprises listed in Shanghai and Shenzhen
+stock market from July 1, 2009 to June 30, 2019, this paper calculates the
+systematic risk of each financial sector based on CCA model, and briefly
+analyzes the systematic risk fluctuation of financial sector in recent ten
+years, based on the Vine-Copula model,
+the contagious effects of systemic risk across sectors are revealed by analyzing
+the tail
+dependence coefficients, unconditional Kendall correlation coefficients, and
+conditional Kendall correlation coefficients.Through the analysis, it is found
+that the great fluctuation of systemic risks among financial sectors from 2009
+to 2019 is caused by the promulation or implementation of relevant national
+policies, which indicates that China's securities market is significantly
+affected by policies and the market autonomy is still poor. From the perspective
+of risk contagion among sectors,
+the securities trust is the key in the systemic transmission of
+systemic risks in the financial sectors.
 
-**Key Words:** 
+**Key Words:**financial sectors；systemic risk；CCA model；Vine-Copula model；contagion effect 
 
 # 参考文献
 [//]: # "\bibliography{Bibfile}"
