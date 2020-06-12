@@ -88,166 +88,12 @@ library(kableExtra)
 系统性风险进行度量，然后运用前沿的藤理论，将板块与板块组成一个整体，并且以Copula
 为媒介，确定板块间风险的相关关系，进而对金融板块的风险传染进行分析探究。
 
-本文余下部分构成如下：第二部分是简要介绍研究过程中所涉及的模型以及回顾系统性风险量化方法与传染效应测度方法方面相关的文献。分
-别对用于系统性风险测度的CCA模型，基于 Copula模型的相依性计量方法和藤 Copula 的理
-论进行了介绍。第三部分是以CCA模型为基础对金融各板块的系统性风险进行计算，并对近
-十年金融板块的系统性风险波动进行简要分析，寻找波动的原因并对整体趋势做一个评估。
-第四部分是通过RVine-Copula(R藤-Copula)模型分析金融板块间的系统性风险传染效应。首
-先构建藤Copula模型，并在此基础上计算板块间的尾部相依系数、无条件Kendall相关系数
-和条件Kendall相关系数，分析得到板块间系统性风险的传染效应。第五部分是本文结论和建议。
 
-# 相关理论及文献综述
 
-## 模型理论介绍
+## 国内外文献综述
 
-### CCA模型
 
-或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton(BSM)期
-权定价模型的基础上，通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来
-构建风险资产负债表，进而对企业的风险进行整体分析的一种方法。BSM模型是一种为期权
-等各类金融衍生工具提供理论定价的基础模型。该模型首先假设存在如下资产组合：由基础
-资产和无风险利率构成，可以完全复制期权价格变动的资产组合。然后考虑在风险中性的前
-提下，期权权益在当前时点的折现价值。在BSM模型基础上，CCA模型将一个企业的资产市场
-价值（$A$）拆分为股权的市场资本价值（$E$）和债务的市场资本价值（$D$）。当一个企
-业的债务市场价值高于该企业的资产市场价值时，表明该企业可能会存在违约行为，不能到
-期及时偿还债务。需要注意的是，或有权益模型中的企业资产的价值和债务的价值均为市场
-资本价值，不能通过企业财报得到直接数据。因此CCA方法指出，可通过以下方法间接计算
-得到企业资产的市场价值，即将股权看为价值为$A$，交割价格为企业资产负债表中的债务
-价值$B$的欧式看涨期权，根据BSM公式可得股权的市场价值为：
-$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$$ 
-{#eq:cca-equity}
-$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$$
-{#eq:cca-equity-d1}
-$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
-{#eq:cca-equity-d2}
-其中，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态
-分布的分布函数，$B$表示企业资产负债表中的债务价值，$E$表示股权的市场资本价值，
-$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），$\sigma_A^2$表示企
-业资产市场价值的波动率。
 
-但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、
-$\sigma_A^2$均未知，因此需增加一个条件：
-$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$$
-{#eq:cca-equity-sigma}
-其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
-[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
-[@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
-场价值$A$。
-
-在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
-$$D=B-P$$
-{#eq:cca-debt-basic}
-而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
-可得到预期损失净现值的计算公式：
-$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$$
-{#eq:cca-debt}
-$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$$
-{#eq:cca-debt-d1}
-$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
-{#eq:cca-debt-d2}
-通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
-进而计算出企业的违约距离$DD$,计算公式为:
-$$DD=\frac{A-B}{A \cdot \sigma_A}$$
-{#eq:dd}
-企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
-小，企业的风险越小。
-
-### 基于 Copula 模型的传染效应测度方法
-
-Copula理论简言之就是通过联结函数$C$，将多个变量的边缘分布联结起来，构成这些变量
-的多元联合分布函数。Copula函数的表达形式为：
-$$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$$
-{#eq:copula}
-其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，
-$C\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布
-函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
-$$C\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$$
-{#eq:copula-solve}
-
-在模型使用过程中，更多的是用式[@eq:copula-solve]。在已知多元联合分布函数和各边缘
-分布函数时，就可以通过式[@eq:copula-solve]得到联结函数的形式及各参数值，进而可对
-变量之间的相关程度进行研究。
-
-在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数 
-[@籍艳丽2009]及尾部相关系数。其中Kendall's $\tau$秩相关系数主要从一致性的角度对变量之
-间的相关关系进行测度。结合Copula函数理论和Kendall's $\tau$的计算公式，可以得到使
-用Copula模型时两个变量间的Kendall's $\tau$相关系数为：
-$$\begin{array}{lcl}
-\tau_{X,Y}=4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
-\end{array}$$
-{#eq:copula-tau}
-进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系
-数，并以此为依据进行下一步的分析。
-
-而尾部相关系数包括上尾相关系数和下尾相关系数。其中上尾相关系数表示在变量$Y$的取
-值在右尾时，$X$的取值也落在右尾概率，用公式表示为：
-$$\lambda_u=\lim\limits_{u \to
-1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$$
-{#eq:lambda-u}
-同理，下尾相关系数表示在变量$Y$的取值在左尾时，$X$的取值也落在左尾的概率，用公式表示为:
-$$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq
-F_y^{-1}(u)\right.\right\}$$
-{#eq:lambda-l}
-
-### R 藤-Copula 模型
-
-Copula模型中联结函数 $C$ 可起到联结各变量的作用。但是一旦面对高维变量的情况，就
-会陷入"维数灾难"^[“维数灾难”是指随着维数的增加，需要的数据和计算量呈指数倍增长
-的一种现象。]之中：一来会使得Copula函数的形式过于复杂，所需估计的参数过多，二来
-甚至有Copula函数不存在的可能，不利于进一步的分析。因此在处理多元问题时需通过降维
-的方式简化问题。Copula理论指出对于仅包含两个变量时，且这两个变量均服从U（0，1）
-时，一定可以找到一个联结函数 $C$ ，使得其联合分布函数可由各变量的边缘函数直接构
-成。因此，可通过所谓 Pair Copula的方法对多元Copula函数进行分解 [@Kjersti2016]。
-
-按照Pair Copula分解方法，对于一个包含 $n$ 维变量的联合密度函数，将会存在 $n!/2$
-种分解方法 [@aas2009] 。针对如此繁多的分解方法，Bedford和Cooke在2001年进行了归纳
-总结，并依赖"图论"思想，提出了"藤"的模式 [@bedford2001probability]。藤Copula解决
-了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤等类型，
-其中最常用的是R藤。本文在建模时主要选择R藤结构，下面简要介绍R藤Copula模型。
-
-不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为 $T_1$，
-$T_2$， $T_3$， $T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵树 $T_1$，
-1,2,3,4,5也是其5个节点，节点与节点间的线段表示Copula函数的某一种类型。“|”之后
-的变量表示条件变量。则可构造如下五维R藤模型的概念图：
-
-```{r vine,echo=FALSE,fig.pos="H", fig.cap="五维R藤模型结构图",cache=F,dev=c("png","cairo_pdf"),results='markup',fig.height=6}
-knitr::include_graphics("./vine.png")
-```
-
-针对上述概念图可得到这五维变量的多元联合密度函数：
-
-$$\begin{array}{lcl} f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot \\&
-&c_{1,2}\cdot c_{2,3}\cdot c_{3,4}\cdot c_{3,5}\cdot \\&
-&c_{1,3\left|2\right.}\cdot c_{2,5\left|3\right.}\cdot
-c_{2,4\left|3\right.}\cdot \\& &c_{1,5\left|2,3\right.}\cdot
-c_{4,5\left|2,3\right.}\cdot \\& &c_{1,4\left|2,3,5\right.}
-\end{array}$$
-{#eq:vine}
-
-当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann提出
-可用下三角矩阵描述这种结构信息 [@dissmann2010statistical]。例如，针对概念图中的
-结构，可构造以下结构矩阵：
-
-$$M=\left(\begin{matrix}
-1&{}&{}&{}&{}\\
-4&4&{}&{}&{}\\
-5&5&2&{}&{}\\
-3&2&5&3&{}\\
-2&3&3&5&3
-\end{matrix}\right)$$
-{#eq:vine-matrix}
-
-在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图
-\@ref(fig:vine)中第一棵树$T_1$的边，即集合
-$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\right\},\left\{3,5\right\}\right\}$;
-对角线上的值和矩阵倒数第二行的值在一矩阵最后一行为条件时，则共同构成了图
-\@ref(fig:vine)中第二棵树$T_2$的边，即集合
-$\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}\right\}$
-，同理可根据矩阵[@eq:vine-matrix]推导出树 $T_3$ 、 $T_4$ 。综上，当结构矩阵 $M$
-唯一确定时，则R藤结构也确定下来，同时可以发现其没有特殊的结构限制，因而其灵活性
-更好，可以用于处理变量过多，变量间关系较复杂的情况。
-
-## 文献综述
 
 ### 关于系统性风险量化方法的研究
 
@@ -392,7 +238,164 @@ TENET网络研究我国经济金融系统中不同行业间的系统性风险传
 文则是运用藤理论，通过藤结构将多个主体联系在一起，从系统的角度研究多个主体间的系
 统性风险传染，尽可能避免了对金融系统的割裂。
 
+本文余下部分构成如下：第二部分是对本文在研究过程中所涉及的模型进
+行简要介绍。分别对用于系统性风险测度的 CCA 模型，基于 Copula 模型的相依性
+计量方法和藤 Copula 的理论进行了介绍。第三部分是以 CCA 模型为基础对金融
+各板块的系统性风险进行计算，并对近十年金融板块的系统性风险波动进行简要
+分析，寻找波动的原因并对整体趋势做一个评估。第四部分是通过 RVine-Copula
+模型分析金融板块间的系统性风险传染效应。首先构建 RVine-Copula 模型，并在
+此基础上计算板块间的尾部相依系数、无条件 Kendall 相关系数和条件 Kendall 相
+关系数，分析得到板块间系统性风险的传染效应。最后是结论和建议。
 
+
+# 模型介绍
+
+## CCA模型
+
+或有权益模型（Continent Claims Analysis，简称CCA）是在Black-Sholes-Merton(BSM)期
+权定价模型的基础上，通过引入企业的资产负债表，将企业的财务数据与市场数据结合起来
+构建风险资产负债表，进而对企业的风险进行整体分析的一种方法。BSM模型是一种为期权
+等各类金融衍生工具提供理论定价的基础模型。该模型首先假设存在如下资产组合：由基础
+资产和无风险利率构成，可以完全复制期权价格变动的资产组合。然后考虑在风险中性的前
+提下，期权权益在当前时点的折现价值。在BSM模型基础上，CCA模型将一个企业的资产市场
+价值（$A$）拆分为股权的市场资本价值（$E$）和债务的市场资本价值（$D$）。当一个企
+业的债务市场价值高于该企业的资产市场价值时，表明该企业可能会存在违约行为，不能到
+期及时偿还债务。需要注意的是，或有权益模型中的企业资产的价值和债务的价值均为市场
+资本价值，不能通过企业财报得到直接数据。因此CCA方法指出，可通过以下方法间接计算
+得到企业资产的市场价值，即将股权看为价值为$A$，交割价格为企业资产负债表中的债务
+价值$B$的欧式看涨期权，根据BSM公式可得股权的市场价值为：
+$$E=AN\left(d_1\right)-Be^{-rT}N\left(d_2\right)$$ 
+{#eq:cca-equity}
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}$$
+{#eq:cca-equity-d1}
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\frac{\sigma^2_A}{2}\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
+{#eq:cca-equity-d2}
+其中，$A$表示企业资产的市场价值，$N\left(\right)$表示标准正态
+分布的分布函数，$B$表示企业资产负债表中的债务价值，$E$表示股权的市场资本价值，
+$r$表示无风险利率，$T$表示当前时刻到到期日的时间（按年计算），$\sigma_A^2$表示企
+业资产市场价值的波动率。
+
+但是，[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]中$A$、
+$\sigma_A^2$均未知，因此需增加一个条件：
+$$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$$
+{#eq:cca-equity-sigma}
+其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
+[@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
+[@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
+场价值$A$。
+
+在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
+$$D=B-P$$
+{#eq:cca-debt-basic}
+而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
+可得到预期损失净现值的计算公式：
+$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$$
+{#eq:cca-debt}
+$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$$
+{#eq:cca-debt-d1}
+$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
+{#eq:cca-debt-d2}
+通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
+进而计算出企业的违约距离$DD$,计算公式为:
+$$DD=\frac{A-B}{A \cdot \sigma_A}$$
+{#eq:dd}
+企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
+小，企业的风险越小。
+
+## 基于 Copula 模型的传染效应测度方法
+
+Copula理论简言之就是通过联结函数$C$，将多个变量的边缘分布联结起来，构成这些变量
+的多元联合分布函数。Copula函数的表达形式为：
+$$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$$
+{#eq:copula}
+其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，
+$C\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布
+函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
+$$C\left(u_1,u_2,...,u_n\right)=F\left(F_1^{-1}\left(x_1\right),F_2^{-1}\left(x_2\right),...,F_n^{-1}\left(x_n\right)\right)$$
+{#eq:copula-solve}
+
+在模型使用过程中，更多的是用式[@eq:copula-solve]。在已知多元联合分布函数和各边缘
+分布函数时，就可以通过式[@eq:copula-solve]得到联结函数的形式及各参数值，进而可对
+变量之间的相关程度进行研究。
+
+在通过Copula函数度量变量间的相关程度时一般使用Kendall's $\tau$秩相关系数 
+[@籍艳丽2009]及尾部相关系数。其中Kendall's $\tau$秩相关系数主要从一致性的角度对变量之
+间的相关关系进行测度。结合Copula函数理论和Kendall's $\tau$的计算公式，可以得到使
+用Copula模型时两个变量间的Kendall's $\tau$相关系数为：
+$$\begin{array}{lcl}
+\tau_{X,Y}=4\iint_{D}C\left(u,v\right)dC\left(u,v\right)-1
+\end{array}$$
+{#eq:copula-tau}
+进而可根据Copula函数的形式以及相关参数得到两个变量间的Kendall's $\tau$ 相关系
+数，并以此为依据进行下一步的分析。
+
+而尾部相关系数包括上尾相关系数和下尾相关系数。其中上尾相关系数表示在变量$Y$的取
+值在右尾时，$X$的取值也落在右尾概率，用公式表示为：
+$$\lambda_u=\lim\limits_{u \to
+1}P\left\{X>F_x^{-1}(u)\left|Y>F_y^{-1}(u)\right.\right\}$$
+{#eq:lambda-u}
+同理，下尾相关系数表示在变量$Y$的取值在左尾时，$X$的取值也落在左尾的概率，用公式表示为:
+$$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq
+F_y^{-1}(u)\right.\right\}$$
+{#eq:lambda-l}
+
+## R 藤-Copula 模型
+
+Copula模型中联结函数 $C$ 可起到联结各变量的作用。但是一旦面对高维变量的情况，就
+会陷入"维数灾难"^[“维数灾难”是指随着维数的增加，需要的数据和计算量呈指数倍增长
+的一种现象。]之中：一来会使得Copula函数的形式过于复杂，所需估计的参数过多，二来
+甚至有Copula函数不存在的可能，不利于进一步的分析。因此在处理多元问题时需通过降维
+的方式简化问题。Copula理论指出对于仅包含两个变量时，且这两个变量均服从U（0，1）
+时，一定可以找到一个联结函数 $C$ ，使得其联合分布函数可由各变量的边缘函数直接构
+成。因此，可通过所谓 Pair Copula的方法对多元Copula函数进行分解 [@Kjersti2016]。
+
+按照Pair Copula分解方法，对于一个包含 $n$ 维变量的联合密度函数，将会存在 $n!/2$
+种分解方法 [@aas2009] 。针对如此繁多的分解方法，Bedford和Cooke在2001年进行了归纳
+总结，并依赖"图论"思想，提出了"藤"的模式 [@bedford2001probability]。藤Copula解决
+了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤等类型，
+其中最常用的是R藤。本文在建模时主要选择R藤结构，下面简要介绍R藤Copula模型。
+
+不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为 $T_1$，
+$T_2$， $T_3$， $T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵树 $T_1$，
+1,2,3,4,5也是其5个节点，节点与节点间的线段表示Copula函数的某一种类型。“|”之后
+的变量表示条件变量。则可构造如下五维R藤模型的概念图：
+
+```{r vine,echo=FALSE,fig.pos="H", fig.cap="五维R藤模型结构图",cache=F,dev=c("png","cairo_pdf"),results='markup',fig.height=6}
+knitr::include_graphics("./vine.png")
+```
+
+针对上述概念图可得到这五维变量的多元联合密度函数：
+
+$$\begin{array}{lcl} f&=&f_1\cdot f_2\cdot f_3\cdot f_4\cdot f_5\cdot \\&
+&c_{1,2}\cdot c_{2,3}\cdot c_{3,4}\cdot c_{3,5}\cdot \\&
+&c_{1,3\left|2\right.}\cdot c_{2,5\left|3\right.}\cdot
+c_{2,4\left|3\right.}\cdot \\& &c_{1,5\left|2,3\right.}\cdot
+c_{4,5\left|2,3\right.}\cdot \\& &c_{1,4\left|2,3,5\right.}
+\end{array}$$
+{#eq:vine}
+
+当然，五维R藤模型不止上述一种构造方法。为了简便表示R藤结构的形式，JF Dißmann提出
+可用下三角矩阵描述这种结构信息 [@dissmann2010statistical]。例如，针对概念图中的
+结构，可构造以下结构矩阵：
+
+$$M=\left(\begin{matrix}
+1&{}&{}&{}&{}\\
+4&4&{}&{}&{}\\
+5&5&2&{}&{}\\
+3&2&5&3&{}\\
+2&3&3&5&3
+\end{matrix}\right)$$
+{#eq:vine-matrix}
+
+在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图
+\@ref(fig:vine)中第一棵树$T_1$的边，即集合
+$\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\right\},\left\{3,5\right\}\right\}$;
+对角线上的值和矩阵倒数第二行的值在一矩阵最后一行为条件时，则共同构成了图
+\@ref(fig:vine)中第二棵树$T_2$的边，即集合
+$\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}\right\}$
+，同理可根据矩阵[@eq:vine-matrix]推导出树 $T_3$ 、 $T_4$ 。综上，当结构矩阵 $M$
+唯一确定时，则R藤结构也确定下来，同时可以发现其没有特殊的结构限制，因而其灵活性
+更好，可以用于处理变量过多，变量间关系较复杂的情况。
 
 
 
