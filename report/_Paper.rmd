@@ -12,9 +12,7 @@ csl: ./style/chinese-gb7714-2015-author-JinRongYanJiu.csl
 link-citations: true
 ---
 
-
 ```{r setup, echo=F}
-# 第 3 章 R 程序代码  ####################
 knitr::opts_knit$set(root.dir = getwd())
 knitr::opts_chunk$set(echo = FALSE, results = 'hide')
 knitr::opts_chunk$set(warning = FALSE, message=FALSE)
