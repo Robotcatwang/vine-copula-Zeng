@@ -281,23 +281,11 @@ $$\sigma_E=\frac{N\left(d_1\right)A}{E}\sigma_A$$
 其中$\sigma_E$为股权波动率，可通过波动率模型得到。综上，通过联立
 [@eq:cca-equity]、[@eq:cca-equity-d1]、[@eq:cca-equity-d2]和
 [@eq:cca-equity-sigma]即可解出企业资产市场价值的波动率$\sigma_A^2$和企业资产的市
-场价值$A$。
-
-在求解债务市场价值时可将其看做债务账面价值($B$)与预期损失净现值（$P$）的差值，即：
-$$D=B-P$$
-{#eq:cca-debt-basic}
-而预期损失净现值可看做为价值为$B$，行权价格为企业资产价值$A$的欧式看跌期权，通过对BSM公式的推导，
-可得到预期损失净现值的计算公式：
-$$P=Be^{-rT}N\left(-d_2\right)-AN\left(-d_1\right)$$
-{#eq:cca-debt}
-$$d_1=\frac{\ln\left(\frac{A}{B}\right)+\left(r+\sigma^2_A\right)T}{\sigma_A\sqrt{T}}$$
-{#eq:cca-debt-d1}
-$$d_2=\frac{\ln\left(\frac{A}{B}\right)+\left(r-\sigma^2_A\right)T}{\sigma_A\sqrt{T}}=d_1-\sigma_A\sqrt{T}$$
-{#eq:cca-debt-d2}
-通过联立[@eq:cca-debt]、[@eq:cca-debt-d1]、[@eq:cca-debt-d2]和[@eq:cca-equity-sigma]即可解得$P$，
-进而计算出企业的违约距离$DD$,计算公式为:
+场价值$A$。进而计算出企业的违约距离$DD$,计算公式为:
 $$DD=\frac{A-B}{A \cdot \sigma_A}$$
 {#eq:dd}
+
+
 企业的违约距离DD越短，违约概率越大，即企业的风险越大；违约距离DD越长，违约概率越
 小，企业的风险越小。
 
@@ -307,6 +295,7 @@ Copula理论简言之就是通过联结函数$C$，将多个变量的边缘分�
 的多元联合分布函数。Copula函数的表达形式为：
 $$F\left(x_1,x_2,...,x_n\right)=C\left(F_1\left(x_1\right),F_2\left(x_2\right),...,F_n\left(x_n\right)\right)$$
 {#eq:copula}
+
 其中，$F\left(x_1,x_2,...,x_n\right)$表示变量$x_1,x_2,...,x_n$联合概率分布函数，
 $C\left(\right)$表示$n$维联结函数，$F_n\left(x_n\right)$表示变量$x_n$的边缘分布
 函数。若边缘分布函数的反函数均存在，则Copula函数的计算公式为：
@@ -338,7 +327,7 @@ $$\lambda_l=\lim\limits_{u \to 0}P\left\{X \leq F_x^{-1}(u)\left|Y \leq
 F_y^{-1}(u)\right.\right\}$$
 {#eq:lambda-l}
 
-## R 藤-Copula 模型
+## RVine-Copula 模型
 
 Copula模型中联结函数 $C$ 可起到联结各变量的作用。但是一旦面对高维变量的情况，就
 会陷入"维数灾难"^[“维数灾难”是指随着维数的增加，需要的数据和计算量呈指数倍增长
@@ -352,14 +341,14 @@ Copula模型中联结函数 $C$ 可起到联结各变量的作用。但是一旦
 种分解方法 [@aas2009] 。针对如此繁多的分解方法，Bedford和Cooke在2001年进行了归纳
 总结，并依赖"图论"思想，提出了"藤"的模式 [@bedford2001probability]。藤Copula解决
 了传统构建多元Copula函数所遇到的困难和问题。藤的类型主要包括C藤、D藤和R藤等类型，
-其中最常用的是R藤。本文在建模时主要选择R藤结构，下面简要介绍R藤Copula模型。
+其中最常用的是R藤。本文在建模时主要选择R藤结构，下面简要介绍RVine-Copula模型。
 
 不妨以一个包含五维变量的R藤模型为例。一个五维R藤包含四棵树，分别记为 $T_1$，
 $T_2$， $T_3$， $T_4$，设五个变量分别为1,2,3,4,5，则对于第一棵树 $T_1$，
 1,2,3,4,5也是其5个节点，节点与节点间的线段表示Copula函数的某一种类型。“|”之后
 的变量表示条件变量。则可构造如下五维R藤模型的概念图：
 
-```{r vine,echo=FALSE,fig.pos="H", fig.cap="五维R藤模型结构图",cache=F,dev=c("png","cairo_pdf"),results='markup',fig.height=6}
+```{r vine,echo=FALSE,fig.pos="H", fig.cap="五维R藤模型结构图",cache=F,dev=c("cairo_pdf"),results='markup',fig.height=6}
 knitr::include_graphics("./vine.png")
 ```
 
@@ -389,7 +378,7 @@ $$M=\left(\begin{matrix}
 在矩阵[@eq:vine-matrix]中，对角线上的值与矩阵最后一行的值共同构成了图
 \@ref(fig:vine)中第一棵树$T_1$的边，即集合
 $\left\{\left\{1,2\right\},\left\{3,4\right\},\left\{2,3\right\},\left\{3,5\right\}\right\}$;
-对角线上的值和矩阵倒数第二行的值在一矩阵最后一行为条件时，则共同构成了图
+对角线上的值和矩阵倒数第二行的值在以矩阵最后一行为条件时，则共同构成了图
 \@ref(fig:vine)中第二棵树$T_2$的边，即集合
 $\left\{\left\{1,3\left|2\right.\right\},\left\{2,4\left|3\right.\right\},\left\{2,5\left|3\right.\right\}\right\}$
 ，同理可根据矩阵[@eq:vine-matrix]推导出树 $T_3$ 、 $T_4$ 。综上，当结构矩阵 $M$
@@ -450,11 +439,12 @@ plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="",ylab="无风险利率"
 
 ## 样本股股权市场价值和债权账面价值的计算
 
-本文在计算样本股股权市场价值时的计算方式为已发行股数与当日收盘价的乘积。同时，考
+本文在计算样本股股权市场价值时的计算方式为已发行股数与当日收盘价的乘积。由于考
 虑到部分样本股股价的计价方式分别为美元和港元，因此针对这部分样本股，分别使用交易
 日当日人民币对美元汇率中间价和港币兑人民币汇率中间价^[数据来源：国家外汇管理局
 （http://www.safe.gov.cn/safe/rmbhlzjj/）。]将各股股权市场价值转换为人民币计价的
-金额。
+金额。同时，由于部分样本股股价的计价方式分别为美元和港元，因此针对这部分样本股，
+分别使用交易日当日相应汇率将日收盘价转换为人民币计价的收盘价。
 
 而在计算债权账面价值时，可以通过公开消息得到的仅有个股债务账面价值的季度数据，而
 本文在分析过程中，采用的均为当日数据，因此需对个股债务账面价值数据进行插值处理。
@@ -464,9 +454,7 @@ plot(date,no_risk_rate,type='l',ylim=c(1,4),lwd=2,xlab="",ylab="无风险利率"
 个股的季度债务账面价值进行插值，得到该股当日债务账面价值。
 
 由于股票存在分红的情况，因此在分红前后，股价会存在较大变化，因此本文在搜集个股当
-日收盘价数据时，选用的为考虑现金红利再投资的收盘价的可比价格。同时，由于部分样本
-股股价的计价方式分别为美元和港元，因此针对这部分样本股，分别使用交易日当日相应汇
-率将日收盘价转换为人民币计价的收盘价。
+日收盘价数据时，选用的为考虑现金红利再投资的收盘价的可比价格。
 
 ## 金融各板块违约距离的计算
 
@@ -632,7 +620,7 @@ stock=data_dd[,5]
 bank=data_dd[,6]
 ```
 
-## 板块间系统性风险R Vine-Copula模型构建
+## 板块间系统性风险RVine-Copula模型构建
 
 ### 最优R藤结构选择
 
