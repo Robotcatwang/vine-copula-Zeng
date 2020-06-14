@@ -38,7 +38,7 @@
         <single>p.</single>
         <multiple>pp.</multiple>
       </term>
-      <term name="page-range-delimiter">-</term>
+      <term name="page-range-delimiter">  ~  </term>
     </terms>
   </locale>
   

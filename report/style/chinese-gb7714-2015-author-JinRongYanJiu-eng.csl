@@ -17,6 +17,17 @@
     <updated>2020-03-08T18:00:00+08:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
+  
+    <locale xml:lang="en-US">
+    <terms>
+      <term name="page" form="short">
+        <single>p.</single>
+        <multiple>pp.</multiple>
+      </term>
+      <term name="page-range-delimiter">  ~  </term>
+    </terms>
+  </locale>
+  
   <macro name="accessed-date">
     <date variable="accessed" delimiter="&#8211;" prefix="[" suffix="]">
       <date-part name="year"/>
