@@ -731,7 +731,7 @@ knitr::include_graphics("./vine_fit.png")
 在确定最优的藤结构后，根据AIC、BIC准则即可得到藤结构中两两节点的边所对应的Copula
 函数及其参数。本文用作备选的Copula函数包括以下六种类型(括号的字母表示其代表字母)：
 独立Copula(I)、Gaussian-Copula(N)、t-Copula(t)、Clayton-Copula(C)、
-Gumbel-Copula(G)和Frank-Copula(F)。最终估计的结果如 \@ref(tab:vine-copula) 所示：
+Gumbel-Copula(G)和Frank-Copula(F)。最终估计的结果如表 \@ref(tab:vine-copula) 所示：
 
 ```{r rvm-summary1}
 RVM_summary1=data.frame(summary(RVM2$RVM)[,c(1:2,4:6)])
@@ -866,7 +866,7 @@ $\tau$ 相关系数分析金融板块间的系统性风险传染效应及传染�
 
 \centering
 **Systemic Risk Measurement and Contagion Effect Research among Financial
-Sectors of China'Securities Markets**
+Sectors of China's Securities Markets**
 
 JIN Lin &emsp; ZENG Yuanzheng &emsp; WANG Mengyuan
 
@@ -890,7 +890,7 @@ market autonomy. From the perspective of risk contagion among sectors, the
 securities and trust sector is the key in the contagion process of systemic
 risks among the financial sectors.
 
-**Key Words:**financial sectors；systemic risk；CCA model；Vine-Copula model；contagion effect 
+**Key Words:**Financial Sectors；Systemic Risk；CCA Model；Vine-Copula Model；Contagion Effect 
 
 # 参考文献
 [//]: # "\bibliography{Bibfile}"
